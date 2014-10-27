@@ -1,0 +1,633 @@
+//--- OBJECT WRITE BEGIN ---
+%guiContent = new GuiControl(BTViewCtrl) {
+   position = "0 0";
+   extent = "1024 768";
+   minExtent = "8 2";
+   horizSizing = "right";
+   vertSizing = "bottom";
+   profile = "GuiDefaultProfile";
+   visible = "1";
+   active = "1";
+   tooltipProfile = "GuiToolTipProfile";
+   hovertime = "1000";
+   isContainer = "1";
+   canSave = "1";
+   canSaveDynamicFields = "1";
+
+   new GuiWindowCtrl() {
+      text = "Behavior Tree Editor";
+      resizeWidth = "1";
+      resizeHeight = "1";
+      canMove = "1";
+      canClose = "1";
+      canMinimize = "1";
+      canMaximize = "0";
+      canCollapse = "0";
+      closeCommand = "Canvas.popDialog(BTViewCtrl);";
+      edgeSnap = "1";
+      margin = "0 0 0 0";
+      padding = "0 0 0 0";
+      anchorTop = "1";
+      anchorBottom = "0";
+      anchorLeft = "1";
+      anchorRight = "0";
+      position = "112 84";
+      extent = "800 600";
+      minExtent = "8 2";
+      horizSizing = "center";
+      vertSizing = "center";
+      profile = "GuiWindowProfile";
+      visible = "1";
+      active = "1";
+      Command = "behaviorTreeView.expandAll();";
+      tooltipProfile = "GuiToolTipProfile";
+      hovertime = "1000";
+      isContainer = "1";
+      canSave = "1";
+      canSaveDynamicFields = "0";
+
+      new GuiButtonCtrl() {
+         text = "+ all";
+         groupNum = "-1";
+         buttonType = "PushButton";
+         useMouseEvents = "0";
+         position = "17 22";
+         extent = "29 20";
+         minExtent = "8 2";
+         horizSizing = "right";
+         vertSizing = "bottom";
+         profile = "GuiButtonProfile";
+         visible = "1";
+         active = "1";
+         command = "BehaviorTreeView.expandAll();";
+         tooltipProfile = "GuiToolTipProfile";
+         hovertime = "1000";
+         isContainer = "0";
+         canSave = "1";
+         canSaveDynamicFields = "0";
+      };
+      new GuiScrollCtrl() {
+         willFirstRespond = "1";
+         hScrollBar = "dynamic";
+         vScrollBar = "alwaysOn";
+         lockHorizScroll = "0";
+         lockVertScroll = "0";
+         constantThumbHeight = "0";
+         childMargin = "0 0";
+         mouseWheelScrollSpeed = "-1";
+         margin = "0 0 0 0";
+         padding = "0 0 0 0";
+         anchorTop = "1";
+         anchorBottom = "0";
+         anchorLeft = "1";
+         anchorRight = "0";
+         position = "17 43";
+         extent = "438 541";
+         minExtent = "8 2";
+         horizSizing = "width";
+         vertSizing = "height";
+         profile = "GuiScrollProfile";
+         visible = "1";
+         active = "1";
+         tooltipProfile = "GuiToolTipProfile";
+         hovertime = "1000";
+         isContainer = "1";
+         canSave = "1";
+         canSaveDynamicFields = "0";
+
+         new GuiBehaviorTreeViewCtrl(BehaviorTreeView) {
+            tabSize = "17";
+            textOffset = "8";
+            fullRowSelect = "0";
+            itemHeight = "21";
+            destroyTreeOnSleep = "0";
+            mouseDragging = "1";
+            multipleSelections = "0";
+            deleteObjectAllowed = "1";
+            dragToItemAllowed = "1";
+            clearAllOnSingleSelection = "1";
+            showRoot = "1";
+            useInspectorTooltips = "0";
+            tooltipOnWidthOnly = "0";
+            showObjectIds = "0";
+            showClassNames = "1";
+            showObjectNames = "1";
+            showInternalNames = "1";
+            showClassNameForUnnamedObjects = "0";
+            compareToObjectID = "1";
+            canRenameObjects = "1";
+            renameInternal = "0";
+            position = "1 1";
+            extent = "430 168";
+            minExtent = "8 2";
+            horizSizing = "right";
+            vertSizing = "bottom";
+            profile = "GuiBehaviorTreeViewProfile";
+            visible = "1";
+            active = "1";
+            tooltipProfile = "GuiToolTipProfile";
+            hovertime = "1000";
+            isContainer = "1";
+            canSave = "1";
+            canSaveDynamicFields = "0";
+         };
+      };
+      new GuiBitmapBorderCtrl() {
+         position = "471 37";
+         extent = "316 31";
+         minExtent = "8 2";
+         horizSizing = "left";
+         vertSizing = "bottom";
+         profile = "GuiGroupBorderProfile";
+         visible = "1";
+         active = "1";
+         tooltipProfile = "GuiToolTipProfile";
+         hovertime = "1000";
+         isContainer = "1";
+         canSave = "1";
+         canSaveDynamicFields = "0";
+
+         new GuiPopUpMenuCtrl() {
+            maxPopupHeight = "200";
+            sbUsesNAColor = "0";
+            reverseTextList = "0";
+            bitmapBounds = "16 16";
+            text = "SubTree";
+            maxLength = "1024";
+            margin = "0 0 0 0";
+            padding = "0 0 0 0";
+            anchorTop = "1";
+            anchorBottom = "0";
+            anchorLeft = "1";
+            anchorRight = "0";
+            position = "47 5";
+            extent = "125 18";
+            minExtent = "8 2";
+            horizSizing = "right";
+            vertSizing = "bottom";
+            profile = "GuiPopUpMenuProfile";
+            visible = "1";
+            active = "1";
+            tooltipProfile = "GuiToolTipProfile";
+            hovertime = "1000";
+            isContainer = "1";
+            internalName = "BTCreateNode";
+            canSave = "1";
+            canSaveDynamicFields = "0";
+         };
+         new GuiTextCtrl() {
+            text = "Create:";
+            maxLength = "1024";
+            margin = "0 0 0 0";
+            padding = "0 0 0 0";
+            anchorTop = "1";
+            anchorBottom = "0";
+            anchorLeft = "1";
+            anchorRight = "0";
+            position = "5 5";
+            extent = "41 16";
+            minExtent = "8 2";
+            horizSizing = "right";
+            vertSizing = "bottom";
+            profile = "GuiTextProfile";
+            visible = "1";
+            active = "1";
+            tooltipProfile = "GuiToolTipProfile";
+            hovertime = "1000";
+            isContainer = "1";
+            canSave = "1";
+            canSaveDynamicFields = "0";
+         };
+         new GuiButtonCtrl() {
+            text = "Add";
+            groupNum = "-1";
+            buttonType = "PushButton";
+            useMouseEvents = "0";
+            position = "181 2";
+            extent = "58 25";
+            minExtent = "8 2";
+            horizSizing = "right";
+            vertSizing = "bottom";
+            profile = "GuiButtonProfile";
+            visible = "1";
+            active = "1";
+            Command = "BTViewCtrl.onButtonAdd();";
+            tooltipProfile = "GuiToolTipProfile";
+            hovertime = "1000";
+            isContainer = "0";
+            internalName = "DoItButton";
+            canSave = "1";
+            canSaveDynamicFields = "0";
+         };
+         new GuiButtonCtrl() {
+            text = "Insert";
+            groupNum = "-1";
+            buttonType = "PushButton";
+            useMouseEvents = "0";
+            position = "250 2";
+            extent = "58 25";
+            minExtent = "8 2";
+            horizSizing = "right";
+            vertSizing = "bottom";
+            profile = "GuiButtonProfile";
+            visible = "1";
+            active = "1";
+            Command = "BTViewCtrl.onButtonInsert();";
+            tooltipProfile = "GuiToolTipProfile";
+            hovertime = "1000";
+            isContainer = "0";
+            internalName = "DoItButton";
+            canSave = "1";
+            canSaveDynamicFields = "0";
+         };
+      };
+      new GuiButtonCtrl() {
+         text = "Save Tree";
+         groupNum = "-1";
+         buttonType = "PushButton";
+         useMouseEvents = "0";
+         position = "718 91";
+         extent = "61 30";
+         minExtent = "8 2";
+         horizSizing = "left";
+         vertSizing = "bottom";
+         profile = "GuiButtonProfile";
+         visible = "1";
+         active = "1";
+         Command = "BTViewCtrl.saveTree();";
+         tooltipProfile = "GuiToolTipProfile";
+         hovertime = "1000";
+         isContainer = "0";
+         canSave = "1";
+         canSaveDynamicFields = "0";
+      };
+      new GuiButtonCtrl() {
+         text = "New Tree";
+         groupNum = "-1";
+         buttonType = "PushButton";
+         useMouseEvents = "0";
+         position = "718 139";
+         extent = "61 30";
+         minExtent = "8 2";
+         horizSizing = "left";
+         vertSizing = "bottom";
+         profile = "GuiButtonProfile";
+         visible = "1";
+         active = "1";
+         Command = "BTViewCtrl.newTree();";
+         tooltipProfile = "GuiToolTipProfile";
+         hovertime = "1000";
+         isContainer = "0";
+         canSave = "1";
+         canSaveDynamicFields = "0";
+      };
+      new GuiBitmapBorderCtrl() {
+         position = "470 196";
+         extent = "314 388";
+         minExtent = "8 2";
+         horizSizing = "left";
+         vertSizing = "bottom";
+         profile = "GuiGroupBorderProfile";
+         visible = "1";
+         active = "1";
+         tooltipProfile = "GuiToolTipProfile";
+         hovertime = "1000";
+         isContainer = "1";
+         canSave = "1";
+         canSaveDynamicFields = "0";
+
+         new GuiScrollCtrl() {
+            willFirstRespond = "1";
+            hScrollBar = "alwaysOff";
+            vScrollBar = "dynamic";
+            lockHorizScroll = "1";
+            lockVertScroll = "0";
+            constantThumbHeight = "0";
+            childMargin = "0 0";
+            mouseWheelScrollSpeed = "-1";
+            docking = "Client";
+            margin = "0 0 0 0";
+            padding = "0 0 0 0";
+            anchorTop = "1";
+            anchorBottom = "0";
+            anchorLeft = "1";
+            anchorRight = "0";
+            position = "6 6";
+            extent = "304 378";
+            minExtent = "8 8";
+            horizSizing = "width";
+            vertSizing = "height";
+            profile = "GuiEditorScrollProfile";
+            visible = "1";
+            active = "1";
+            tooltipProfile = "GuiToolTipProfile";
+            hovertime = "1000";
+            isContainer = "1";
+            canSave = "1";
+            canSaveDynamicFields = "0";
+
+            new GuiInspector(BehaviorTreeInspector) {
+               dividerMargin = "5";
+               showCustomFields = "1";
+               stackingType = "Vertical";
+               horizStacking = "Left to Right";
+               vertStacking = "Top to Bottom";
+               padding = "1";
+               dynamicSize = "1";
+               dynamicNonStackExtent = "0";
+               dynamicPos = "0";
+               changeChildSizeToFit = "1";
+               changeChildPosition = "1";
+               position = "1 1";
+               extent = "302 373";
+               minExtent = "8 8";
+               horizSizing = "width";
+               vertSizing = "bottom";
+               profile = "GuiInspectorProfile";
+               visible = "1";
+               active = "1";
+               tooltipProfile = "GuiToolTipProfile";
+               hovertime = "1000";
+               isContainer = "1";
+               superClass = "EditorInspectorBase";
+               canSave = "1";
+               canSaveDynamicFields = "0";
+            };
+         };
+      };
+      new GuiScrollCtrl() {
+         willFirstRespond = "1";
+         hScrollBar = "alwaysOn";
+         vScrollBar = "alwaysOn";
+         lockHorizScroll = "0";
+         lockVertScroll = "0";
+         constantThumbHeight = "0";
+         childMargin = "0 0";
+         mouseWheelScrollSpeed = "-1";
+         margin = "0 0 0 0";
+         padding = "0 0 0 0";
+         anchorTop = "1";
+         anchorBottom = "0";
+         anchorLeft = "1";
+         anchorRight = "0";
+         position = "471 77";
+         extent = "233 112";
+         minExtent = "8 2";
+         horizSizing = "left";
+         vertSizing = "bottom";
+         profile = "GuiScrollProfile";
+         visible = "1";
+         active = "1";
+         tooltipProfile = "GuiToolTipProfile";
+         hovertime = "1000";
+         isContainer = "1";
+         canSave = "1";
+         canSaveDynamicFields = "0";
+
+         new GuiListBoxCtrl(BehaviorTreeList) {
+            allowMultipleSelections = "0";
+            fitParentWidth = "1";
+            colorBullet = "1";
+            mirrorSet = "BehaviorTreeGroup";
+            position = "1 1";
+            extent = "215 2";
+            minExtent = "8 2";
+            horizSizing = "right";
+            vertSizing = "bottom";
+            profile = "GuiListBoxProfile";
+            visible = "1";
+            active = "1";
+            tooltipProfile = "GuiToolTipProfile";
+            hovertime = "1000";
+            isContainer = "0";
+            canSave = "1";
+            canSaveDynamicFields = "0";
+         };
+      };
+   };
+};
+//--- OBJECT WRITE END ---
+
+function BTEdit(%root)
+{
+   Canvas.popDialog("BTViewCtrl");
+   Canvas.pushDialog("BTViewCtrl");
+   
+   if(isObject(%root))
+      BehaviorTreeView.open(%root);
+   else if((BehaviorTreeView.getFirstRootItem() == 0) && (BehaviorTreeGroup.getCount()))
+      BehaviorTreeView.open(BehaviorTreeGroup.getObject(0));
+}
+
+function BTViewCtrl::onWake(%this)
+{
+   %dropDown = %this-->BTCreateNode;
+   %dropDown.clear();
+   %dropDown.add("SubTree", 0);
+   %dropDown.add("Sequence", 1);
+   %dropDown.add("Parallel", 2);
+   %dropDown.add("PrioritySelector", 3);
+   %dropDown.add("RandomSelector", 4);
+   %dropDown.add("Command", 5);
+   %dropDown.add("Condition", 6);
+   %dropDown.add("RunScript", 7);
+   %dropDown.add("Inverter", 8);
+   %dropDown.add("SucceedAlways", 9);
+   %dropDown.add("Delay", 10);
+   %dropDown.add("Ticker", 11);
+   %dropDown.add("Loop", 12);
+   %dropDown.add("Logger", 13);
+   %dropDown.add("WaitForEvent", 14);
+   %dropDown.add("LoopUntilEvent", 15);
+   %dropDown.setFirstSelected(false);
+   
+   BehaviorTreeList.doMirror();
+   
+}
+
+function BTViewCtrl::onButtonAdd(%this)
+{
+   %type =  %this-->BTCreateNode.getText();
+   %this.createNode(%type, false);
+}
+
+function BTViewCtrl::onButtonInsert(%this)
+{
+   %type =  %this-->BTCreateNode.getText();
+   %this.createNode(%type, true);
+}
+
+function BTViewCtrl::createNode(%this, %type, %insert)
+{
+   %selected = BehaviorTreeView.getSelectedObject();
+   %rootId = BehaviorTreeView.getFirstRootItem(); 
+   %rootObj = %rootId ? BehaviorTreeView.getItemValue(%rootId) : -1;
+   
+   // must have a root to add nodes to it
+   if(!isObject(%rootObj))
+      return;
+   
+   // determine the parent node
+   if(isObject(%selected))
+   {
+      if(!%insert)
+         %parent = %selected;
+      else
+         %parent = BehaviorTreeView.getItemValue(BehaviorTreeView.getParent(BehaviorTreeView.getSelectedItem()));
+   }
+   else if(!%insert)
+      %parent = %rootObj;
+   
+   
+   if(%insert && (!isObject(%parent) || !isObject(%selected)))
+      return; // must have a parent and selected node to insert
+   
+   // cannot add another node to a leaf node
+   if(isObject(%parent) && %parent.getClassName() $= "Leaf" && !%insert)
+      return;
+      
+   // cannot create a leaf as the root node, and cannot insert leaf
+   if((!isObject(%parent) || %insert) && %type $= "Leaf")
+      return;
+   
+   pushInstantGroup(BehaviorTreeGroup);
+   
+   // create a node
+   %node = new(%type)();
+
+   popInstantGroup();
+   
+   if(!isObject(%node))
+   {
+      error("could not create node");
+      return;
+   }
+   
+   if(!isObject(%parent))
+      BehaviorTreeView.open(%node);
+   else
+   {
+      if(%insert)
+      {
+         %idx = %parent.getObjectIndex(%selected);
+         %parent.remove(%selected);
+         %parent.add(%node);
+         %node.add(%selected);
+         
+         // move node to up to correct place in set
+         // (surely there's an easier way than this, but I can't find it)
+         if(%idx < %parent.getCount() - 1)
+         {
+            %sibling = %parent.getObject(%idx);            
+            %parent.reorderChild(%node, %sibling);
+         }
+         
+         BehaviorTreeView.buildVisibleTree(true);
+         
+         for(%i=0; %i < %parent.getCount() - %idx - 1; %i++)
+            BehaviorTreeView.moveItemUp(BehaviorTreeView.findItemByObjectId(%node.getId()));         
+         
+         BehaviorTreeView.expandItem(BehaviorTreeView.findItemByObjectId(%node.getId()));
+      }
+      else
+      {
+         %parent.add(%node);
+         BehaviorTreeView.expandItem(BehaviorTreeView.findItemByObjectId(%parent.getId()));
+      }
+   }
+}
+
+function BehaviorTreeView::onSelect(%this, %object)
+{
+   BehaviorTreeInspector.inspect(%object);
+}
+
+function BehaviorTreeView::expandAll(%this)
+{
+   %item = %this.getFirstRootItem();
+   %this.recursiveExpand(%item);
+   %this.buildVisibleTree();
+}
+
+function BehaviorTreeView::recursiveExpand(%this, %item)
+{
+   if(%item)
+   {
+      %this.expandItem(%item); 
+      %this.buildVisibleTree(); 
+      %this.recursiveExpand(%this.getChild(%item));
+      
+      %sibling = %this.getNextSibling(%item);
+      while(%sibling)
+      {
+         %this.recursiveExpand(%sibling);
+         %sibling = %this.getNextSibling(%sibling);
+      }
+   }
+}
+
+function BTViewCtrl::saveTree(%this)
+{
+   // check we actually have something to save
+   %rootObj = BehaviorTreeView.getItemValue(BehaviorTreeView.getFirstRootItem());  
+   if(!isObject(%rootObj))
+      return;
+      
+   if((%file = %rootObj.getFileName()) !$= "")
+   {
+      %path = filePath(%file);  
+   }
+   else
+   {
+      %path = "scripts/server/behaviorTrees";
+   }
+      
+   %dlg = new SaveFileDialog()
+   {
+      filters = "Torque script files (*.cs)|*.cs|";
+      defaultPath = %path;
+      defaultFile = %file;
+      changePath = true;
+      overwritePrompt = true;
+   };
+   
+   if(%dlg.execute())
+   {
+      %rootObj.save(%dlg.fileName);
+   }
+   %dlg.delete();
+}
+
+function BTViewCtrl::clearTree(%this)
+{
+   BehaviorTreeView.selectItem(BehaviorTreeView.getSelectedItem(), false);
+   BehaviorTreeInspector.removeInspect(BehaviorTreeInspector.getInspectObject());
+   BehaviorTreeView.clear();
+}
+
+function BTViewCtrl::newTree(%this)
+{
+   %this.clearTree();
+   
+   pushInstantGroup(BehaviorTreeGroup);
+   %root = new Root();
+   popInstantGroup();
+   
+   %root.setFileName("scripts/server/behaviorTrees/newTree.cs");
+   
+   BehaviorTreeView.open(%root);  
+   BehaviorTreeList.clearSelection();
+}
+
+function BehaviorTreeList::onSelect( %this, %id, %text )
+{
+   %obj = %this.getItemObject( %id );   
+   
+   %itemNum = %this.getSelectedItem();
+   if ( %itemNum == -1 )
+      return;
+   
+   %tree = %this.getItemObject( %itemNum );   
+   BTViewCtrl.clearTree();
+   BehaviorTreeView.open(%tree);
+}
