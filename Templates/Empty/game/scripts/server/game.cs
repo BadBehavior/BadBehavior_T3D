@@ -165,7 +165,11 @@ function onServerCreated()
 function onServerDestroyed()
 {
    // Destroy the server physcis world
-   physicsDestroyWorld( "server" );   
+   physicsDestroyWorld( "server" ); 
+
+   // destroy behavior tree manager
+   if(isObject(BehaviorTreeManager))
+      BehaviorTreeManager.delete();
 }
 
 //-----------------------------------------------------------------------------

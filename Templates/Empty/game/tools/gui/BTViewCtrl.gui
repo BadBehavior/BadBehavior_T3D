@@ -580,6 +580,10 @@ function BTViewCtrl::saveTree(%this)
    else
    {
       %path = "scripts/server/behaviorTrees";
+      %file = %path @ "/" @ %rootObj.name;
+      
+      if(!isDirectory(%path))
+         createPath(%path @ "/");   
    }
       
    %dlg = new SaveFileDialog()
@@ -612,9 +616,9 @@ function BTViewCtrl::newTree(%this)
    pushInstantGroup(BehaviorTreeGroup);
    %root = new Root();
    popInstantGroup();
-   
-   %root.setFileName("scripts/server/behaviorTrees/newTree.cs");
-   
+
+   %root.setFileName("");
+
    BehaviorTreeView.open(%root);  
    BehaviorTreeList.clearSelection();
 }

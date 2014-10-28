@@ -1063,3 +1063,8 @@ singleton GuiControlProfile( GuiCreatorIconButtonProfile )
    //bevelColorLL = "0 0 0";
    category = "Editor";
 };
+
+singleton GuiControlProfile(GuiBehaviorTreeViewProfile : ToolsGuiTreeViewProfile)
+{
+   bitmap = "./images/BehaviorTreeView.png";
+};
