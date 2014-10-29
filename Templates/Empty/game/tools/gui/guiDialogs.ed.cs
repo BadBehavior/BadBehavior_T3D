@@ -39,4 +39,5 @@ exec("./objectSelection.ed.cs");
 if (isDemo())
    exec("./messageBoxOKBuy.ed.gui");
 
-exec("./BTViewCtrl.gui");
+exec("./BTViewCtrl.ed.gui");
+exec("./BTViewCtrl.ed.cs");
