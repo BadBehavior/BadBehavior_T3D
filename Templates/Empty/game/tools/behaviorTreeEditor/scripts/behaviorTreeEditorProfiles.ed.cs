@@ -1,4 +1,4 @@
 singleton GuiControlProfile(GuiBehaviorTreeViewProfile : ToolsGuiTreeViewProfile)
 {
-   bitmap = "./images/BehaviorTreeView.png";
+   bitmap = "tools/behaviorTreeEditor/images/BehaviorTreeView.png";
 };
