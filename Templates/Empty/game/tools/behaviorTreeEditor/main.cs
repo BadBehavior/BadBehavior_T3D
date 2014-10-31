@@ -1,3 +1,7 @@
+function reloadBTE()
+{
+   initializeBehaviorTreeEditor();
+}
 
 function initializeBehaviorTreeEditor()
 {

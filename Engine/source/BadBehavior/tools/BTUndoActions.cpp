@@ -2,6 +2,27 @@
 #include "console/consoleTypes.h"
 #include "console/simSet.h"
 
+S32 getNextObjectInGroup(SimObject *object, SimGroup *group)
+{
+   group->lock();
+   S32 nextId = -1;
+   
+   if(object != group->last() && group->find( group->begin(), group->end(), object ) != group->end())
+   {
+      for( SimSet::iterator i = group->begin(); i != group->end(); i++)
+      {
+         if( *i == object )
+         {
+            nextId = (*++i)->getId();
+            break;
+         }
+      }
+      group->unlock();
+   }
+
+   return nextId;
+}
+
 IMPLEMENT_CONOBJECT( BTDeleteUndoAction );
 
 ConsoleDocClass( BTDeleteUndoAction,
@@ -41,20 +62,8 @@ void BTDeleteUndoAction::deleteObject( SimObject *object )
    {
       mObject.groupId = group->getId();
 
-      group->lock();
-      if(object == group->last())
-         mObject.nextId = -1;
-      else
-      for( SimSet::iterator i = group->begin(); i != group->end(); i++)
-      {
-         if( *i == object )
-         {
-            //++i;
-            mObject.nextId = (*++i)->getId();
-            break;
-         }
-      }
-      group->unlock();
+      // and the next object in the group
+      mObject.nextId = getNextObjectInGroup(object, group);
    }
    
    // Now delete the object.

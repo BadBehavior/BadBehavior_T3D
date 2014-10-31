@@ -8,6 +8,7 @@
 #include "console/simObjectMemento.h"
 #endif
 
+S32 getNextObjectInSet(SimObject *obj, SimGroup &group);
 
 class BTDeleteUndoAction : public UndoAction
 {

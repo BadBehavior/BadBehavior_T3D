@@ -4,24 +4,9 @@ function BehaviorTreeEditorUndoManager::onAddUndo( %this )
    BTEditor.updateUndoMenu();
 }
 
-function UndoActionReparent::create(%item, %old, %new)
-{
-   pushInstantGroup();
-   %act = new UndoScriptAction() { class = UndoReparent; node=%item; oldParent=%old; newParent=%new; };
-   popInstantGroup();
-   return %act;
-}
-
-function UndoReparent::undo( %this )
-{
-   BTEditor.reparent(%this.node, %this.newParent, %this.oldParent);
-}
-
-function UndoReparent::redo( %this )
-{
-   BTEditor.reparent(%this.node, %this.oldParent, %this.newParent);
-}
-
+//==============================================================================
+// delete a node
+//==============================================================================
 
 /// A helper for submitting a delete undo action.
 function BTDeleteUndoAction::submit( %deleteObject )
@@ -33,7 +18,7 @@ function BTDeleteUndoAction::submit( %deleteObject )
    // Create the undo action.     
    %action = new BTDeleteUndoAction()
    {
-      actionName = "Delete";
+      actionName = "delete node";
    };
 
    // Restore the instant group.
@@ -50,12 +35,59 @@ function BTDeleteUndoAction::onUndone( %this )
    // for some reason this doesn't restore the correct order
    //BTEditor.buildVisibleTree(true);
    // so re-open the tree instead
-   %root = BTEditor.getItemValue(BTEditor.getFirstRootItem());
-   BTEditor.open(%root);
-   BTEditor.expandAll();
+   BTEditor.refresh();
 }
 
 function BTDeleteUndoAction::onRedone( %this )
 {
    BTEditor.buildVisibleTree(true);
+}
+
+//==============================================================================
+// reparent a node
+//==============================================================================
+function BTReparentUndoAction::create( %treeView )
+{
+   pushInstantGroup();
+   %action = new UndoScriptAction()
+   {
+      class = "BTReparentUndoAction";
+      actionName = "move node";
+   };
+   popInstantGroup();
+   
+   %action.node = %treeView.getSelectedObject();
+   %parent = %action.node.getGroup();
+   %action.oldPosition = 0;
+   
+   if(isObject(%parent))
+      %action.oldPosition = %parent.getObjectIndex(%action.node);
+
+   return %action;
+}
+
+function BTReparentUndoAction::undo(%this)
+{
+   if(%this.newParent.isMember(%this.node))  
+      %this.newParent.remove(%this.node);
+   
+   %this.oldParent.add(%this.node);  
+   
+   if(%this.oldPosition < %this.oldParent.getCount() - 1)
+      %this.oldParent.reorderChild(%this.node, %this.oldParent.getObject(%this.oldPosition));
+   
+   BTEditor.refresh();
+}
+
+function BTReparentUndoAction::redo(%this)
+{
+   if(%this.oldParent.isMember(%this.node))
+      %this.oldParent.remove(%this.node);
+   
+   %this.newParent.add(%this.node);
+   
+   if(%this.newPosition < %this.newParent.getCount() - 1)
+      %this.newParent.reorderChild(%this.node, %this.newParent.getObject(%this.newPosition));
+   
+   BTEditor.refresh();
 }

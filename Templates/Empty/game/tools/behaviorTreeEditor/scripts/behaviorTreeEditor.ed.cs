@@ -63,6 +63,13 @@ function BTEditor::startUp(%this, %content)
 }
 
 
+function BTEditor::refresh(%this)
+{
+   %root = %this.getItemValue(%this.getFirstRootItem());
+   %this.open(%root);
+   %this.expandAll();
+}
+
 //==============================================================================
 // VIEW
 //==============================================================================
@@ -82,28 +89,60 @@ function BTEditor::collapseAll(%this)
    %this.buildVisibleTree();
 }
 
-function BTEditor::reparent(%this, %node, %oldParent, %newParent, %position)
+//==============================================================================
+// REPARENT
+//==============================================================================
+function BTEditor::onBeginReparenting(%this)
 {
-   echo("reparent" SPC %node SPC %oldParent SPC %newParent);
-   %oldParent.remove(%node);
-   %newParent.add(%node);
-   %this.buildVisibleTree();  
+   if( isObject( %this.reparentUndoAction ) )
+      %this.reparentUndoAction.delete();
+      
+   %action = BTReparentUndoAction::create( %this );
+   %this.reparentUndoAction = %action;
 }
 
 function BTEditor::onReparent(%this, %item, %old, %new)
 {
-   echo("onReparent" SPC %item SPC %old SPC %new);
-   
-   //%act = UndoActionReparent::create(%item, %oldParent, %newParent, %oldPos, %newPos);
-   //%act.actionName = "reparent object";
-   //%act.addToManager( %this.getUndoManager() );
-   //%this.updateUndoMenu();
+   if( !isObject(%this.reparentUndoAction) ||
+       %this.reparentUndoAction.node != %item )
+   {
+      warn( "Reparenting undo is borked :(" );
+      if(isObject(%this.reparentUndoAction))
+      {
+         %this.reparentUndoAction.delete();
+         %this.reparentUndoAction="";
+      }
+   }
+   else
+   {       
+      %this.reparentUndoAction.oldParent = %old;
+      %this.reparentUndoAction.newParent = %new;
+      %this.reparentUndoAction.newPosition = %new.getObjectIndex(%item);
+   }
 }
 
+function BTEditor::onEndReparenting( %this )
+{
+   %action = %this.reparentUndoAction;
+   %this.reparentUndoAction = "";
+   
+   // Check that the reparenting went as planned, and undo it right now if not
+   if(%action.node.getGroup() != %action.newParent)
+   {
+      %action.undo();
+      %action.delete();
+   }
+   else
+      %action.addToManager( %this.getUndoManager() );
+}
+
+
+//==============================================================================
+// SELECT
+//==============================================================================
 function BTEditor::onSelect(%this, %item)
 {
-   echo("onSelect" TAB %item);
-   echo(%this.getSelectedItem());
+
 }
 
 function BTEditor::onUnselect(%this, %item)
@@ -111,11 +150,35 @@ function BTEditor::onUnselect(%this, %item)
 
 }
 
+function BTEditor::canAdd(%this, %obj, %target)
+{
+   if(!isObject(%target))
+      return false;
+      
+   if( !%target.isMemberOfClass( "SimGroup" ) )
+      return false;
+      
+   return %target.acceptsAsChild(%obj);
+}
+
+function BTEditor::isValidDragTarget(%this, %id, %obj)
+{
+   %selObj = %this.getSelectedObject();
+   
+   if(!%selObj)
+      return false;
+   
+   return %this.canAdd(%selObj, %obj);
+}
+
+//==============================================================================
+// DELETE
+//==============================================================================
+// onDeleteSelection is called prior to deleting the selected object. 
 function BTEditor::onDeleteSelection(%this)
 {
-   echo("onDeleteSelection");
-   if(%this.getSelectedItem() > 1)
-      BTDeleteUndoAction::submit(%this.getSelectedObjectList());
+   if(%this.getSelectedItem() > 1) // not root
+      BTDeleteUndoAction::submit(%this.getSelectedObject());
    
    %this.clearSelection();
 }
