@@ -1,5 +1,8 @@
 function reloadBTE()
 {
+   if(isObject(BehaviorTreeEditorGui))
+      BehaviorTreeEditorGui.delete();
+      
    initializeBehaviorTreeEditor();
 }
 
@@ -13,8 +16,9 @@ function initializeBehaviorTreeEditor()
    exec("./scripts/behaviorTreeEditorCanvas.ed.cs");
    exec("./scripts/behaviorTreeEditor.ed.cs");
    exec("./scripts/behaviorTreeEditorUndo.ed.cs");
+   exec("./scripts/behaviorTreeEditorStatusBar.ed.cs");
    
-   // This isn't pretty, but we need to load up existin trees
+   // This isn't pretty, but we need to load up existing trees
    if(!isObject(BehaviorTreeManager))
       exec("scripts/server/behaviorTreeManager.cs");
 

@@ -95,7 +95,7 @@ function BTEditCanvas::onCreateMenu(%this)
          Item[0] = "Help will arrive soon......";
       };
    };
-   %this.menuBar.attachToCanvas( Canvas, 0 );
+   %this.menuBar.attachToCanvas(Canvas, 0);
 }
 
 function BTEditCanvas::onDestroyMenu(%this)

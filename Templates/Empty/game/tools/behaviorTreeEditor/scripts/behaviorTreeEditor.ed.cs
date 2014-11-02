@@ -133,7 +133,10 @@ function BTEditor::onEndReparenting( %this )
       %action.delete();
    }
    else
+   {
       %action.addToManager( %this.getUndoManager() );
+      BTEditorStatusBar.print( "Moved node" );
+   }
 }
 
 
@@ -142,7 +145,7 @@ function BTEditor::onEndReparenting( %this )
 //==============================================================================
 function BTEditor::onSelect(%this, %item)
 {
-
+   BehaviorTreeInspector.inspect(%item);
 }
 
 function BTEditor::onUnselect(%this, %item)
@@ -181,6 +184,8 @@ function BTEditor::onDeleteSelection(%this)
       BTDeleteUndoAction::submit(%this.getSelectedObject());
    
    %this.clearSelection();
+   
+   BTEditorStatusBar.print( "Node deleted" );
 }
 
 //==============================================================================
@@ -216,7 +221,7 @@ function BTEditor::undo(%this)
    %this.getUndoManager().undo();
    %this.updateUndoMenu();
    
-   // BehaviorTreeEditorStatusBar.print( "Undid '" @ %action @ "'" );
+   BTEditorStatusBar.print( "Undid '" @ %action @ "'" );
 }
 
 function BTEditor::redo(%this)
@@ -226,5 +231,5 @@ function BTEditor::redo(%this)
    %this.getUndoManager().redo();
    %this.updateUndoMenu();
    
-   //BehaviorTreeEditorStatusBar.print( "Redid '" @ %action @ "'" );
+   BTEditorStatusBar.print( "Redid '" @ %action @ "'" );
 }
