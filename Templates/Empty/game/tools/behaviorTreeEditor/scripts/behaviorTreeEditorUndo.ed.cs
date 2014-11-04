@@ -93,20 +93,18 @@ function BTReparentUndoAction::redo(%this)
 }
 
 //==============================================================================
-// inspector field changed
+// Inspector field modified
 //==============================================================================
-function BehaviorTreeInspector::onInspectorFieldModified( %this, %object, %fieldName, %arrayIndex, %oldValue, %newValue )
+function BTInspectorUndoAction::create(%object, %fieldName, %arrayIndex, %oldValue, %newValue )
 {
-   // The instant group will try to add our
-   // UndoAction if we don't disable it.   
-   pushInstantGroup();
-
    %nameOrClass = %object.getName();
    if ( %nameOrClass $= "" )
       %nameOrClass = %object.getClassname();
       
+   pushInstantGroup();
    %action = new InspectorFieldUndoAction()
    {
+      class = "BTInspectorUndoAction";
       actionName = %nameOrClass @ "." @ %fieldName @ " Change";
       
       objectId = %object.getId();
@@ -114,13 +112,9 @@ function BehaviorTreeInspector::onInspectorFieldModified( %this, %object, %field
       fieldValue = %oldValue;
       arrayIndex = %arrayIndex;
                   
-      inspectorGui = %this;
+      inspectorGui = BehaviorTreeInspector;
    };
-   
-   // Restore the instant group.
    popInstantGroup();
-         
-   %action.addToManager( BTEditor.getUndoManager() );
-   
-   BTEditor.updateUndoMenu();
+
+   return %action;
 }

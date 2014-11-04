@@ -1,5 +1,5 @@
 //--- OBJECT WRITE BEGIN ---
-%guiContent = new GuiControl(BehaviorTreeEditorGui, EditorGuiGroup) {
+%guiContent = new GuiControl(BehaviorTreeEditorGui) {
    position = "0 0";
    extent = "1024 768";
    minExtent = "8 2";
@@ -49,7 +49,7 @@
          minExtent = "64 64";
          horizSizing = "width";
          vertSizing = "height";
-         profile = "ToolsGuiSolidDefaultProfile";
+         profile = "ToolsGuiDefaultProfile";
          visible = "1";
          active = "1";
          tooltipProfile = "GuiToolTipProfile";
@@ -78,6 +78,49 @@
             isContainer = "1";
             canSave = "1";
             canSaveDynamicFields = "0";
+
+            new GuiControl() {
+               position = "5 0";
+               extent = "695 32";
+               minExtent = "8 2";
+               horizSizing = "width";
+               vertSizing = "bottom";
+               profile = "ToolsGuiDefaultProfile";
+               visible = "1";
+               active = "1";
+               tooltipProfile = "ToolsGuiToolTipProfile";
+               hovertime = "1000";
+               isContainer = "1";
+               canSave = "1";
+               canSaveDynamicFields = "0";
+
+               new GuiPopUpMenuCtrl(BTEditorContentList) {
+                  maxPopupHeight = "200";
+                  sbUsesNAColor = "0";
+                  reverseTextList = "0";
+                  bitmapBounds = "16 16";
+                  maxLength = "1024";
+                  margin = "0 0 0 0";
+                  padding = "0 0 0 0";
+                  anchorTop = "1";
+                  anchorBottom = "0";
+                  anchorLeft = "1";
+                  anchorRight = "0";
+                  position = "8 7";
+                  extent = "145 18";
+                  minExtent = "8 2";
+                  horizSizing = "right";
+                  vertSizing = "bottom";
+                  profile = "ToolsGuiPopUpMenuProfile";
+                  visible = "1";
+                  active = "1";
+                  tooltipProfile = "ToolsGuiToolTipProfile";
+                  hovertime = "1000";
+                  isContainer = "0";
+                  canSave = "1";
+                  canSaveDynamicFields = "0";
+               };
+            };
          };
          new GuiScrollCtrl() {
             willFirstRespond = "1";
@@ -152,7 +195,7 @@
          minExtent = "8 2";
          horizSizing = "width";
          vertSizing = "height";
-         profile = "ToolsGuiSolidDefaultProfile";
+         profile = "menubarProfile";
          visible = "1";
          active = "1";
          tooltipProfile = "ToolsGuiToolTipProfile";

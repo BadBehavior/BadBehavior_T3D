@@ -17,6 +17,8 @@ function initializeBehaviorTreeEditor()
    exec("./scripts/behaviorTreeEditor.ed.cs");
    exec("./scripts/behaviorTreeEditorUndo.ed.cs");
    exec("./scripts/behaviorTreeEditorStatusBar.ed.cs");
+   exec("./scripts/behaviorTreeEditorContentList.ed.cs");
+   exec("./scripts/behaviorTreeEditorInspector.ed.cs");
    
    // This isn't pretty, but we need to load up existing trees
    if(!isObject(BehaviorTreeManager))

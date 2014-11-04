@@ -47,32 +47,116 @@ function BTEditor::startUp(%this, %content)
    %this.lastContent=%content;
    Canvas.setContent( BehaviorTreeEditorGui );
    
-   if(BehaviorTreeGroup.getCount() > 0)
+   if(!isObject(BehaviorTreeGroup))
+      new SimGroup(BehaviorTreeGroup);
+   
+   if(BehaviorTreeGroup.getCount() == 0)
    {
-      %this.open(BehaviorTreeGroup.getObject(0));
-      %this.expandAll();
+      %this.createTree("NewTree");
    }
    else
    {
-      %tree = new Root(NewTree);
-      BehaviorTreeGroup.add(%tree);
-      %this.open(%tree);
+      BTEditorContentList.populate();  
+      BTEditorContentList.setFirstSelected();
    }
    
    %this.updateUndoMenu();
 }
 
-
-function BTEditor::refresh(%this)
+function BTEditor::getRootNode(%this)
 {
-   %root = %this.getItemValue(%this.getFirstRootItem());
-   %this.open(%root);
-   %this.expandAll();
+   %rootId = %this.getFirstRootItem(); 
+   %rootObj = %rootId ? %this.getItemValue(%rootId) : -1;
+   return %rootObj;
+}
+
+function BTEditor::getTreeRoot(%this, %node)
+{
+   %current = %node;
+   while(%current.getClassName() !$= "Root" && isObject(%current))
+   {
+      %current = %current.getGroup();
+   }
+   return %current;
+}
+
+function BTEditor::isDirty(%this)
+{
+   %undoManager = %this.getUndoManager();
+   return %undoManager.getUndoCount() || %undoManager.getRedoCount();  
+}
+
+function BTEditor::createTree(%this, %name)
+{
+   pushInstantGroup(BehaviorTreeGroup);
+   %root = new Root();
+   popInstantGroup();
+
+   %root.setFileName("");
+   %root.setName(%name);
+   BTEditorContentList.populate();
+   BTEditorContentList.setSelected(BTEditorContentList.findText(%root.name));
+}
+
+function BTEditor::saveTree(%this, %tree)
+{
+   // check we actually have something to save
+   if(!isObject(%tree))
+      return;
+      
+   if((%file = %tree.getFileName()) !$= "")
+   {
+      %path = filePath(%file);  
+   }
+   else
+   {
+      %path = "scripts/server/behaviorTrees";
+      %file = %path @ "/" @ %tree.name;
+      
+      if(!isDirectory(%path))
+         createPath(%path @ "/");   
+   }
+      
+   %dlg = new SaveFileDialog()
+   {
+      filters = "Torque script files (*.cs)|*.cs|";
+      defaultPath = %path;
+      defaultFile = %file;
+      changePath = true;
+      overwritePrompt = true;
+   };
+   
+   if(%dlg.execute())
+   {
+      %tree.save(%dlg.fileName);
+   }
+   %dlg.delete();
 }
 
 //==============================================================================
 // VIEW
 //==============================================================================
+function BTEditor::refresh(%this)
+{
+   %root = %this.getRootNode();
+   %this.open(%root);
+   %this.expandAll();
+   %this.selectItem(1);
+}
+
+function BTEditor::setTree(%this, %tree)
+{
+   if(%tree != %this.getRootNode() && %this.isDirty())
+   {
+      MessageBoxYesNo( "Save Changes?", "Changes have been made to this tree." @
+                             "Do you wish to save them?", "BTEditor.SaveTree(" @ BTEditor.getRootNode() @ ");", "");
+      %this.getUndoManager().clearAll(); 
+      %this.updateUndoMenu();
+   }
+   %this.open(%tree);
+   %this.expandAll();
+}
+
 function BTEditor::expandAll(%this)
 {
    for(%i=1; %i<=%this.getItemCount(); %i++)
