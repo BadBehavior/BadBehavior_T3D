@@ -56,10 +56,10 @@ function BTEditCanvas::onCreateMenu(%this)
          barTitle = "File";
          internalName = "FileMenu";
          
-         item[0] = "New Tree..." TAB %cmdCtrl SPC "N" TAB %this @ ".create();";
+         item[0] = "New Tree..." TAB %cmdCtrl SPC "N" TAB "BTEditor.createTree();";
          item[1] = "Open..." TAB %cmdCtrl SPC "O" TAB %this @ ".open();";
-         item[2] = "Save" TAB %cmdCtrl SPC "S" TAB %this @ ".save( false, true );";
-         item[3] = "Save As..." TAB %cmdCtrl @ "-Shift S" TAB %this @ ".save( false );";
+         item[2] = "Save Tree" TAB %cmdCtrl SPC "S" TAB "BTEditor.saveTree( BTEditor.getCurrentRootNode(), false );";
+         item[3] = "Save Tree As..." TAB %cmdCtrl @ "-Shift S" TAB "BTEditor.saveTree( BTEditor.getCurrentRootNode(), true );";
          item[4] = "-";
          item[5] = "Close Editor" TAB "F9" TAB %this @ ".quit();";
          item[6] = "Quit" TAB %cmdCtrl SPC "Q" TAB "quit();";

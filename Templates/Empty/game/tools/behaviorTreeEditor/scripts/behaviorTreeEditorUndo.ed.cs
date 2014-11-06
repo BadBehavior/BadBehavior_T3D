@@ -1,6 +1,7 @@
 
-function BehaviorTreeEditorUndoManager::onAddUndo( %this )
+function BTEditorUndoManager::onAddUndo( %this )
 {
+   echo("Undo Added");
    BTEditor.updateUndoMenu();
 }
 
@@ -33,14 +34,14 @@ function BTDeleteUndoAction::submit( %deleteObject )
 function BTDeleteUndoAction::onUndone( %this )
 {
    // for some reason this doesn't restore the correct order
-   //BTEditor.buildVisibleTree(true);
+   //BTEditor.getCurrentViewCtrl().buildVisibleTree(true);
    // so re-open the tree instead
-   BTEditor.refresh();
+   BTEditor.getCurrentViewCtrl().refresh();
 }
 
 function BTDeleteUndoAction::onRedone( %this )
 {
-   BTEditor.buildVisibleTree(true);
+   BTEditor.getCurrentViewCtrl().buildVisibleTree(true);
 }
 
 //==============================================================================
@@ -53,6 +54,7 @@ function BTReparentUndoAction::create( %treeView )
    {
       class = "BTReparentUndoAction";
       actionName = "move node";
+      control = %treeView;
    };
    popInstantGroup();
    
@@ -76,7 +78,7 @@ function BTReparentUndoAction::undo(%this)
    if(%this.oldPosition < %this.oldParent.getCount() - 1)
       %this.oldParent.reorderChild(%this.node, %this.oldParent.getObject(%this.oldPosition));
    
-   BTEditor.refresh();
+   %this.control.refresh();
 }
 
 function BTReparentUndoAction::redo(%this)
@@ -89,7 +91,7 @@ function BTReparentUndoAction::redo(%this)
    if(%this.newPosition < %this.newParent.getCount() - 1)
       %this.newParent.reorderChild(%this.node, %this.newParent.getObject(%this.newPosition));
    
-   BTEditor.refresh();
+   %this.control.refresh();
 }
 
 //==============================================================================

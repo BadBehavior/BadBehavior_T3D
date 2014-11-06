@@ -13,6 +13,8 @@ function initializeBehaviorTreeEditor()
    // exec the scripts and gui
    exec("./scripts/behaviorTreeEditorProfiles.ed.cs");
    exec("./gui/behaviorTreeEditor.ed.gui");
+   exec("./gui/BTEditorCreatePrompt.ed.gui");
+   exec("./scripts/guiBehaviorTreeViewCtrl.ed.cs");
    exec("./scripts/behaviorTreeEditorCanvas.ed.cs");
    exec("./scripts/behaviorTreeEditor.ed.cs");
    exec("./scripts/behaviorTreeEditorUndo.ed.cs");

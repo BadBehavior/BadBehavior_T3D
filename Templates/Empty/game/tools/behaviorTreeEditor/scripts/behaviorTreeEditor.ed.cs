@@ -45,30 +45,70 @@ GlobalActionMap.bind( keyboard, "f9", toggleBehaviorTreeEditor );
 function BTEditor::startUp(%this, %content)
 {
    %this.lastContent=%content;
-   Canvas.setContent( BehaviorTreeEditorGui );
+   Canvas.setContent( BTEditor );
    
    if(!isObject(BehaviorTreeGroup))
       new SimGroup(BehaviorTreeGroup);
    
    if(BehaviorTreeGroup.getCount() == 0)
    {
-      %this.createTree("NewTree");
+      %this.createTree();
    }
    else
    {
-      BTEditorContentList.populate();  
+      BTEditorContentList.refresh();  
       BTEditorContentList.setFirstSelected();
    }
    
    %this.updateUndoMenu();
 }
 
-function BTEditor::getRootNode(%this)
+
+function BTEditor::viewTree(%this, %tree)
 {
-   %rootId = %this.getFirstRootItem(); 
-   %rootObj = %rootId ? %this.getItemValue(%rootId) : -1;
-   return %rootObj;
+   %viewPage = -1;
+   foreach(%page in BTEditorTabBook)
+   {
+      if(%page-->BTView.getRootNode() == %tree)
+      {
+         %viewPage = %page;
+         break;
+      }
+   }
+   
+   if(isObject(%viewPage))
+   {
+      %viewPage.select();
+   }
+   else
+   {
+      %newPage = BTEditor::newPage();
+      %newPage.setText(%tree.name);
+      BTEditorTabBook.addGuiControl(%newPage);
+      %newPage-->BTView.open(%tree);
+      %newPage-->BTView.refresh();
+   }
+   %this.updateUndoMenu();
 }
+
+function BTEditor::createTree(%this)
+{
+   %list = BTEditorCreatePrompt-->CopySourceDropdown;
+   %list.clear();
+   foreach (%tree in BehaviorTreeGroup)
+      %list.add(%tree.getName(), %tree);
+   Canvas.pushDialog(BTEditorCreatePrompt);
+}
+
+function BTEditor::getCurrentViewCtrl(%this)
+{
+   %pageId = BTEditorTabBook.getSelectedPage();
+   if(%pageId >= 0)
+      return BTEditorTabBook.getObject(%pageId)-->BTView;
+   
+   return %pageId;
+}
+
 
 function BTEditor::getTreeRoot(%this, %node)
 {
@@ -80,25 +120,94 @@ function BTEditor::getTreeRoot(%this, %node)
    return %current;
 }
 
-function BTEditor::isDirty(%this)
+function BTEditor::getCurrentRootNode(%this)
 {
-   %undoManager = %this.getUndoManager();
-   return %undoManager.getUndoCount() || %undoManager.getRedoCount();  
+   return %this.getCurrentViewCtrl().getRootNode();  
 }
 
-function BTEditor::createTree(%this, %name)
+
+function BTEditor::createPromptNameCheck(%this)
 {
-   pushInstantGroup(BehaviorTreeGroup);
-   %root = new Root();
+   %name = BTEditorCreatePrompt-->CreateTreeName.getText();
+   if( !Editor::validateObjectName( %name, true ) )
+      return;
+      
+   // Fetch the copy source and clear the list.
+   
+   %copySource = BTEditorCreatePrompt-->copySourceDropdown.getText();
+   BTEditorCreatePrompt-->copySourceDropdown.clear();
+   
+   // Remove the dialog and create the tree.
+   
+   canvas.popDialog( BTEditorCreatePrompt );
+   %this.createTreeFinish( %name, %copySource );
+}
+
+function BTEditor::createTreeFinish( %this, %name, %copySource )
+{
+   %newTree = -1;
+   pushInstantGroup(BehaviorTreeGroup);   
+   if(%copySource !$= "")
+   {
+      %newTree = %copySource.deepClone();
+   }
+   else
+   {
+      %newTree = new Root();  
+   }
    popInstantGroup();
+   
+   %newTree.setName(%name);
+   %newTree.setFilename("");
 
-   %root.setFileName("");
-   %root.setName(%name);
-   BTEditorContentList.populate();
-   BTEditorContentList.setSelected(BTEditorContentList.findText(%root.name));
+   BTEditorContentList.refresh();
+   BTEditorContentList.setSelected(BTEditorContentList.findText(%newTree.name));   
 }
 
-function BTEditor::saveTree(%this, %tree)
+//function BTEditor::isDirty(%this)
+//{
+   //%undoManager = %this.getUndoManager();
+   //return %undoManager.getUndoCount() || %undoManager.getRedoCount();  
+//}
+//
+
+//
+//
+////==============================================================================
+//// FILE
+////==============================================================================
+//function BTEditor::saveTreeDialog(%this, %nextTree)
+//{
+   //MessageBoxYesNoCancel("Save Changes to tree?", 
+      //"The tree " @ %this.getRootNode().name @ " has unsaved changes. <br>Do you want to save?", 
+      //"BTEditor.saveDialogSave(" @ %nextTree @ ");", 
+      //"BTEditor.saveDialogDontSave(" @ %nextTree @ ");", 
+      //"BTEditor.saveDialogCancel();" );
+//}
+//
+//function BTEditor::saveDialogSave(%this, %nextTree)
+//{
+   //%this.saveTree(%this.getRootNode());
+   //%this.getUndoManager().clearAll(); 
+   //%this.updateUndoMenu();
+   //%this.setTree(%nextTree);
+//}
+//
+//function BTEditor::saveDialogDontSave(%this, %nextTree)
+//{
+   //echo("Dont Save");
+   //%this.getUndoManager().clearAll();
+   //%this.updateUndoMenu();
+   //%this.setTree(%nextTree);
+//}
+//
+//function BTEditor::saveDialogCancel(%this)
+//{
+   //BTEditorContentList.setSelected(BTEditorContentList.findText(%this.getRootNode().name), false);
+//}
+
+
+function BTEditor::saveTree(%this, %tree, %prompt)
 {
    // check we actually have something to save
    if(!isObject(%tree))
@@ -114,162 +223,87 @@ function BTEditor::saveTree(%this, %tree)
       %file = %path @ "/" @ %tree.name;
       
       if(!isDirectory(%path))
-         createPath(%path @ "/");   
-   }
+         createPath(%path @ "/");
       
-   %dlg = new SaveFileDialog()
-   {
-      filters = "Torque script files (*.cs)|*.cs|";
-      defaultPath = %path;
-      defaultFile = %file;
-      changePath = true;
-      overwritePrompt = true;
-   };
-   
-   if(%dlg.execute())
-   {
-      %tree.save(%dlg.fileName);
+      %prompt = true;
    }
-   %dlg.delete();
+   
+   if(%prompt || !isFile(%file))
+   {
+      %dlg = new SaveFileDialog()
+      {
+         filters = "Torque script files (*.cs)|*.cs|";
+         defaultPath = %path;
+         defaultFile = %file;
+         changePath = true;
+         overwritePrompt = true;
+      };
+   
+      if(%dlg.execute())
+      {
+         %file = %dlg.fileName;         
+         %dlg.delete();
+      }
+      else
+      {
+         return;
+      }
+   }
+
+   %tree.save(%file);
+   %tree.setFileName(collapseFilename(%file));
+   BTEditorStatusBar.setText("Saved '" @ %tree.name @ "' to file" SPC %tree.getFileName());
 }
 
 //==============================================================================
 // VIEW
 //==============================================================================
-function BTEditor::refresh(%this)
-{
-   %root = %this.getRootNode();
-   %this.open(%root);
-   %this.expandAll();
-   %this.selectItem(1);
-}
-
-function BTEditor::setTree(%this, %tree)
-{
-   if(%tree != %this.getRootNode() && %this.isDirty())
-   {
-      MessageBoxYesNo( "Save Changes?", "Changes have been made to this tree." @
-                             "Do you wish to save them?", "BTEditor.SaveTree(" @ BTEditor.getRootNode() @ ");", "");
-      %this.getUndoManager().clearAll(); 
-      %this.updateUndoMenu();
-   }
-   %this.open(%tree);
-   %this.expandAll();
-}
 
 function BTEditor::expandAll(%this)
 {
-   for(%i=1; %i<=%this.getItemCount(); %i++)
-   {
-      %this.expandItem(%i);
-      %this.buildVisibleTree();
-   }
+   %this.getCurrentViewCtrl().expandAll();
 }
 
 function BTEditor::collapseAll(%this)
 {
-   for(%i=1; %i<=%this.getItemCount(); %i++)
-      %this.expandItem(%i, false);
-   %this.buildVisibleTree();
+   %this.getCurrentViewCtrl().collapseAll();
 }
 
-//==============================================================================
-// REPARENT
-//==============================================================================
-function BTEditor::onBeginReparenting(%this)
-{
-   if( isObject( %this.reparentUndoAction ) )
-      %this.reparentUndoAction.delete();
-      
-   %action = BTReparentUndoAction::create( %this );
-   %this.reparentUndoAction = %action;
-}
 
-function BTEditor::onReparent(%this, %item, %old, %new)
+function BTEditorTabBook::onTabClose(%this, %index)
 {
-   if( !isObject(%this.reparentUndoAction) ||
-       %this.reparentUndoAction.node != %item )
+   if(%index == %this.selectedPage)
    {
-      warn( "Reparenting undo is borked :(" );
-      if(isObject(%this.reparentUndoAction))
+      BehaviorTreeInspector.inspect(-1);
+      if(%this.getCount() > 1)
+         %this.getObject(0).select();
+      else
+         BTEditor.ResetUndoMenu();
+   }
+   
+   %this.getObject(%index).delete();
+}
+
+function BTEditorTabBook::onTabSelected(%this, %text, %index)
+{
+   //echo("onTabSelected" TAB %text);
+   BTEditor.updateUndoMenu();
+   BehaviorTreeInspector.inspect(BTEditor.getCurrentViewCtrl().getSelectedObject());
+}
+
+function BTEditorTabBook::onTabRightClick(%this, %text, %index)
+{
+   if(isObject(BTEditorTabBookPopup))
+      BTEditorTabBookPopup.delete();
+      
+   %popup = new PopupMenu( BTEditorTabBookPopup )
       {
-         %this.reparentUndoAction.delete();
-         %this.reparentUndoAction="";
-      }
-   }
-   else
-   {       
-      %this.reparentUndoAction.oldParent = %old;
-      %this.reparentUndoAction.newParent = %new;
-      %this.reparentUndoAction.newPosition = %new.getObjectIndex(%item);
-   }
-}
-
-function BTEditor::onEndReparenting( %this )
-{
-   %action = %this.reparentUndoAction;
-   %this.reparentUndoAction = "";
-   
-   // Check that the reparenting went as planned, and undo it right now if not
-   if(%action.node.getGroup() != %action.newParent)
-   {
-      %action.undo();
-      %action.delete();
-   }
-   else
-   {
-      %action.addToManager( %this.getUndoManager() );
-      BTEditorStatusBar.print( "Moved node" );
-   }
-}
-
-
-//==============================================================================
-// SELECT
-//==============================================================================
-function BTEditor::onSelect(%this, %item)
-{
-   BehaviorTreeInspector.inspect(%item);
-}
-
-function BTEditor::onUnselect(%this, %item)
-{
-
-}
-
-function BTEditor::canAdd(%this, %obj, %target)
-{
-   if(!isObject(%target))
-      return false;
+         superClass = "MenuBuilder";
+         isPopup = true;
+         item[ 0 ] = "Close" SPC %text SPC "tab" TAB "" TAB "BTEditorTabBook.onTabClose(" SPC %index SPC ");";
+      };
       
-   if( !%target.isMemberOfClass( "SimGroup" ) )
-      return false;
-      
-   return %target.acceptsAsChild(%obj);
-}
-
-function BTEditor::isValidDragTarget(%this, %id, %obj)
-{
-   %selObj = %this.getSelectedObject();
-   
-   if(!%selObj)
-      return false;
-   
-   return %this.canAdd(%selObj, %obj);
-}
-
-//==============================================================================
-// DELETE
-//==============================================================================
-// onDeleteSelection is called prior to deleting the selected object. 
-function BTEditor::onDeleteSelection(%this)
-{
-   if(%this.getSelectedItem() > 1) // not root
-      BTDeleteUndoAction::submit(%this.getSelectedObject());
-   
-   %this.clearSelection();
-   
-   BTEditorStatusBar.print( "Node deleted" );
+   %popup.showPopup( Canvas ); 
 }
 
 //==============================================================================
@@ -277,11 +311,9 @@ function BTEditor::onDeleteSelection(%this)
 //==============================================================================
 function BTEditor::getUndoManager( %this )
 {
-   if( !isObject( BehaviorTreeEditorUndoManager ) )
-      new UndoManager( BehaviorTreeEditorUndoManager );
-   
-   return BehaviorTreeEditorUndoManager;
+   return %this.getCurrentViewCtrl().getUndoManager();
 }
+
 
 function BTEditor::updateUndoMenu(%this)
 {
@@ -296,6 +328,15 @@ function BTEditor::updateUndoMenu(%this)
    
    %editMenu.enableItem( 0, %nextUndo !$= "" );
    %editMenu.enableItem( 1, %nextRedo !$= "" );
+}
+
+function BTEditor::ResetUndoMenu(%this)
+{
+   %editMenu = BTEditCanvas.menuBar->editMenu;
+   %editMenu.setItemName( 0, "Undo" );
+   %editMenu.setItemName( 1, "Redo" );
+   %editMenu.enableItem( 0, false );
+   %editMenu.enableItem( 1, false );
 }
 
 function BTEditor::undo(%this)
