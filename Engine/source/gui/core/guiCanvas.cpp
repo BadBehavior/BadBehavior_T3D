@@ -2022,7 +2022,7 @@ ConsoleMethod( GuiCanvas, pushDialog, void, 3, 5, "(GuiControl ctrl, int layer=0
 
    if (!	Sim::findObject(argv[2], gui))
    {
-      Con::printf("%s(): Invalid control: %s", argv[0], argv[2]);
+      Con::printf("%s(): Invalid control: %s", (const char*)argv[0], (const char*)argv[2]);
       return;
    }
 
@@ -2067,7 +2067,7 @@ ConsoleMethod( GuiCanvas, popDialog, void, 2, 3, "(GuiControl ctrl=NULL)"
    {
       if (!Sim::findObject(argv[2], gui))
       {
-         Con::printf("%s(): Invalid control: %s", argv[0], argv[2]);
+         Con::printf("%s(): Invalid control: %s", (const char*)argv[0], (const char*)argv[2]);
          return;
       }
    }
@@ -2225,7 +2225,10 @@ DefineEngineMethod( GuiCanvas, reset, void, (),,
 }
 
 DefineEngineMethod( GuiCanvas, getCursorPos, Point2I, (),,
-				   "@brief Get the current position of the cursor.\n\n"
+				   "@brief Get the current position of the cursor in screen-space. Note that this position"
+               " might be outside the Torque window. If you want to get the position within the Canvas,"
+               " call screenToClient on the result.\n\n"
+               "@see Canvas::screenToClient()\n\n"
 				   "@param param Description\n\n"
 				   "@tsexample\n"
 				   "%cursorPos = Canvas.getCursorPos();\n"
