@@ -6,6 +6,44 @@ function BTEditorUndoManager::onAddUndo( %this )
 }
 
 //==============================================================================
+// create a node
+//==============================================================================
+function BTCreateUndoAction::submit( %undoObject )
+{
+   // The instant group will try to add our
+   // UndoAction if we don't disable it.   
+   pushInstantGroup();
+   
+   // Create the undo action.     
+   %action = new MECreateUndoAction()
+   {
+      className = "BTCreateUndoAction";
+      actionName = "Create " @ %undoObject.getClassName();
+   };
+   
+   // Restore the instant group.
+   popInstantGroup();
+   
+   // Set the object to undo.
+   %action.addObject( %undoObject );
+   
+   // Submit it.
+   %action.addToManager( BTEditor.getUndoManager() );
+}
+
+function BTCreateUndoAction::onUndone( %this )
+{
+   //EWorldEditor.syncGui();
+}
+
+function BTCreateUndoAction::onRedone( %this )
+{
+   //EWorldEditor.syncGui();
+}
+
+
+
+//==============================================================================
 // delete a node
 //==============================================================================
 
@@ -58,13 +96,6 @@ function BTReparentUndoAction::create( %treeView )
    };
    popInstantGroup();
    
-   %action.node = %treeView.getSelectedObject();
-   %parent = %action.node.getGroup();
-   %action.oldPosition = 0;
-   
-   if(isObject(%parent))
-      %action.oldPosition = %parent.getObjectIndex(%action.node);
-
    return %action;
 }
 

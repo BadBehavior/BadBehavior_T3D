@@ -61,8 +61,63 @@ function BTEditor::startUp(%this, %content)
    }
    
    %this.updateUndoMenu();
+   %this.updateNodeTypes();
 }
 
+
+function BTEditor::updateNodeTypes(%this)
+{
+   if(isObject(BTNodeTypes))
+      BTNodeTypes.delete();
+   
+   new SimSet(BTNodeTypes);
+   %set = new SimSet() {
+      internalName = "Composite";
+   };
+   %set.add( new ScriptObject() { nodeType = "Parallel"; } );
+   %set.add( new ScriptObject() { nodeType = "PrioritySelector"; } );
+   %set.add( new ScriptObject() { nodeType = "RandomSelector"; } );
+   %set.add( new ScriptObject() { nodeType = "Sequence"; } );
+   BTNodeTypes.add(%set);
+   
+   %set = new SimSet() {
+      internalName = "Decorator";
+   };
+   %set.add( new ScriptObject() { nodeType = "Delay"; } );
+   %set.add( new ScriptObject() { nodeType = "Inverter"; } );
+   %set.add( new ScriptObject() { nodeType = "Logger"; } );
+   %set.add( new ScriptObject() { nodeType = "Loop"; } );
+   %set.add( new ScriptObject() { nodeType = "LoopUntilEvent"; } );
+   %set.add( new ScriptObject() { nodeType = "SucceedAlways"; } );
+   %set.add( new ScriptObject() { nodeType = "Ticker"; } );
+   %set.add( new ScriptObject() { nodeType = "WaitForEvent"; } );
+   BTNodeTypes.add(%set);
+   
+   %set = new SimSet() {
+      internalName = "Leaf";
+   };
+   %set.add( new ScriptObject() { nodeType = "Command"; } );
+   %set.add( new ScriptObject() { nodeType = "Condition"; } );
+   %set.add( new ScriptObject() { nodeType = "RunScript"; } );
+   %set.add( new ScriptObject() { nodeType = "SubTree"; } );
+   BTNodeTypes.add(%set);
+}
+
+function BTEditor::getBaseNodeType(%this, %type)
+{
+   foreach(%baseType in BTNodeTypes)
+   {
+      if(%baseType.internalName $= %type) // supplied basetype
+         return %type;
+         
+      foreach(%derivedType in %baseType) // supplied derived type
+      {
+         if(%derivedType.nodeType $= %type)
+            return %baseType.internalName;
+      }
+   }
+   return "";
+}
 
 function BTEditor::viewTree(%this, %tree)
 {
