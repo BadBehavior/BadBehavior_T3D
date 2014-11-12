@@ -1,6 +1,3 @@
-// BEGIN TORSION
-dbgSetParameters( 6060, "password", true );
-// END TORSION
 //-----------------------------------------------------------------------------
 // Copyright (c) 2012 GarageGames, LLC
 //
