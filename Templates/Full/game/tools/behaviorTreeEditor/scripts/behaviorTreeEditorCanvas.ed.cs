@@ -14,6 +14,9 @@ function BTEditCanvas::onRemove( %this )
 
    // cleanup
    %this.onDestroyMenu();
+   
+   // close any open tab book pages
+   BTEditorTabBook.deleteAllObjects();
 }
 
 function BTEditCanvas::quit( %this )
