@@ -27,14 +27,7 @@ function toggleBehaviorTreeEditor( %make )
 {
    if( %make )
    {
-      //if( EditorIsActive() && !GuiEditor.toggleIntoEditorGui )
-      //   toggleEditor( true );
-         
       BTEdit();
-      
-	  // Cancel the scheduled event to prevent
-	  // the level from cycling after it's duration
-	  // has elapsed.
       cancel($Game::Schedule);
    }
 }
@@ -56,7 +49,7 @@ function BTEditor::startUp(%this, %content)
    }
    else
    {
-      BTEditorContentList.refresh();  
+      BTEditorContentList.refresh();
       BTEditorContentList.setFirstSelected();
    }
    
@@ -218,49 +211,6 @@ function BTEditor::createTreeFinish( %this, %name, %copySource )
    BTEditorContentList.refresh();
    BTEditorContentList.setSelected(BTEditorContentList.findText(%newTree.name));   
 }
-
-//function BTEditor::isDirty(%this)
-//{
-   //%undoManager = %this.getUndoManager();
-   //return %undoManager.getUndoCount() || %undoManager.getRedoCount();  
-//}
-//
-
-//
-//
-////==============================================================================
-//// FILE
-////==============================================================================
-//function BTEditor::saveTreeDialog(%this, %nextTree)
-//{
-   //MessageBoxYesNoCancel("Save Changes to tree?", 
-      //"The tree " @ %this.getRootNode().name @ " has unsaved changes. <br>Do you want to save?", 
-      //"BTEditor.saveDialogSave(" @ %nextTree @ ");", 
-      //"BTEditor.saveDialogDontSave(" @ %nextTree @ ");", 
-      //"BTEditor.saveDialogCancel();" );
-//}
-//
-//function BTEditor::saveDialogSave(%this, %nextTree)
-//{
-   //%this.saveTree(%this.getRootNode());
-   //%this.getUndoManager().clearAll(); 
-   //%this.updateUndoMenu();
-   //%this.setTree(%nextTree);
-//}
-//
-//function BTEditor::saveDialogDontSave(%this, %nextTree)
-//{
-   //echo("Dont Save");
-   //%this.getUndoManager().clearAll();
-   //%this.updateUndoMenu();
-   //%this.setTree(%nextTree);
-//}
-//
-//function BTEditor::saveDialogCancel(%this)
-//{
-   //BTEditorContentList.setSelected(BTEditorContentList.findText(%this.getRootNode().name), false);
-//}
-
 
 function BTEditor::saveTree(%this, %tree, %prompt)
 {
