@@ -166,7 +166,7 @@ function onServerCreated()
 function onServerDestroyed()
 {
    // Destroy the server physcis world
-   physicsDestroyWorld( "server" );   
+   physicsDestroyWorld( "server" ); 
 }
 
 //-----------------------------------------------------------------------------
