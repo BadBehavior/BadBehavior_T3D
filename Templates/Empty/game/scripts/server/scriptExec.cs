@@ -22,5 +22,3 @@
 
 // Load up all scripts.  This function is called when
 // a server is constructed.
-
-exec("./BehaviorTreeManager.cs");
