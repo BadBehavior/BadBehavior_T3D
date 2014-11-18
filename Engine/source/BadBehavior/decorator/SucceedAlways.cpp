@@ -43,11 +43,7 @@ Task* SucceedAlwaysTask::update()
       
 void SucceedAlwaysTask::onChildComplete(Status s)
 {
-   if(s == SUCCESS || s == FAILURE)
-      mStatus = SUCCESS;
-   else
-      mStatus = s;
- 
+   mStatus = (s == FAILURE) ? SUCCESS : s;
    mIsComplete = true;
 }
 
