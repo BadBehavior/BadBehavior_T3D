@@ -1,7 +1,9 @@
-BadBehavior: Behavior Tree Implementation for Torque 3D
-=======================================================
+BadBehavior
+==========
+Behavior Tree System for Torque 3D
+----------------------------------
 
-For tuturials and guides on how to use BadBehavior in your project, refer to:
+For tutorials and guides on how to use BadBehavior in your project, refer to:
 * BadBehavior [GitHub Wiki](https://github.com/BadBehavior/BadBehavior_T3D/wiki)
 * BadBehavior [GitHub page](http://badbehavior.github.io/BadBehavior_T3D)
 
