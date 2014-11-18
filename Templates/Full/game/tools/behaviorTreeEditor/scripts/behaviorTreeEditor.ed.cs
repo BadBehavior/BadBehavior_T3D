@@ -94,6 +94,7 @@ function BTEditor::updateNodeTypes(%this)
    %set.add( new ScriptObject() { nodeType = "Condition"; } );
    %set.add( new ScriptObject() { nodeType = "RunScript"; } );
    %set.add( new ScriptObject() { nodeType = "SubTree"; } );
+   %set.add( new ScriptObject() { nodeType = "Wait"; } );
    BTNodeTypes.add(%set);
 }
 
