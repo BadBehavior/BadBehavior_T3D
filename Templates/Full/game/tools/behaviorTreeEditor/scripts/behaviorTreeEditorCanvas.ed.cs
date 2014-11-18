@@ -5,6 +5,18 @@
 function BTEditCanvas::onAdd( %this )
 {
    %this.onCreateMenu();
+   
+   // close any invalid tab book pages
+   for( %i=0; %i < BTEditorTabBook.getCount(); %i++)
+   {
+      %page = BTEditorTabBook.getObject(%i);
+      if(!isObject(%page.rootNode) || %page.rootNode.getClassName() !$= "Root")
+      {
+         BTEditorTabBook.remove(%page);
+         %page.delete();
+         %i--;
+      }           
+   }
 }
 
 function BTEditCanvas::onRemove( %this )
@@ -15,8 +27,7 @@ function BTEditCanvas::onRemove( %this )
    // cleanup
    %this.onDestroyMenu();
    
-   // close any open tab book pages
-   BTEditorTabBook.deleteAllObjects();
+   //BTEditorTabBook.deleteAllObjects();
 }
 
 function BTEditCanvas::quit( %this )

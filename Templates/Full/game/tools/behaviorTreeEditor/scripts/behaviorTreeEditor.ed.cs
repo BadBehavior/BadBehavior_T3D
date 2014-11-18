@@ -117,7 +117,7 @@ function BTEditor::viewTree(%this, %tree)
    %viewPage = -1;
    foreach(%page in BTEditorTabBook)
    {
-      if(%page-->BTView.getRootNode() == %tree)
+      if(%page.rootNode == %tree)
       {
          %viewPage = %page;
          break;
@@ -132,6 +132,7 @@ function BTEditor::viewTree(%this, %tree)
    {
       %newPage = BTEditor::newPage();
       %newPage.setText(%tree.name);
+      %newPage.rootNode = %tree;
       BTEditorTabBook.addGuiControl(%newPage);
       %newPage-->BTView.open(%tree);
       %newPage-->BTView.refresh();
