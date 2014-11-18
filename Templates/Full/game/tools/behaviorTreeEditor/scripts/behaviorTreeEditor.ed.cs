@@ -77,6 +77,7 @@ function BTEditor::updateNodeTypes(%this)
       internalName = "Decorator";
    };
    %set.add( new ScriptObject() { nodeType = "Delay"; } );
+   %set.add( new ScriptObject() { nodeType = "FailAlways"; });
    %set.add( new ScriptObject() { nodeType = "Inverter"; } );
    %set.add( new ScriptObject() { nodeType = "Logger"; } );
    %set.add( new ScriptObject() { nodeType = "Loop"; } );
