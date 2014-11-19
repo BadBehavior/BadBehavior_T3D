@@ -81,10 +81,8 @@ function BTEditor::updateNodeTypes(%this)
    %set.add( new ScriptObject() { nodeType = "Inverter"; } );
    %set.add( new ScriptObject() { nodeType = "Logger"; } );
    %set.add( new ScriptObject() { nodeType = "Loop"; } );
-   %set.add( new ScriptObject() { nodeType = "LoopUntilEvent"; } );
    %set.add( new ScriptObject() { nodeType = "SucceedAlways"; } );
    %set.add( new ScriptObject() { nodeType = "Ticker"; } );
-   %set.add( new ScriptObject() { nodeType = "WaitForEvent"; } );
    BTNodeTypes.add(%set);
    
    %set = new SimSet() {

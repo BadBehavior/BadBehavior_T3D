@@ -154,42 +154,6 @@ namespace BadBehavior
       virtual void onTerminate();
    };
 
-   //---------------------------------------------------------------------------
-   // event listener task class
-   //---------------------------------------------------------------------------
-   class EventListenerTask : public CompositeTask
-   {
-      typedef CompositeTask Parent;
-
-   protected:
-      bool mEventReceived;
-
-      virtual void onInitialize();
-      
-   public:
-      EventListenerTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
-
-      void onEvent();
-   };
-
-   //---------------------------------------------------------------------------
-   // event listener node
-   //---------------------------------------------------------------------------
-   class EventListenerNode : public DecoratorNode
-   {
-      typedef DecoratorNode Parent;
-
-   protected:
-      String mEventName;
-
-   public:
-      static void initPersistFields();
-
-      const String& getEventName();
-
-      void handleEvent(EventListenerTask *task);
-   };
-
 } // namespace BadBehavior
 
 // make the return status enum accessible from script

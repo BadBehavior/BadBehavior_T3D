@@ -4,9 +4,6 @@
 #ifndef _BB_CORE_H_
 #include "Core.h"
 #endif
-#ifndef _BB_EVENTHANDLER_H_
-#include "EventHandler.h"
-#endif
 #ifndef _SIMOBJECT_H_
 #include "console/simObject.h"
 #endif
@@ -39,9 +36,6 @@ namespace BadBehavior
       // the game object that is using this tree
       SimObjectPtr<SimObject> mOwner;
 
-      // event handler for throwing messages around
-      BehaviorTreeEventHandler mEventHandler;
-      
       // setters for the script interface
       static bool _setRootNode( void *object, const char *index, const char *data );
       static bool _setOwner( void *object, const char *index, const char *data );
@@ -54,11 +48,6 @@ namespace BadBehavior
       void setOwner(SimObject *owner);
       void setRootNode(CompositeNode *root);
 
-      // event handling for tasks
-      void subscribeToEvent(const char *event, EventListenerTask *subscriber);
-      void unsubscribeFromEvent(const char *event, EventListenerTask *subscriber);
-      void postEvent(const char *event);
-      
       // Itickable interface, only using processTick atm
       virtual void interpolateTick( F32 ){}
       virtual void advanceTime( F32 ){}

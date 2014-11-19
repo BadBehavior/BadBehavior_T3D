@@ -91,15 +91,10 @@ void BehaviorTreeRunner::processTick()
       else
       {
          // add the child as a task
-         nextTask->setup();//mOwner, this);
+         nextTask->setup();
          mTasks.push_back(nextTask);
       }
-   }
-
-   // dispatch any events that are queued up
-   if(mTasks.empty())
-      mEventHandler.dispatchEvents();
-   
+   }  
 }
 
 
@@ -131,29 +126,4 @@ void BehaviorTreeRunner::setOwner(SimObject *owner)
 void BehaviorTreeRunner::setRootNode(CompositeNode *root) 
 { 
    mRootNode = root; 
-}
-
-
-void BehaviorTreeRunner::subscribeToEvent(const char *event, EventListenerTask *subscriber)
-{
-   mEventHandler.registerSubscriber(event, subscriber);
-}
-
-
-void BehaviorTreeRunner::unsubscribeFromEvent(const char *event, EventListenerTask *subscriber)
-{
-   mEventHandler.unregisterSubscriber(event, subscriber);
-}
-
-
-void BehaviorTreeRunner::postEvent(const char *event)
-{
-   mEventHandler.postEvent(event);
-}
-
-
-DefineEngineMethod(BehaviorTreeRunner, postEvent, void, (const char *event),, 
-   "@brief Posts an event to the behavior tree.\n\n")
-{
-   object->postEvent( event );
 }
