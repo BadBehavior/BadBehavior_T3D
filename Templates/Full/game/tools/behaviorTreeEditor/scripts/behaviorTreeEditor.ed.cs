@@ -76,7 +76,6 @@ function BTEditor::updateNodeTypes(%this)
    %set = new SimSet() {
       internalName = "Decorator";
    };
-   %set.add( new ScriptObject() { nodeType = "Delay"; } );
    %set.add( new ScriptObject() { nodeType = "FailAlways"; });
    %set.add( new ScriptObject() { nodeType = "Inverter"; } );
    %set.add( new ScriptObject() { nodeType = "Logger"; } );
@@ -90,6 +89,7 @@ function BTEditor::updateNodeTypes(%this)
    };
    %set.add( new ScriptObject() { nodeType = "Command"; } );
    %set.add( new ScriptObject() { nodeType = "Condition"; } );
+   %set.add( new ScriptObject() { nodeType = "RandomWait"; } );
    %set.add( new ScriptObject() { nodeType = "RunScript"; } );
    %set.add( new ScriptObject() { nodeType = "SubTree"; } );
    %set.add( new ScriptObject() { nodeType = "Wait"; } );

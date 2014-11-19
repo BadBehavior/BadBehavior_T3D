@@ -1,5 +1,5 @@
-#ifndef _BB_DELAY_H_
-#define _BB_DELAY_H_
+#ifndef _BB_RANDOMWAIT_H_
+#define _BB_RANDOMWAIT_H_
 
 #ifndef _BB_CORE_H_
 #include "BadBehavior/core/Core.h"
@@ -8,37 +8,36 @@
 namespace BadBehavior
 {
    //---------------------------------------------------------------------------
-   // Delay decorator
-   // Pauses for a random period of time between delayMin and delayMax ms before executing its child.
+   // RandomWait leaf
+   // Pauses for a random period of time between delayMin and delayMax ms before completing.
    //---------------------------------------------------------------------------
-   class Delay : public DecoratorNode
+   class RandomWait : public LeafNode
    {
-      typedef DecoratorNode Parent;
+      typedef LeafNode Parent;
 
    protected:
-      static bool _setDelayMin(void *object, const char *index, const char *data);
-      
-      static bool _setDelayMax(void *object, const char *index, const char *data);
-  
-   public:
-      S32 mDelayMinMs;
-      S32 mDelayMaxMs;
+      static bool _setWaitMin(void *object, const char *index, const char *data);
+      static bool _setWaitMax(void *object, const char *index, const char *data);
 
-      Delay();
+   public:
+      S32 mWaitMinMs;
+      S32 mWaitMaxMs;
+
+      RandomWait();
    
       virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
       
       static void initPersistFields();
 
-      DECLARE_CONOBJECT(Delay);
+      DECLARE_CONOBJECT(RandomWait);
    };
 
    //---------------------------------------------------------------------------
-   // Delay decorator task
+   // RandomWait leaf task
    //---------------------------------------------------------------------------
-   class DelayTask : public CompositeTask
+   class RandomWaitTask : public Task
    {
-      typedef CompositeTask Parent;
+      typedef Task Parent;
 
    protected:
       S32 mCompleteMs;
@@ -47,9 +46,7 @@ namespace BadBehavior
       virtual Task* update();
       
    public:
-      DelayTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
-
-      virtual void onChildComplete(Status s);
+      RandomWaitTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
    };
 
 } // namespace BadBehavior
