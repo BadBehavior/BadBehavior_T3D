@@ -29,7 +29,7 @@ namespace BadBehavior
 
       Command();
 
-      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
+      virtual Task *createTask();
       
       static void initPersistFields();
 
@@ -50,7 +50,7 @@ namespace BadBehavior
       virtual Task* update();
         
    public:
-      CommandTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      CommandTask(Node &node);
    };
 
 } // namespace BadBehavior

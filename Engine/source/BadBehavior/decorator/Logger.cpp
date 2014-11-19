@@ -9,16 +9,16 @@ using namespace BadBehavior;
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(Logger);
 
-Task *Logger::createTask(SimObject &owner, BehaviorTreeRunner &runner)
+Task *Logger::createTask()
 {
-   return new LoggerTask(*this, owner, runner);
+   return new LoggerTask(*this);
 }
 
 //------------------------------------------------------------------------------
 // Logger decorator task
 //------------------------------------------------------------------------------
-LoggerTask::LoggerTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner) 
+LoggerTask::LoggerTask(Node &node)
+   : Parent(node) 
 {
 }
 

@@ -9,16 +9,16 @@ using namespace BadBehavior;
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(PrioritySelector);
 
-Task *PrioritySelector::createTask(SimObject &owner, BehaviorTreeRunner &runner)
+Task *PrioritySelector::createTask()
 {
-   return new PrioritySelectorTask(*this, owner, runner);
+   return new PrioritySelectorTask(*this);
 }
 
 //------------------------------------------------------------------------------
 // Priority selector task
 //------------------------------------------------------------------------------
-PrioritySelectorTask::PrioritySelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner) 
+PrioritySelectorTask::PrioritySelectorTask(Node &node)
+   : Parent(node) 
 {
 }
 

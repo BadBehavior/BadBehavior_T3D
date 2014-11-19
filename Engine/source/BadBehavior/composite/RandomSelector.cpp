@@ -11,16 +11,16 @@ using namespace BadBehavior;
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(RandomSelector);
 
-Task *RandomSelector::createTask(SimObject &owner, BehaviorTreeRunner &runner)
+Task *RandomSelector::createTask()
 {
-   return new RandomSelectorTask(*this, owner, runner);
+   return new RandomSelectorTask(*this);
 }
 
 //------------------------------------------------------------------------------
 // Random selector task
 //------------------------------------------------------------------------------
-RandomSelectorTask::RandomSelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner) 
+RandomSelectorTask::RandomSelectorTask(Node &node)
+   : Parent(node) 
 {
 }
 

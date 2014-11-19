@@ -33,16 +33,16 @@ bool Ticker::_setFrequency(void *object, const char *index, const char *data)
    return false;
 }
 
-Task *Ticker::createTask(SimObject &owner, BehaviorTreeRunner &runner)
+Task *Ticker::createTask()
 {
-   return new TickerTask(*this, owner, runner);
+   return new TickerTask(*this);
 }
 
 //------------------------------------------------------------------------------
 // Ticker decorator task
 //------------------------------------------------------------------------------
-TickerTask::TickerTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner), 
+TickerTask::TickerTask(Node &node)
+   : Parent(node), 
      mNextTimeMs(0) 
 {
 }

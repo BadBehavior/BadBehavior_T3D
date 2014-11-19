@@ -37,9 +37,9 @@ void Command::initPersistFields()
    Parent::initPersistFields();
 }
 
-Task *Command::createTask(SimObject &owner, BehaviorTreeRunner &runner)
+Task *Command::createTask()
 {
-   return new CommandTask(*this, owner, runner);
+   return new CommandTask(*this);
 }
 
 Status Command::evaluate( SimObject *owner )
@@ -83,8 +83,8 @@ Status Command::evaluate( SimObject *owner )
 //------------------------------------------------------------------------------
 // Command task
 //------------------------------------------------------------------------------
-CommandTask::CommandTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner)
+CommandTask::CommandTask(Node &node)
+   : Parent(node)
 {
 }
 

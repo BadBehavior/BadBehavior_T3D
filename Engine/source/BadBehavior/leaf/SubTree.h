@@ -22,7 +22,7 @@ namespace BadBehavior
    public:
       SubTree();
 
-      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
+      virtual Task *createTask();
       
       static void initPersistFields();
 

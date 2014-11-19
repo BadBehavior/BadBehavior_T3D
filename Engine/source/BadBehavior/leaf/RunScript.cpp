@@ -30,9 +30,9 @@ void RunScript::initPersistFields()
    Parent::initPersistFields();
 }
 
-Task *RunScript::createTask(SimObject &owner, BehaviorTreeRunner &runner)
+Task *RunScript::createTask()
 {
-   return new RunScriptTask(*this, owner, runner);
+   return new RunScriptTask(*this);
 }
 
 Status RunScript::evaluateScript( SimObject *owner )
@@ -70,8 +70,8 @@ Status RunScript::evaluateScript( SimObject *owner )
 //------------------------------------------------------------------------------
 // RunScript task
 //------------------------------------------------------------------------------
-RunScriptTask::RunScriptTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner)
+RunScriptTask::RunScriptTask(Node &node)
+   : Parent(node)
 {
 }
 

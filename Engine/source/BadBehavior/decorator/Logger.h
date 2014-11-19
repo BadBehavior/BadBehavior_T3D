@@ -16,7 +16,7 @@ namespace BadBehavior
       typedef DecoratorNode Parent;
 
    public:
-      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
+      virtual Task *createTask();
       
       DECLARE_CONOBJECT(Logger);
    };
@@ -33,7 +33,7 @@ namespace BadBehavior
       virtual void onInitialize();
 
    public:
-      LoggerTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      LoggerTask(Node &node);
 
       virtual void onChildComplete(Status s);
    };

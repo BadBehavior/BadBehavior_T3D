@@ -9,7 +9,7 @@ namespace BadBehavior
 {
    //---------------------------------------------------------------------------
    // RunScript - evaluates a set of Torque Script commands when run
-   // Warning - slow, use sparingly!
+   // Warning - slow, handle with care!
    //---------------------------------------------------------------------------
    class RunScript : public LeafNode
    {
@@ -25,7 +25,7 @@ namespace BadBehavior
 
       RunScript();
 
-      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
+      virtual Task *createTask();
       
       static void initPersistFields();
 
@@ -46,7 +46,7 @@ namespace BadBehavior
       virtual Task* update();
         
    public:
-      RunScriptTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      RunScriptTask(Node &node);
    };
 
 } // namespace BadBehavior

@@ -35,16 +35,16 @@ void Parallel::initPersistFields()
    Parent::initPersistFields();
 }
 
-Task *Parallel::createTask(SimObject &owner, BehaviorTreeRunner &runner)
+Task *Parallel::createTask()
 {
-   return new ParallelTask(*this, owner, runner);
+   return new ParallelTask(*this);
 }
 
 //------------------------------------------------------------------------------
 // Parallel Task
 //------------------------------------------------------------------------------
-ParallelTask::ParallelTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner),
+ParallelTask::ParallelTask(Node &node)
+   : Parent(node),
      mHasFailure(false),
      mHasSuccess(false),
      mHasRunning(false) 

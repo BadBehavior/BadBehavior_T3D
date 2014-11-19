@@ -22,9 +22,9 @@ void Condition::initPersistFields()
    Parent::initPersistFields();
 }
 
-Task *Condition::createTask(SimObject &owner, BehaviorTreeRunner &runner)
+Task *Condition::createTask()
 {
-   return new ConditionTask(*this, owner, runner);
+   return new ConditionTask(*this);
 }
 
 Status Condition::evaluate( SimObject *owner )
@@ -44,8 +44,8 @@ Status Condition::evaluate( SimObject *owner )
 //------------------------------------------------------------------------------
 // Condition task
 //------------------------------------------------------------------------------
-ConditionTask::ConditionTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner) 
+ConditionTask::ConditionTask(Node &node)
+   : Parent(node) 
 {
 }
 

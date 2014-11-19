@@ -17,7 +17,7 @@ namespace BadBehavior
       typedef DecoratorNode Parent;
 
    public:
-      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
+      virtual Task *createTask();
       
       DECLARE_CONOBJECT(Inverter);
    };
@@ -34,7 +34,7 @@ namespace BadBehavior
       virtual void onInitialize();
 
    public:
-      InverterTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      InverterTask(Node &node);
 
       virtual void onChildComplete(Status s);
    };

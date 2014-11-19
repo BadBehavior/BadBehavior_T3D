@@ -23,7 +23,7 @@ namespace BadBehavior
 
       Wait();
    
-      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
+      virtual Task *createTask();
       
       static void initPersistFields();
 
@@ -44,7 +44,7 @@ namespace BadBehavior
       virtual Task* update();
       
    public:
-      WaitTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      WaitTask(Node &node);
    };
 
 } // namespace BadBehavior

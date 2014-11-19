@@ -48,7 +48,7 @@ void BehaviorTreeRunner::processTick()
 
    if(!mRootTask)
    {
-      if((mRootTask = mRootNode->createTask(*mOwner, *this)) == NULL)
+      if((mRootTask = mRootNode->createTask()) == NULL)
       {
          Con::errorf("BehaviorTreeTicker::processTick, no task for root node");
          return;
@@ -58,7 +58,7 @@ void BehaviorTreeRunner::processTick()
    if(mTasks.empty())
    {
       // init the root node
-      mRootTask->setup();//mOwner, this);
+      mRootTask->setup(mOwner, this);
 
       // add it to the task list
       mTasks.push_back(mRootTask);
@@ -91,7 +91,7 @@ void BehaviorTreeRunner::processTick()
       else
       {
          // add the child as a task
-         nextTask->setup();
+         nextTask->setup(mOwner, this);
          mTasks.push_back(nextTask);
       }
    }  

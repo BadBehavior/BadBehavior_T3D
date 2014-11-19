@@ -33,7 +33,7 @@ namespace BadBehavior
 
       Loop();
 
-      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
+      virtual Task *createTask();
       
       static void initPersistFields();
 
@@ -54,7 +54,7 @@ namespace BadBehavior
       virtual Task *update();
 
    public:
-      LoopTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      LoopTask(Node &node);
 
       virtual void onChildComplete(Status s);
    };

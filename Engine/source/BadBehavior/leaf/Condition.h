@@ -20,7 +20,7 @@ namespace BadBehavior
   
    public:
 
-      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
+      virtual Task *createTask();
       
       // do the evaluation
       Status evaluate(SimObject *owner);
@@ -41,7 +41,7 @@ namespace BadBehavior
       virtual Task* update();
       
    public:
-      ConditionTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      ConditionTask(Node &node);
    };
 
 } // namespace BadBehavior

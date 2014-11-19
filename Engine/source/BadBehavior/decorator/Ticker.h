@@ -23,7 +23,7 @@ namespace BadBehavior
       
       Ticker();
 
-      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
+      virtual Task *createTask();
       
       static void initPersistFields();
 
@@ -44,7 +44,7 @@ namespace BadBehavior
       virtual void onInitialize();
       
    public:
-      TickerTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      TickerTask(Node &node);
 
       virtual void onChildComplete(Status s);
    };

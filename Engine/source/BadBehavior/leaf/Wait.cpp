@@ -34,16 +34,16 @@ bool Wait::_setWait(void *object, const char *index, const char *data)
    return false;
 }
 
-Task *Wait::createTask(SimObject &owner, BehaviorTreeRunner &runner)
+Task *Wait::createTask()
 {
-   return new WaitTask(*this, owner, runner);
+   return new WaitTask(*this);
 }
 
 //------------------------------------------------------------------------------
 // Wait task
 //------------------------------------------------------------------------------
-WaitTask::WaitTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner), 
+WaitTask::WaitTask(Node &node)
+   : Parent(node), 
      mCompleteMs(0) 
 {
 }

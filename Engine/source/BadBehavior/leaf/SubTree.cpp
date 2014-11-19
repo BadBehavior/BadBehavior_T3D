@@ -27,7 +27,7 @@ void SubTree::initPersistFields()
    Parent::initPersistFields();
 }
 
-Task *SubTree::createTask(SimObject &owner, BehaviorTreeRunner &runner)
+Task *SubTree::createTask()
 {
    if(!mSubTreeName || mSubTreeName[0] == 0)
    {
@@ -50,5 +50,5 @@ Task *SubTree::createTask(SimObject &owner, BehaviorTreeRunner &runner)
       return NULL;
    }
 
-   return node->createTask(owner, runner);
+   return node->createTask();
 }

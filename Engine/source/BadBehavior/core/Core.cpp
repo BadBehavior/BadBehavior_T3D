@@ -54,12 +54,10 @@ bool DecoratorNode::acceptsAsChild( SimObject *object ) const
 
 //==================================Task========================================
 
-Task::Task(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
+Task::Task(Node &node)
    : mStatus(INVALID), 
      mIsComplete(false), 
-     mNodeRep(&node),
-     mOwner(&owner),
-     mRunner(&runner) 
+     mNodeRep(&node) 
 {
 }
 
@@ -78,10 +76,12 @@ Task* Task::tick()
   return update();
 }
 
-void Task::setup()
+void Task::setup(SimObject *owner, BehaviorTreeRunner *runner)
 {
    PROFILE_SCOPE(Task_setup);
-   
+   mRunner = runner;
+   mOwner = owner;
+
    if(mStatus != RUNNING)
       onInitialize();
    
@@ -115,8 +115,8 @@ void Task::onChildComplete(Status)
 
 //===========================CompositeTask======================================
 
-CompositeTask::CompositeTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner) 
-   : Parent(node, owner, runner) 
+CompositeTask::CompositeTask(Node &node) 
+   : Parent(node) 
 {
 }
 
@@ -137,7 +137,7 @@ void CompositeTask::onInitialize()
       CompositeNode *node = static_cast<CompositeNode *>(mNodeRep);
       for(SimSet::iterator i = node->begin(); i != node->end(); ++i)
       {
-         mChildren.push_back(dynamic_cast<Node*>(*i)->createTask(*mOwner, *mRunner));
+         mChildren.push_back(dynamic_cast<Node*>(*i)->createTask());
       }
    }
    

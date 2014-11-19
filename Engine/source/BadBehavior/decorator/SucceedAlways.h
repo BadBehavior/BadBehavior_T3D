@@ -16,7 +16,7 @@ namespace BadBehavior
       typedef DecoratorNode Parent;
 
    public:
-      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
+      virtual Task *createTask();
       
       DECLARE_CONOBJECT(SucceedAlways);
    };
@@ -33,7 +33,7 @@ namespace BadBehavior
       virtual void onInitialize();
 
    public:
-      SucceedAlwaysTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      SucceedAlwaysTask(Node &node);
 
       virtual void onChildComplete(Status s);
    };

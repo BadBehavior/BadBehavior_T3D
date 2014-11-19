@@ -8,16 +8,16 @@ using namespace BadBehavior;
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(Inverter);
 
-Task *Inverter::createTask(SimObject &owner, BehaviorTreeRunner &runner)
+Task *Inverter::createTask()
 {
-   return new InverterTask(*this, owner, runner);
+   return new InverterTask(*this);
 }
 
 //------------------------------------------------------------------------------
 // Inverter decorator task
 //------------------------------------------------------------------------------
-InverterTask::InverterTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner) 
+InverterTask::InverterTask(Node &node)
+   : Parent(node) 
 {
 }
 

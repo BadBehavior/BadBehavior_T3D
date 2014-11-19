@@ -37,7 +37,7 @@ namespace BadBehavior
    {
    public:
       // create a runtime task for this node
-      virtual Task* createTask(SimObject &owner, BehaviorTreeRunner &runner) = 0;
+      virtual Task* createTask() = 0;
    };
 
    //---------------------------------------------------------------------------
@@ -81,8 +81,6 @@ namespace BadBehavior
    //---------------------------------------------------------------------------
    class Task
    {
-      friend class Node;
-
    protected:
 
       // the current status
@@ -111,7 +109,7 @@ namespace BadBehavior
    
    public:
       // tasks are instantiated with a reference to their associated node
-      Task(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      Task(Node &node);
       
       // status sets and gets
       Status getStatus();
@@ -127,7 +125,7 @@ namespace BadBehavior
       virtual void onChildComplete(Status);
 
       // prepare the task
-      void setup();
+      void setup(SimObject *owner, BehaviorTreeRunner *runner);
 
       // finish the task
       void finish();
@@ -148,7 +146,7 @@ namespace BadBehavior
       // the current child task
       VectorPtr<Task*>::iterator mCurrentChild;
 
-      CompositeTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      CompositeTask(Node &node);
       virtual ~CompositeTask();
       virtual void onInitialize();
       virtual void onTerminate();

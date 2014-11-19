@@ -9,10 +9,10 @@ using namespace BadBehavior;
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(Root);
 
-Task *Root::createTask(SimObject &owner, BehaviorTreeRunner &runner)
+Task *Root::createTask()
 {
    if(!size())
       return NULL;
 
-   return dynamic_cast<Node *>(*begin())->createTask(owner, runner);
+   return dynamic_cast<Node *>(*begin())->createTask();
 }
