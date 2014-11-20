@@ -1,5 +1,5 @@
-#ifndef _BB_RUNSCRIPT_H_
-#define _BB_RUNSCRIPT_H_
+#ifndef _BB_SCRIPTEVAL_H_
+#define _BB_SCRIPTEVAL_H_
 
 #ifndef _BB_CORE_H_
 #include "BadBehavior/core/Core.h"
@@ -8,10 +8,10 @@
 namespace BadBehavior
 {
    //---------------------------------------------------------------------------
-   // RunScript - evaluates a set of Torque Script commands when run
+   // ScriptEval - evaluates a set of Torque Script commands when run
    // Warning - slow, handle with care!
    //---------------------------------------------------------------------------
-   class RunScript : public LeafNode
+   class ScriptEval : public LeafNode
    {
       typedef LeafNode Parent;
    
@@ -23,7 +23,7 @@ namespace BadBehavior
       // the torque script to evaluate
       String mBehaviorScript;
 
-      RunScript();
+      ScriptEval();
 
       virtual Task *createTask();
       
@@ -32,13 +32,13 @@ namespace BadBehavior
       // execute the script
       Status evaluateScript(SimObject *owner);
 
-      DECLARE_CONOBJECT(RunScript);
+      DECLARE_CONOBJECT(ScriptEval);
    };
 
    //---------------------------------------------------------------------------
-   // RunScript task
+   // ScriptEval task
    //---------------------------------------------------------------------------
-   class RunScriptTask : public Task
+   class ScriptEvalTask : public Task
    {
       typedef Task Parent;
    
@@ -46,7 +46,7 @@ namespace BadBehavior
       virtual Task* update();
         
    public:
-      RunScriptTask(Node &node);
+      ScriptEvalTask(Node &node);
    };
 
 } // namespace BadBehavior

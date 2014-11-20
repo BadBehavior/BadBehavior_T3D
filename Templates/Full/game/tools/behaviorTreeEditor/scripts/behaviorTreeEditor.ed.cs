@@ -50,7 +50,8 @@ function BTEditor::startUp(%this, %content)
    else
    {
       BTEditorContentList.refresh();
-      BTEditorContentList.setFirstSelected();
+      if(BTEditorTabBook.getCount() == 0)
+         BTEditorContentList.setFirstSelected();
    }
    
    %this.updateUndoMenu();
@@ -90,7 +91,7 @@ function BTEditor::updateNodeTypes(%this)
    %set.add( new ScriptObject() { nodeType = "Command"; } );
    %set.add( new ScriptObject() { nodeType = "Condition"; } );
    %set.add( new ScriptObject() { nodeType = "RandomWait"; } );
-   %set.add( new ScriptObject() { nodeType = "RunScript"; } );
+   %set.add( new ScriptObject() { nodeType = "ScriptEval"; } );
    %set.add( new ScriptObject() { nodeType = "SubTree"; } );
    %set.add( new ScriptObject() { nodeType = "Wait"; } );
    BTNodeTypes.add(%set);

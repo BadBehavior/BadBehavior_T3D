@@ -1,28 +1,28 @@
 #include "console/engineAPI.h"
 #include "platform/profiler.h"
 
-#include "RunScript.h"
+#include "ScriptEval.h"
 
 using namespace BadBehavior;
 
 //------------------------------------------------------------------------------
-// RunScript node - warning, slow!
+// ScriptEval node - warning, slow!
 //------------------------------------------------------------------------------
-IMPLEMENT_CONOBJECT(RunScript);
+IMPLEMENT_CONOBJECT(ScriptEval);
 
-RunScript::RunScript()
+ScriptEval::ScriptEval()
    : mDefaultReturnStatus(FAILURE) 
 {
 }
 
-void RunScript::initPersistFields()
+void ScriptEval::initPersistFields()
 {
    addGroup( "Behavior" );
 
-   addField( "behaviorScript", TypeCommand, Offset(mBehaviorScript, RunScript),
+   addField( "behaviorScript", TypeCommand, Offset(mBehaviorScript, ScriptEval),
       "@brief The command to execute when the leaf is ticked.  Max 255 characters." );
 
-   addField( "defaultReturnStatus", TYPEID< BadBehavior::Status >(), Offset(mDefaultReturnStatus, RunScript),
+   addField( "defaultReturnStatus", TYPEID< BadBehavior::Status >(), Offset(mDefaultReturnStatus, ScriptEval),
       "@brief The default value for this node to return.");
 
    endGroup( "Behavior" );
@@ -30,14 +30,14 @@ void RunScript::initPersistFields()
    Parent::initPersistFields();
 }
 
-Task *RunScript::createTask()
+Task *ScriptEval::createTask()
 {
-   return new RunScriptTask(*this);
+   return new ScriptEvalTask(*this);
 }
 
-Status RunScript::evaluateScript( SimObject *owner )
+Status ScriptEval::evaluateScript( SimObject *owner )
 {
-   PROFILE_SCOPE(RunScript_evaluateScript);
+   PROFILE_SCOPE(ScriptEval_evaluateScript);
 
    if(mBehaviorScript.isEmpty())
       return mDefaultReturnStatus;
@@ -70,14 +70,14 @@ Status RunScript::evaluateScript( SimObject *owner )
 //------------------------------------------------------------------------------
 // RunScript task
 //------------------------------------------------------------------------------
-RunScriptTask::RunScriptTask(Node &node)
+ScriptEvalTask::ScriptEvalTask(Node &node)
    : Parent(node)
 {
 }
 
-Task* RunScriptTask::update()
+Task* ScriptEvalTask::update()
 {
-   mStatus = static_cast<RunScript*>(mNodeRep)->evaluateScript( mOwner );
+   mStatus = static_cast<ScriptEval*>(mNodeRep)->evaluateScript( mOwner );
 
    return NULL; // leaves don't have children
 }
