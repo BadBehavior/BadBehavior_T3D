@@ -88,9 +88,9 @@ function BTEditor::updateNodeTypes(%this)
    %set = new SimSet() {
       internalName = "Leaf";
    };
-   %set.add( new ScriptObject() { nodeType = "Command"; } );
    %set.add( new ScriptObject() { nodeType = "RandomWait"; } );
    %set.add( new ScriptObject() { nodeType = "ScriptEval"; } );
+   %set.add( new ScriptObject() { nodeType = "ScriptFunc"; } );
    %set.add( new ScriptObject() { nodeType = "SubTree"; } );
    %set.add( new ScriptObject() { nodeType = "Wait"; } );
    BTNodeTypes.add(%set);

@@ -1,35 +1,35 @@
 #include "console/engineAPI.h"
 #include "platform/profiler.h"
 
-#include "Command.h"
+#include "ScriptFunc.h"
 
 using namespace BadBehavior;
 
 //------------------------------------------------------------------------------
-// Command node
+// ScriptFunc node
 //------------------------------------------------------------------------------
-IMPLEMENT_CONOBJECT(Command);
+IMPLEMENT_CONOBJECT(ScriptFunc);
 
-Command::Command()
+ScriptFunc::ScriptFunc()
    : mDefaultReturnStatus(FAILURE),
-     mCommandFunction(StringTable->insert(""))
+     mScriptFunction(StringTable->insert(""))
 {
    for(U8 i = 0; i < MAX_COMMAND_ARGS; ++i)
-      mCommandArgs[i] = StringTable->insert("");
+      mScriptArgs[i] = StringTable->insert("");
 }
 
 
-void Command::initPersistFields()
+void ScriptFunc::initPersistFields()
 {
    addGroup( "Behavior" );
 
-   addField( "func", TypeCaseString, Offset(mCommandFunction, Command),
+   addField( "func", TypeCaseString, Offset(mScriptFunction, ScriptFunc),
       "@brief The function to execute when the leaf is ticked." );
 
-   addField( "args", TypeCaseString, Offset(mCommandArgs, Command), MAX_COMMAND_ARGS,
+   addField( "args", TypeCaseString, Offset(mScriptArgs, ScriptFunc), MAX_COMMAND_ARGS,
       "@brief The arguments to be passed to the function to be executed." );
 
-   addField( "defaultReturnStatus", TYPEID< BadBehavior::Status >(), Offset(mDefaultReturnStatus, Command),
+   addField( "defaultReturnStatus", TYPEID< BadBehavior::Status >(), Offset(mDefaultReturnStatus, ScriptFunc),
       "@brief The default value for this node to return.");
 
    endGroup( "Behavior" );
@@ -37,29 +37,29 @@ void Command::initPersistFields()
    Parent::initPersistFields();
 }
 
-Task *Command::createTask()
+Task *ScriptFunc::createTask()
 {
-   return new CommandTask(*this);
+   return new ScriptFuncTask(*this);
 }
 
-Status Command::evaluate( SimObject *owner )
+Status ScriptFunc::evaluate( SimObject *owner )
 {
-   PROFILE_SCOPE(Command_evaluate);
+   PROFILE_SCOPE(ScriptFunc_evaluate);
 
    if(!owner)
       return INVALID;
 
-   if(!mCommandFunction || !mCommandFunction[0])
+   if(!mScriptFunction || !mScriptFunction[0])
       return mDefaultReturnStatus;
 
    S32 argc = 0;
 
    const char *args[MAX_COMMAND_ARGS + 2];
-   args[0] = mCommandFunction;
+   args[0] = mScriptFunction;
 
-   while(argc < MAX_COMMAND_ARGS && (mCommandArgs[argc] && mCommandArgs[argc][0]))
+   while(argc < MAX_COMMAND_ARGS && (mScriptArgs[argc] && mScriptArgs[argc][0]))
    {
-      args[argc + 2] = mCommandArgs[argc];
+      args[argc + 2] = mScriptArgs[argc];
       ++argc;
    }
 
@@ -83,14 +83,14 @@ Status Command::evaluate( SimObject *owner )
 //------------------------------------------------------------------------------
 // Command task
 //------------------------------------------------------------------------------
-CommandTask::CommandTask(Node &node)
+ScriptFuncTask::ScriptFuncTask(Node &node)
    : Parent(node)
 {
 }
 
-Task* CommandTask::update()
+Task* ScriptFuncTask::update()
 {
-   mStatus = static_cast<Command*>(mNodeRep)->evaluate( mOwner );
+   mStatus = static_cast<ScriptFunc*>(mNodeRep)->evaluate( mOwner );
 
    return NULL; // leaves don't have children
 }

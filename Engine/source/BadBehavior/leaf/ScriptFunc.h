@@ -1,5 +1,5 @@
-#ifndef _BB_COMMAND_H_
-#define _BB_COMMAND_H_
+#ifndef _BB_SCRIPTFUNC_H_
+#define _BB_SCRIPTFUNC_H_
 
 #ifndef _BB_CORE_H_
 #include "BadBehavior/core/Core.h"
@@ -10,24 +10,24 @@ namespace BadBehavior
    static const U8 MAX_COMMAND_ARGS = 4;
 
    //---------------------------------------------------------------------------
-   // Command - executes a function on the owner object
+   // ScriptFunc - executes a function on the owner object
    //---------------------------------------------------------------------------
-   class Command : public LeafNode
+   class ScriptFunc : public LeafNode
    {
       typedef LeafNode Parent;
 
       // the function to call
-      StringTableEntry mCommandFunction;
+      StringTableEntry mScriptFunction;
       
       // the arguments for the function
-      StringTableEntry mCommandArgs[MAX_COMMAND_ARGS];
+      StringTableEntry mScriptArgs[MAX_COMMAND_ARGS];
 
    public:
 
       // status to return if the command does not return a value
       Status mDefaultReturnStatus;
 
-      Command();
+      ScriptFunc();
 
       virtual Task *createTask();
       
@@ -36,13 +36,13 @@ namespace BadBehavior
       // execute the command
       Status evaluate(SimObject *owner);
 
-      DECLARE_CONOBJECT(Command);
+      DECLARE_CONOBJECT(ScriptFunc);
    };
 
    //---------------------------------------------------------------------------
-   // Command task
+   // ScriptFunc task
    //---------------------------------------------------------------------------
-   class CommandTask : public Task
+   class ScriptFuncTask : public Task
    {
       typedef Task Parent;
    
@@ -50,7 +50,7 @@ namespace BadBehavior
       virtual Task* update();
         
    public:
-      CommandTask(Node &node);
+      ScriptFuncTask(Node &node);
    };
 
 } // namespace BadBehavior
