@@ -40,7 +40,7 @@ void BehaviorTreeRunner::initPersistFields()
 // processTick is where the magic happens :)
 void BehaviorTreeRunner::processTick()
 {
-   PROFILE_SCOPE(BehaviorTreeTicker_Tick);
+   PROFILE_SCOPE(BehaviorTreeRunner_processTick);
 
    // check that we are setup to run
    if(mOwner.isNull() || mRootNode.isNull())
