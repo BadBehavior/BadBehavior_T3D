@@ -89,7 +89,6 @@ function BTEditor::updateNodeTypes(%this)
       internalName = "Leaf";
    };
    %set.add( new ScriptObject() { nodeType = "Command"; } );
-   %set.add( new ScriptObject() { nodeType = "Condition"; } );
    %set.add( new ScriptObject() { nodeType = "RandomWait"; } );
    %set.add( new ScriptObject() { nodeType = "ScriptEval"; } );
    %set.add( new ScriptObject() { nodeType = "SubTree"; } );
