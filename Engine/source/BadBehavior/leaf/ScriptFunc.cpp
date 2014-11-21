@@ -81,7 +81,7 @@ Status ScriptFunc::evaluate( SimObject *owner )
 }
 
 //------------------------------------------------------------------------------
-// Command task
+// ScriptFunc task
 //------------------------------------------------------------------------------
 ScriptFuncTask::ScriptFuncTask(Node &node)
    : Parent(node)
