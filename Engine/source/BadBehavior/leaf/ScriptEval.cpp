@@ -50,18 +50,14 @@ Status ScriptEval::evaluateScript( SimObject *owner )
       execString = "%obj = " + idString + "; ";
    }
    
+   // add in the behavior script
    execString += mBehaviorScript;
+   
+   // and tag on the default return status
+   execString += " return " + String(EngineMarshallData< BehaviorReturnType>(mDefaultReturnStatus)) + ";";
 
    // get the result
    const char *result = Con::evaluate(execString.c_str());
-
-   // if script didn't return a result, return our default status
-   if(!result || !result[0])
-      return mDefaultReturnStatus;
-   
-   // true or false map directly to SUCCEED or FAILURE
-   if(result[0] == '1' || result[0] == '0') 
-      return static_cast<Status>(dAtoi(result));
    
    // convert the returned value to our internal enum type
    return EngineUnmarshallData< BehaviorReturnType >()( result );
