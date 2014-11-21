@@ -74,12 +74,14 @@ Task* LoopTask::update()
       S32 numLoops = nodeRep->mNumLoops;
    
       if( ((policy == Loop::ON_FAILURE) && (mStatus != FAILURE)) ||
-         ((policy == Loop::ON_SUCCESS) && (mStatus != SUCCESS)) ||
-         ((numLoops > 0) && (++mCurrentLoop < numLoops)) )
+          ((policy == Loop::ON_SUCCESS) && (mStatus != SUCCESS)) )
       {
-         mIsComplete = false;
-         mStatus = RUNNING;
-      }      
+         if ( (++mCurrentLoop < numLoops) || (numLoops == 0) )
+         {
+            mIsComplete = false;
+            mStatus = RUNNING;
+         }
+      }
       
       return NULL;
    }
