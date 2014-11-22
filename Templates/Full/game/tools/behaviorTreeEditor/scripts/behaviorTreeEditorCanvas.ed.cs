@@ -37,6 +37,7 @@ function BTEditCanvas::quit( %this )
    
    Canvas.setContent(BTEditor.lastContent);
    $InBehaviorTreeEditor = false;
+   BehaviorTreeManager.onBehaviorTreeEditor(false);
 }
 
 //==============================================================================

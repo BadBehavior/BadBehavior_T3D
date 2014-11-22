@@ -3,11 +3,8 @@ $inBehaviorTreeEditor = false;
 //==============================================================================
 // INIT
 //==============================================================================
-function BTEdit( %val )
+function BTEdit()
 {
-   if(%val != 0)
-      return;
-
    if (!$InBehaviorTreeEditor)
    {
       if(!isObject(BTEditCanvas))
@@ -16,6 +13,7 @@ function BTEdit( %val )
       BTEditor.startUp(Canvas.getContent());
       
       $InBehaviorTreeEditor = true;
+      BehaviorTreeManager.onBehaviorTreeEditor(true);
    }
    else
    {
