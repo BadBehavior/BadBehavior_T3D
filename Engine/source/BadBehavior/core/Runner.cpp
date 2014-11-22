@@ -134,10 +134,12 @@ void BehaviorTreeRunner::stop()
    setProcessTicks(false);
 }
 
+
 void BehaviorTreeRunner::start()
 {
    setProcessTicks(true);
 }
+
 
 void BehaviorTreeRunner::reset()
 {
@@ -146,6 +148,13 @@ void BehaviorTreeRunner::reset()
    mRootTask = 0;
 }
 
+
+bool BehaviorTreeRunner::isRunning()
+{
+   return isProcessingTicks();
+}
+
+
 DefineEngineMethod( BehaviorTreeRunner, stop, void, (), ,
                    "Halt the execution of the behavior tree.\n\n"
                    "@note The internal task status is retained, allowing execution to be resumed.")
@@ -153,14 +162,23 @@ DefineEngineMethod( BehaviorTreeRunner, stop, void, (), ,
    object->stop();
 }
 
+
 DefineEngineMethod( BehaviorTreeRunner, start, void, (), ,
                   "Resume execution of the (stopped) behavior tree.")
 {
    object->start();
 }
 
+
 DefineEngineMethod( BehaviorTreeRunner, reset, void, (), ,
                     "Reset the behavior tree. Any internal state is lost.")
 {
    object->reset();
+}
+
+
+DefineEngineMethod( BehaviorTreeRunner, isRunning, bool, (), ,
+                    "Is the behavior tree running")
+{
+   return object->isRunning();
 }

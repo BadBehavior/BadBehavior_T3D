@@ -52,6 +52,7 @@ namespace BadBehavior
       void stop();
       void start();
       void reset();
+      bool isRunning();
 
       // Itickable interface, only using processTick atm
       virtual void interpolateTick( F32 ){}
