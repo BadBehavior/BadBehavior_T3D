@@ -47,6 +47,11 @@ namespace BadBehavior
       // public setters for the script interface
       void setOwner(SimObject *owner);
       void setRootNode(CompositeNode *root);
+      
+      // for script control
+      void stop();
+      void start();
+      void reset();
 
       // Itickable interface, only using processTick atm
       virtual void interpolateTick( F32 ){}

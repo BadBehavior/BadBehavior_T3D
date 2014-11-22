@@ -127,3 +127,40 @@ void BehaviorTreeRunner::setRootNode(CompositeNode *root)
 { 
    mRootNode = root; 
 }
+
+
+void BehaviorTreeRunner::stop()
+{
+   setProcessTicks(false);
+}
+
+void BehaviorTreeRunner::start()
+{
+   setProcessTicks(true);
+}
+
+void BehaviorTreeRunner::reset()
+{
+   mTasks.clear();
+   delete mRootTask;
+   mRootTask = 0;
+}
+
+DefineEngineMethod( BehaviorTreeRunner, stop, void, (), ,
+                   "Halt the execution of the behavior tree.\n\n"
+                   "@note The internal task status is retained, allowing execution to be resumed.")
+{
+   object->stop();
+}
+
+DefineEngineMethod( BehaviorTreeRunner, start, void, (), ,
+                  "Resume execution of the (stopped) behavior tree.")
+{
+   object->start();
+}
+
+DefineEngineMethod( BehaviorTreeRunner, reset, void, (), ,
+                    "Reset the behavior tree. Any internal state is lost.")
+{
+   object->reset();
+}
