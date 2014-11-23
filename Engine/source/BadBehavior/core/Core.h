@@ -110,6 +110,7 @@ namespace BadBehavior
    public:
       // tasks are instantiated with a reference to their associated node
       Task(Node &node);
+      virtual ~Task();
       
       // status sets and gets
       Status getStatus();
@@ -130,7 +131,6 @@ namespace BadBehavior
       // finish the task
       void finish();
    };
-
 
    //---------------------------------------------------------------------------
    // Composite task base class

@@ -61,6 +61,10 @@ Task::Task(Node &node)
 {
 }
 
+Task::~Task()
+{
+}
+
 void Task::onInitialize()
 {
 }
@@ -148,4 +152,17 @@ void CompositeTask::onInitialize()
 void CompositeTask::onTerminate()
 {
    mStatus = INVALID;
+
+   // delete the children
+   // NOTE - we could option-ize this to enable low-mem/slow or high-mem/fast options
+   // Deleting completed tasks here means that the task tree has to be recreated next evaluation, but it also
+   // means that the memory usage of the task tree never exceeds the minimum needed to run.
+   // If we don't delete the children here, then the entire task tree will accumulate in memory. This means that
+   // subsequent re-evaluation is much quicker.
+   while(mChildren.size())
+   {
+      Task *child = mChildren.back();
+      mChildren.pop_back();
+      delete child;
+   }
 }
