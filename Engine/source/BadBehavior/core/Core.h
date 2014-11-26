@@ -32,9 +32,12 @@ namespace BadBehavior
    
    //---------------------------------------------------------------------------
    // node base class
+   // derived from SimGroup for easy editor integration
    //---------------------------------------------------------------------------
-   class Node
+   class Node : public SimGroup
    {
+      typedef SimGroup Parent;
+
    public:
       // create a runtime task for this node
       virtual Task* createTask() = 0;
@@ -43,17 +46,21 @@ namespace BadBehavior
    //---------------------------------------------------------------------------
    // Leaf node base class - for nodes without children
    //---------------------------------------------------------------------------
-   class LeafNode : public SimObject, public Node
+   class LeafNode : public Node
    {
-      typedef SimObject Parent;
+      typedef Node Parent;
+
+   public:
+      virtual void addObject(SimObject *obj);
+      virtual bool acceptsAsChild( SimObject *object ) const;
    };
 
    //---------------------------------------------------------------------------
    // Composite node base class - for nodes with children
    //---------------------------------------------------------------------------
-   class CompositeNode : public SimGroup, public Node
+   class CompositeNode : public Node
    {
-      typedef SimGroup Parent;
+      typedef Node Parent;
 
    public:
       // override addObject and acceptsAsChild to only allow behavior tree nodes to be added as children
@@ -118,9 +125,6 @@ namespace BadBehavior
       
       // run the task
       Task* tick();
-      
-      // get this tasks child
-      virtual Task *getChild();
       
       // called when child task finishes
       virtual void onChildComplete(Status);

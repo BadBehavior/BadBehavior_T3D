@@ -100,7 +100,7 @@ void BehaviorTreeRunner::processTick()
 
 bool BehaviorTreeRunner::_setRootNode( void *object, const char *index, const char *data )
 {
-   BehaviorTreeRunner *runner = reinterpret_cast<BehaviorTreeRunner *>( object );   
+   BehaviorTreeRunner *runner = static_cast<BehaviorTreeRunner *>( object );   
    CompositeNode* root = NULL;
    Sim::findObject( data, root );
    runner->setRootNode(root);
@@ -109,7 +109,7 @@ bool BehaviorTreeRunner::_setRootNode( void *object, const char *index, const ch
 
 bool BehaviorTreeRunner::_setOwner( void *object, const char *index, const char *data )
 {
-   BehaviorTreeRunner *runner = reinterpret_cast<BehaviorTreeRunner *>( object );   
+   BehaviorTreeRunner *runner = static_cast<BehaviorTreeRunner *>( object );   
    SimObject* owner = NULL;
    Sim::findObject( data, owner );
    runner->setOwner(owner);

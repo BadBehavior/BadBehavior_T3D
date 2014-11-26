@@ -18,6 +18,21 @@ ImplementEnumType( BehaviorReturnType,
 EndImplementEnumType;
 
 
+//================================LeafNode======================================
+
+//------------------------------------------------------------------------------
+// don't allow objects to be added
+//------------------------------------------------------------------------------
+void LeafNode::addObject(SimObject *object)
+{
+}
+
+bool LeafNode::acceptsAsChild( SimObject *object ) const 
+{ 
+   return false; 
+}
+
+
 //============================CompositeNode=====================================
 
 //------------------------------------------------------------------------------
@@ -77,7 +92,7 @@ Task* Task::tick()
 {
    PROFILE_SCOPE(Task_Tick);
    
-  return update();
+   return update();
 }
 
 void Task::setup(SimObject *owner, BehaviorTreeRunner *runner)
@@ -108,11 +123,6 @@ void Task::setStatus(Status newStatus)
    mStatus = newStatus; 
 }
 
-Task* Task::getChild() 
-{ 
-   return NULL; 
-}
-
 void Task::onChildComplete(Status)
 {
 }
@@ -141,7 +151,7 @@ void CompositeTask::onInitialize()
       CompositeNode *node = static_cast<CompositeNode *>(mNodeRep);
       for(SimSet::iterator i = node->begin(); i != node->end(); ++i)
       {
-         mChildren.push_back(dynamic_cast<Node*>(*i)->createTask());
+         mChildren.push_back(static_cast<Node*>(*i)->createTask());
       }
    }
    
@@ -153,12 +163,7 @@ void CompositeTask::onTerminate()
 {
    mStatus = INVALID;
 
-   // delete the children
-   // NOTE - we could option-ize this to enable low-mem/slow or high-mem/fast options
-   // Deleting completed tasks here means that the task tree has to be recreated next evaluation, but it also
-   // means that the memory usage of the task tree never exceeds the minimum needed to run.
-   // If we don't delete the children here, then the entire task tree will accumulate in memory. This means that
-   // subsequent re-evaluation is much quicker.
+   // clean up
    while(mChildren.size())
    {
       Task *child = mChildren.back();
