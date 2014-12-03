@@ -61,34 +61,28 @@ function BehaviorTreeManager::loadTrees(%this)
    popInstantGroup();
 }
 
-function BehaviorTreeManager::assignTree(%this, %obj, %tree)
+function BehaviorTreeManager::createTree(%this, %obj, %tree)
 {
    if(!isObject(%obj))
    {
       error("BehaviorTreeManager::assignTree - object does not exist");
-      return false;
+      return -1;
    }
    
    if(!BehaviorTreeGroup.isMember(%tree))
    {
       error("BehaviorTreeManager::assignTree - tree is not a member of BehaviorTreeGroup");
-      return false;
+      return -1;
    }
    
-   if(isObject(%obj.behaviorTree))
-   {
-      %obj.behaviorTree.rootNode = %tree;
-      %obj.behaviorTree.ownerObject = %obj;
-   }
-   else
-   {
-      pushInstantGroup(ActiveBehaviorTreeGroup);
-      %obj.behaviorTree = new BehaviorTreeRunner() {
-         rootNode = %tree;
-         ownerObject = %obj;
-      };
-      popInstantGroup();
-   }
+   pushInstantGroup(ActiveBehaviorTreeGroup);
+   %behaviorTree = new BehaviorTreeRunner() {
+      rootNode = %tree;
+      ownerObject = %obj;
+   };
+   popInstantGroup();
+      
+   return %behaviorTree;
 }
 
 function BehaviorTreeManager::onBehaviorTreeEditor(%this, %val)

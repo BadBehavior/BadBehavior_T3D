@@ -30,7 +30,10 @@ function BadBot::spawn(%name, %startPos)
 
 function BadBot::setBehavior(%this, %tree)
 {
-   BehaviorTreeManager.assignTree(%this, %tree); 
+   if(isObject(%this.behaviorTree))
+      %this.behaviorTree.rootNode = %tree;
+   else      
+      %this.behaviorTree = BehaviorTreeManager.createTree(%this, %tree); 
 }
 
 function BadBot::clearBehavior(%this)
