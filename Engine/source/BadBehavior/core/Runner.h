@@ -52,6 +52,7 @@ namespace BadBehavior
       void stop();
       void start();
       void reset();
+      void clear();
       bool isRunning();
 
       // Itickable interface, only using processTick atm

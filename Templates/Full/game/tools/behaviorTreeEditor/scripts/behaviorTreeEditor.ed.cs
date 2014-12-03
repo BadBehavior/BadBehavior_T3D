@@ -38,8 +38,9 @@ function BTEditor::startUp(%this, %content)
    %this.lastContent=%content;
    Canvas.setContent( BTEditor );
    
-   if(!isObject(BehaviorTreeGroup))
-      new SimGroup(BehaviorTreeGroup);
+   if(!isObject(BehaviorTreeManager))
+      // This isn't pretty, but we need to load up existing trees
+      exec("scripts/server/behaviorTreeManager.cs");
    
    if(BehaviorTreeGroup.getCount() == 0)
    {

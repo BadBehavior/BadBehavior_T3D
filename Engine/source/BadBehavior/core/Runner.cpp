@@ -103,7 +103,8 @@ bool BehaviorTreeRunner::_setRootNode( void *object, const char *index, const ch
    BehaviorTreeRunner *runner = static_cast<BehaviorTreeRunner *>( object );   
    CompositeNode* root = NULL;
    Sim::findObject( data, root );
-   runner->setRootNode(root);
+   if(root)
+      runner->setRootNode(root);
    return false;
 }
 
@@ -112,19 +113,22 @@ bool BehaviorTreeRunner::_setOwner( void *object, const char *index, const char 
    BehaviorTreeRunner *runner = static_cast<BehaviorTreeRunner *>( object );   
    SimObject* owner = NULL;
    Sim::findObject( data, owner );
-   runner->setOwner(owner);
+   if(owner)
+      runner->setOwner(owner);
    return false;
 }
 
 
 void BehaviorTreeRunner::setOwner(SimObject *owner) 
 { 
+   reset();
    mOwner = owner; 
 }
 
 
 void BehaviorTreeRunner::setRootNode(CompositeNode *root) 
 { 
+   reset();
    mRootNode = root; 
 }
 
@@ -144,8 +148,18 @@ void BehaviorTreeRunner::start()
 void BehaviorTreeRunner::reset()
 {
    mTasks.clear();
-   delete mRootTask;
-   mRootTask = 0;
+   if(mRootTask)
+   {
+      delete mRootTask;
+      mRootTask = 0;
+   }
+}
+
+
+void BehaviorTreeRunner::clear()
+{
+   reset();
+   mRootNode = 0;
 }
 
 
@@ -174,6 +188,13 @@ DefineEngineMethod( BehaviorTreeRunner, reset, void, (), ,
                     "Reset the behavior tree. Any internal state is lost.")
 {
    object->reset();
+}
+
+
+DefineEngineMethod( BehaviorTreeRunner, clear, void, (), ,
+                    "Clear the behavior tree.")
+{
+   object->clear();
 }
 
 

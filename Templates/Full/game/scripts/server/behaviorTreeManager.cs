@@ -4,14 +4,23 @@ function BehaviorTreeManager::create()
    if(isObject(BehaviorTreeManager))
       BehaviorTreeManager.delete();
       
+   if(isObject(ServerGroup))
+      pushInstantGroup(ServerGroup);
+         
    new ScriptObject(BehaviorTreeManager);
+   
+   if(isObject(ServerGroup))
+      popInstantGroup();
 }
 
 function BehaviorTreeManager::onAdd(%this)
 {
    if(isObject(BehaviorTreeGroup))
       BehaviorTreeGroup.delete();
-      
+   
+   if(isObject(ActiveBehaviorTreeGroup))
+      ActiveBehaviorTreeGroup.delete();
+   
    new SimGroup(BehaviorTreeGroup);
    new SimGroup(ActiveBehaviorTreeGroup);
    
@@ -24,7 +33,7 @@ function BehaviorTreeManager::onRemove(%this)
       BehaviorTreeGroup.delete();
    
    if(isObject(ActiveBehaviorTreeGroup))
-      ActiveBehaviorTreeGroup.delete();
+     ActiveBehaviorTreeGroup.delete();
 }
 
 function BehaviorTreeManager::loadTrees(%this)
@@ -67,14 +76,19 @@ function BehaviorTreeManager::assignTree(%this, %obj, %tree)
    }
    
    if(isObject(%obj.behaviorTree))
-      %obj.behaviorTree.delete();
-   
-   pushInstantGroup(ActiveBehaviorTreeGroup);
-   %obj.behaviorTree = new BehaviorTreeRunner() {
-      rootNode = %tree;
-      ownerObject = %obj;
-   };
-   popInstantGroup();
+   {
+      %obj.behaviorTree.rootNode = %tree;
+      %obj.behaviorTree.ownerObject = %obj;
+   }
+   else
+   {
+      pushInstantGroup(ActiveBehaviorTreeGroup);
+      %obj.behaviorTree = new BehaviorTreeRunner() {
+         rootNode = %tree;
+         ownerObject = %obj;
+      };
+      popInstantGroup();
+   }
 }
 
 function BehaviorTreeManager::onBehaviorTreeEditor(%this, %val)

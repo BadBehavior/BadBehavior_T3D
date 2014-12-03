@@ -22,10 +22,6 @@ function initializeBehaviorTreeEditor()
    exec("./scripts/behaviorTreeEditorContentList.ed.cs");
    exec("./scripts/behaviorTreeEditorInspector.ed.cs");
    
-   // This isn't pretty, but we need to load up existing trees
-   if(!isObject(BehaviorTreeManager))
-      exec("scripts/server/behaviorTreeManager.cs");
-
    // register the class icons
    EditorIconRegistry::loadFromPath("tools/behaviorTreeEditor/images/classIcons/");
 }
