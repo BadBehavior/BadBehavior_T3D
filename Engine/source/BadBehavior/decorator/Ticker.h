@@ -19,7 +19,11 @@ namespace BadBehavior
       static bool _setFrequency(void *object, const char *index, const char *data);
   
    public:
+      // time between ticks (in ms)
       S32 mFrequencyMs;
+
+      // status to return between tick
+      Status mIdleReturnStatus;
       
       Ticker();
 

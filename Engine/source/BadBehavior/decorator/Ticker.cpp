@@ -10,7 +10,8 @@ using namespace BadBehavior;
 IMPLEMENT_CONOBJECT(Ticker);
 
 Ticker::Ticker()
-   : mFrequencyMs(100) 
+   : mFrequencyMs(100),
+     mIdleReturnStatus(FAILURE)
 {
 }
 
@@ -19,7 +20,10 @@ void Ticker::initPersistFields()
    addGroup( "Behavior" );
    
    addProtectedField( "frequencyMs", TypeS32, Offset(mFrequencyMs, Ticker), &_setFrequency, &defaultProtectedGetFn,
-      "The time to wait between executions of this nodes child." );
+      "The time to wait between evaluations of this nodes child." );
+
+   addField( "idleReturnStatus", TYPEID< BadBehavior::Status >(), Offset(mIdleReturnStatus, Ticker),
+      "@brief The value for this node to return when it is not ready to be ticked.");
 
    endGroup( "Behavior" );
 
@@ -65,7 +69,9 @@ Task* TickerTask::update()
 
    if(Sim::getCurrentTime() < mNextTimeMs)
    {
-      mStatus = RUNNING;
+      if(!mIsComplete && mStatus != RUNNING)
+         mStatus = static_cast<Ticker *>(mNodeRep)->mIdleReturnStatus;
+
       return NULL;
    }
    
