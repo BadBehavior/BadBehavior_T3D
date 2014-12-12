@@ -1,5 +1,5 @@
-#ifndef _BB_LOGGER_H_
-#define _BB_LOGGER_H_
+#ifndef _BB_MONITOR_H_
+#define _BB_MONITOR_H_
 
 #ifndef _BB_CORE_H_
 #include "BadBehavior/core/Core.h"
@@ -8,23 +8,23 @@
 namespace BadBehavior
 {
    //---------------------------------------------------------------------------
-   // logger decorator
+   // Monitor decorator
    // outputs the return status to the console,
    //---------------------------------------------------------------------------
-   class Logger : public DecoratorNode
+   class Monitor : public DecoratorNode
    {
       typedef DecoratorNode Parent;
 
    public:
       virtual Task *createTask();
       
-      DECLARE_CONOBJECT(Logger);
+      DECLARE_CONOBJECT(Monitor);
    };
 
    //---------------------------------------------------------------------------
-   // logger decorator task
+   // Monitor decorator task
    //---------------------------------------------------------------------------
-   class LoggerTask : public CompositeTask
+   class MonitorTask : public CompositeTask
    {
       typedef CompositeTask Parent;
 
@@ -33,7 +33,7 @@ namespace BadBehavior
       virtual void onInitialize();
 
    public:
-      LoggerTask(Node &node);
+      MonitorTask(Node &node);
 
       virtual void onChildComplete(Status s);
    };

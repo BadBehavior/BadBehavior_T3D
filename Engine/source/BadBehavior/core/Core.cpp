@@ -162,12 +162,4 @@ void CompositeTask::onInitialize()
 void CompositeTask::onTerminate()
 {
    mStatus = INVALID;
-
-   // clean up
-   while(mChildren.size())
-   {
-      Task *child = mChildren.back();
-      mChildren.pop_back();
-      delete child;
-   }
 }

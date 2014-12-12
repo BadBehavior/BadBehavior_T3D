@@ -1,34 +1,34 @@
 #include "console/engineAPI.h"
 
-#include "Logger.h"
+#include "Monitor.h"
 
 using namespace BadBehavior;
 
 //------------------------------------------------------------------------------
-// Logger decorator node
+// Monitor decorator node
 //------------------------------------------------------------------------------
-IMPLEMENT_CONOBJECT(Logger);
+IMPLEMENT_CONOBJECT(Monitor);
 
-Task *Logger::createTask()
+Task *Monitor::createTask()
 {
-   return new LoggerTask(*this);
+   return new MonitorTask(*this);
 }
 
 //------------------------------------------------------------------------------
 // Logger decorator task
 //------------------------------------------------------------------------------
-LoggerTask::LoggerTask(Node &node)
+MonitorTask::MonitorTask(Node &node)
    : Parent(node) 
 {
 }
 
-void LoggerTask::onInitialize()
+void MonitorTask::onInitialize()
 {
    Parent::onInitialize();
    (*mCurrentChild)->setStatus(INVALID);
 }
 
-Task* LoggerTask::update() 
+Task* MonitorTask::update() 
 { 
    if( mIsComplete )
    {
@@ -41,10 +41,10 @@ Task* LoggerTask::update()
    return (*mCurrentChild); 
 }
       
-void LoggerTask::onChildComplete(Status s)
+void MonitorTask::onChildComplete(Status s)
 {
    mStatus = s;
-   Con::printf("%s child returning %s", static_cast<Logger *>(mNodeRep)->getInternalName(), EngineMarshallData< BehaviorReturnType > (mStatus));
+   Con::printf("%s child returning %s", static_cast<Monitor *>(mNodeRep)->getInternalName(), EngineMarshallData< BehaviorReturnType > (mStatus));
 
    mIsComplete = true;
 }
