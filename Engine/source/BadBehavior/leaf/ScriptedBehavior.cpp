@@ -56,7 +56,9 @@ ScriptedBehaviorTask::ScriptedBehaviorTask(Node &node)
 }
 
 Task* ScriptedBehaviorTask::update()
-{   
+{  
+   PROFILE_SCOPE(ScriptedBehaviorTask_update);
+
    ScriptedBehavior *node = static_cast<ScriptedBehavior*>(mNodeRep);
    
    // first check preconditions are valid
