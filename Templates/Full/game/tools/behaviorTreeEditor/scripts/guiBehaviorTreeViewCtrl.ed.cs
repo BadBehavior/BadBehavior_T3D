@@ -160,22 +160,38 @@ function GuiBehaviorTreeViewCtrl::onRightMouseDown(%this, %item, %pos, %obj)
 
    if(isObject(BTEditPopup))
       BTEditPopup.delete();
-      
+   
+   // construct the popup
    %popup = new PopupMenu(BTEditPopup) {
       superClass = "MenuBuilder";
       isPopup = true;
    };
    
+   // current node
    %popup.addItem(0, %selObj.getClassName() SPC "[" @ %selObj.internalName @ "]" TAB "" TAB "");
    %popup.enableItem(0, false);
    
+   // divider
    %popup.addItem(1, "-");
    
+   // add node submenu
    %popup.addItem(2, "Add node" TAB %this.makePopup(false, %selObj) TAB "");
    %popup.enableItem(2, %this.validate(false, %selObj));
 
+   // insert node submenu
    %popup.addItem(3, "Insert node" TAB %this.makePopup(true, %selObj) TAB "");
    %popup.enableItem(3, %this.validate(true, %selObj));
+   
+   // divider
+   %popup.addItem(4, "-");
+   
+   // delete node
+   %popup.addItem(5, "Delete node" TAB "" TAB %this @ ".deleteSelection();");
+   
+   // excise node (delete single node, reparenting children)
+   %popup.addItem(6, "Excise node" TAB "" TAB %this @ ".exciseSelection();");
+   %popup.enableItem(6, (%this.getSelectedObject().getCount() == 1) &&
+                        (%this.getSelectedObject() != %this.getRootNode()) );
    
    BTEditPopup.showPopup( Canvas );
 }
@@ -251,6 +267,9 @@ function GuiBehaviorTreeViewCtrl::addNode(%this, %selObj, %type)
       
    if(isObject(%newNode))
       BTCreateUndoAction::submit( %newNode );
+   
+   // have to delay selection a bit
+   %this.schedule(10, selectItem, %this.findItemByObjectId(%newNode.getId()));
 }
 
 function GuiBehaviorTreeViewCtrl::insertNode(%this, %selObj, %type)
@@ -323,4 +342,70 @@ function GuiBehaviorTreeViewCtrl::insertNode(%this, %selObj, %type)
    
    // re-draw 
    %this.refresh();
+}
+
+// remove a single node from within the hierarchy, reparenting its children
+function GuiBehaviorTreeViewCtrl::exciseSelection(%this)
+{
+   // steps are:
+   // 1) remove the selected node from the tree
+   // 2) re-parent the selected node's child to the old parent
+   // 3) delete the selected node
+   %selObj = %this.getSelectedObject();
+   if(%selObj.getCount() != 1 || %selObj == %this.getRootNode())
+   {
+      warn("Excision got messy");
+      return;
+   }
+   
+   %child = %selObj.getObject(0);
+   %parent = %selObj.getGroup();
+   %pos = %parent.getObjectIndex(%selObj);
+   
+   // need a compound undo for this process   
+   %this.getUndoManager().pushCompound( "Excise" SPC %type );
+   
+   // step 1
+   // remove selected object from tree (add it to BehaviorTreeGroup)
+   BehaviorTreeGroup.add(%selObj);
+   
+   // Undo for step 1
+   %action = BTReparentUndoAction::create(%this);
+   %action.node = %selObj;   
+   %action.oldPosition = %pos;
+   %action.oldParent = %parent;
+   %action.newParent = BehaviorTreeGroup;
+   %action.newPosition = 0;
+   %action.addToManager(%this.getUndoManager());
+   
+   // step 2
+   // re-parent the selected node's child to the old parent
+   %parent.add(%child);
+   if(%pos < %parent.getCount() - 1)
+   {
+      %parent.reorderChild(%child, %parent.getObject(%pos));
+   }
+   
+   // undo for step 2
+   %action = BTReparentUndoAction::create(%this);
+   %action.node = %child;   
+   %action.oldPosition = 0;
+   %action.oldParent = %selObj;
+   %action.newParent = %parent;
+   %action.newPosition = %pos;
+   %action.addToManager(%this.getUndoManager());
+   
+   // step 3 
+   // delete the selected node
+   %action = new BTDeleteUndoAction();
+   %action.deleteObject( %selObj );
+   %action.addToManager(%this.getUndoManager());
+   
+   // finalize the compound undo   
+   %this.getUndoManager().popCompound();
+   
+   // re-draw 
+   %this.refresh();
+   
+   %this.selectItem(%this.findItemByObjectId(%child.getId()));
 }

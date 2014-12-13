@@ -57,7 +57,7 @@ function BTEditCanvas::onCreateMenu(%this)
    else
    {
       %cmdCtrl = "Ctrl";
-      %redoShort = "Ctrl Y";
+      %redoShortcut = "Ctrl Y";
    }
    
    // Menu bar
