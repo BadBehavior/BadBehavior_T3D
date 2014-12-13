@@ -67,6 +67,7 @@ function BTEditor::updateNodeTypes(%this)
    %set = new SimSet() {
       internalName = "Composite";
    };
+   %set.add( new ScriptObject() { nodeType = "ActiveSelector"; } );
    %set.add( new ScriptObject() { nodeType = "Parallel"; } );
    %set.add( new ScriptObject() { nodeType = "PrioritySelector"; } );
    %set.add( new ScriptObject() { nodeType = "RandomSelector"; } );
