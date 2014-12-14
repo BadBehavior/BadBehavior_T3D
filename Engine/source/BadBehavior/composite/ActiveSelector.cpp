@@ -48,8 +48,7 @@ Task* ActiveSelectorTask::update()
    {
       if(mStatus == RUNNING)
          mIsComplete = false;
-
-      if(mStatus != RUNNING)
+      else
          mRunningChild = mChildren.end();
 
       mCurrentChild = mChildren.begin();
@@ -58,7 +57,6 @@ Task* ActiveSelectorTask::update()
    }
 
    // return child
-   //if(mStatus != RUNNING)
    if(mCurrentChild != mRunningChild)
       (*mCurrentChild)->setStatus(INVALID);
    
