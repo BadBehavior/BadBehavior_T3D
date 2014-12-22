@@ -116,7 +116,6 @@ Task* ParallelTask::update()
          break;
       }
 
-      //if(!mHasRunning)
       if(mStatus != RUNNING)
          mIsComplete = true;
       
