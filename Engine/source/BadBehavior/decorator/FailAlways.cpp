@@ -17,7 +17,7 @@ Task *FailAlways::createTask()
 void FailAlwaysTask::onInitialize()
 {
    Parent::onInitialize();
-   (*mCurrentChild)->setStatus(INVALID);
+   (*mCurrentChild)->reset();
 }
 
 //------------------------------------------------------------------------------

@@ -47,7 +47,7 @@ Task* SequenceTask::update()
    }
 
    if(mStatus != RUNNING)
-      (*mCurrentChild)->setStatus(INVALID);
+      (*mCurrentChild)->reset();
 
    // return child
    return (*mCurrentChild);   

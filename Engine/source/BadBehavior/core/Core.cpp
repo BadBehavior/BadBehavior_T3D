@@ -113,6 +113,11 @@ void Task::finish()
       onTerminate();
 }
 
+void Task::reset()
+{
+   mStatus = INVALID;
+}
+
 Status Task::getStatus() 
 { 
    return mStatus; 

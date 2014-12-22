@@ -25,7 +25,7 @@ MonitorTask::MonitorTask(Node &node)
 void MonitorTask::onInitialize()
 {
    Parent::onInitialize();
-   (*mCurrentChild)->setStatus(INVALID);
+   (*mCurrentChild)->reset();
 }
 
 Task* MonitorTask::update() 

@@ -17,7 +17,7 @@ Task *SucceedAlways::createTask()
 void SucceedAlwaysTask::onInitialize()
 {
    Parent::onInitialize();
-   (*mCurrentChild)->setStatus(INVALID);
+   (*mCurrentChild)->reset();
 }
 
 //------------------------------------------------------------------------------

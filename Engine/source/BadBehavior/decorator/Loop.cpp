@@ -62,7 +62,7 @@ void LoopTask::onInitialize()
 {
    Parent::onInitialize();
    mCurrentLoop = 0;
-   (*mCurrentChild)->setStatus(INVALID);
+   (*mCurrentChild)->reset();
 }
 
 Task* LoopTask::update()

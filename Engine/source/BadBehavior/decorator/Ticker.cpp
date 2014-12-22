@@ -54,7 +54,7 @@ TickerTask::TickerTask(Node &node)
 void TickerTask::onInitialize()
 {
    Parent::onInitialize();
-   (*mCurrentChild)->setStatus(INVALID);
+   (*mCurrentChild)->reset();
 }
 
 Task* TickerTask::update() 

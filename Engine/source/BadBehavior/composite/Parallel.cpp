@@ -56,7 +56,7 @@ void ParallelTask::onInitialize()
    mHasFailure = mHasSuccess = mHasRunning = false;
    Parent::onInitialize();
    for (VectorPtr<Task*>::iterator i = mChildren.begin(); i != mChildren.end(); ++i)
-      (*i)->setStatus(INVALID);
+      (*i)->reset();
 }
 
 
@@ -116,7 +116,8 @@ Task* ParallelTask::update()
          break;
       }
 
-      if(!mHasRunning)
+      //if(!mHasRunning)
+      if(mStatus != RUNNING)
          mIsComplete = true;
       
       mHasRunning = false;

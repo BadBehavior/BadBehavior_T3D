@@ -47,9 +47,9 @@ Task* PrioritySelectorTask::update()
       return NULL;
    }
 
-   // return child
+   // move on to next child
    if(mStatus != RUNNING)
-      (*mCurrentChild)->setStatus(INVALID);
+      (*mCurrentChild)->reset();
    
    return (*mCurrentChild);   
 }

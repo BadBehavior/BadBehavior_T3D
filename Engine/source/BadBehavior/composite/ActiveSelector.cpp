@@ -58,7 +58,7 @@ Task* ActiveSelectorTask::update()
 
    // return child
    if(mCurrentChild != mRunningChild)
-      (*mCurrentChild)->setStatus(INVALID);
+      (*mCurrentChild)->reset();
    
    return (*mCurrentChild);   
 }

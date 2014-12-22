@@ -134,6 +134,9 @@ namespace BadBehavior
 
       // finish the task
       void finish();
+
+      // reset the task
+      void reset();
    };
 
    //---------------------------------------------------------------------------
