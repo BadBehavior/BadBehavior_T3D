@@ -88,6 +88,9 @@ function BTEditCanvas::onCreateMenu(%this)
          
          item[0] = "Undo" TAB %cmdCtrl SPC "Z" TAB "BTEditor.undo();";
          item[1] = "Redo" TAB %redoShortcut TAB "BTEditor.redo();";
+         item[2] = "-";
+         item[3] = "Delete node" TAB "" TAB "BTEditor.getCurrentViewCtrl().deleteSelection();";
+         item[4] = "Excise node" TAB "" TAB "BTEditor.getCurrentViewCtrl().exciseSelection();";
       };
       
       new PopupMenu()
