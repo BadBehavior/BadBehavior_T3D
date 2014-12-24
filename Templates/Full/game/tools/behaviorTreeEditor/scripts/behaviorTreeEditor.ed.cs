@@ -40,7 +40,7 @@ function BTEditor::startUp(%this, %content)
    
    if(!isObject(BehaviorTreeManager))
       // This isn't pretty, but we need to load up existing trees
-      exec("scripts/server/behaviorTreeManager.cs");
+      exec("scripts/server/BadBehavior/behaviorTreeManager.cs");
    
    if(BehaviorTreeGroup.getCount() == 0)
    {
@@ -226,7 +226,7 @@ function BTEditor::saveTree(%this, %tree, %prompt)
    }
    else
    {
-      %path = "scripts/server/behaviorTrees";
+      %path = "scripts/server/BadBehavior/behaviorTrees";
       %file = %path @ "/" @ %tree.name;
       
       if(!isDirectory(%path))
