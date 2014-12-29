@@ -98,7 +98,9 @@ Task* ScriptedBehaviorTask::update()
       }
 
       // execute the main behavior and get its return value
-      const char *result = Con::executef(node, "behavior", mOwner->getId());
+      const char *result = NULL;
+      if(node->isMethod("behavior"))
+         result = Con::executef(node, "behavior", mOwner->getId());
       
       // if function didn't return a result, use our default return status
       if(!result || !result[0])
