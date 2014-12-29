@@ -64,22 +64,11 @@ Status ScriptEval::evaluateScript( SimObject *owner )
    if(mBehaviorScript.isEmpty())
       return mDefaultReturnStatus;
 
-   // construct the string to be exec'd
-   String execString;
-   if(owner)
-   {
-      String idString(owner->getIdString());
-      execString = "%obj = " + idString + "; ";
-   }
-   
-   // add in the behavior script
-   execString += mBehaviorScript;
-   
-   // and tag on the default return status
-   execString += " return " + String(EngineMarshallData< BehaviorReturnType>(mDefaultReturnStatus)) + ";";
-
    // get the result
-   const char *result = Con::evaluate(execString.c_str());
+   const char *result = Con::evaluatef("%%obj=%s; %s return %s;", 
+                                       owner->getIdString(),
+                                       mBehaviorScript.c_str(),
+                                       EngineMarshallData< BehaviorReturnType >(mDefaultReturnStatus));
    
    // convert the returned value to our internal enum type
    return EngineUnmarshallData< BehaviorReturnType >()( result );
