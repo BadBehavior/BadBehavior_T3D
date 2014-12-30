@@ -68,6 +68,50 @@ Task *ScriptedBehavior::createTask()
    return new ScriptedBehaviorTask(*this);
 }
 
+bool ScriptedBehavior::precondition( SimObject *owner, bool firstRun )
+{
+   PROFILE_SCOPE( ScriptedBehavior_precondition);
+
+   if( (mPreconditionMode == ONCE && firstRun) || (mPreconditionMode == TICK) )
+      if(isMethod("precondition"))
+         return dAtob(Con::executef(this, "precondition", owner->getId()));
+
+   return true;
+}
+
+void ScriptedBehavior::onEnter( SimObject *owner )
+{
+   PROFILE_SCOPE( ScriptedBehavior_onEnter );
+   if(isMethod("onEnter"))
+      Con::executef(this, "onEnter", owner->getId());
+}
+
+void ScriptedBehavior::onExit( SimObject *owner )
+{
+   PROFILE_SCOPE( ScriptedBehavior_onExit );
+   if(isMethod("onExit"))
+      Con::executef(this, "onExit", owner->getId());
+}
+
+Status ScriptedBehavior::behavior( SimObject *owner )
+{
+   PROFILE_SCOPE( ScriptedBehavior_behavior );
+   const char *result = NULL;
+   
+   if(isMethod("behavior"))
+      result = Con::executef(this, "behavior", owner->getId());
+      
+   // if function didn't return a result, use our default return status
+   if(!result || !result[0])
+      return mDefaultReturnStatus;
+      
+   if(result[0] == '1' || result[0] == '0')
+      // map true or false to SUCCEED or FAILURE
+      return static_cast<Status>(dAtoi(result));
+      
+   // convert the returned value to our internal enum type
+   return EngineUnmarshallData< BehaviorReturnType >()( result );
+}
 
 //------------------------------------------------------------------------------
 // ScriptedBehavior task
@@ -84,33 +128,16 @@ Task* ScriptedBehaviorTask::update()
    ScriptedBehavior *node = static_cast<ScriptedBehavior*>(mNodeRep);
    
    // first check preconditions are valid
-   bool precondition = true;
-   if( (node->getPreconditionMode() == ONCE && mStatus == INVALID) || (node->getPreconditionMode() == TICK) )
-      if(node->isMethod("precondition"))
-         precondition = dAtob(Con::executef(node, "precondition", mOwner->getId()));
-
+   bool precondition = node->precondition( mOwner, mStatus == INVALID );
+   
    if(precondition)
    {
       // run onEnter if this is the first time the node is ticked
-      if(mStatus == INVALID && node->isMethod("onEnter"))
-      {
-         Con::executef(node, "onEnter", mOwner->getId());
-      }
-
-      // execute the main behavior and get its return value
-      const char *result = NULL;
-      if(node->isMethod("behavior"))
-         result = Con::executef(node, "behavior", mOwner->getId());
+      if(mStatus == INVALID)
+         node->onEnter(mOwner);
       
-      // if function didn't return a result, use our default return status
-      if(!result || !result[0])
-         mStatus = node->getDefaultReturnStatus();
-      else if(result[0] == '1' || result[0] == '0')
-         // map true or false to SUCCEED or FAILURE
-         mStatus = static_cast<Status>(dAtoi(result));
-      else
-         // convert the returned value to our internal enum type
-         mStatus = EngineUnmarshallData< BehaviorReturnType >()( result );
+      // execute the main behavior and get its return value
+      mStatus = node->behavior(mOwner);
    }
    else
    {
@@ -119,8 +146,8 @@ Task* ScriptedBehaviorTask::update()
 
    mIsComplete = mStatus != RUNNING;
 
-   if(mIsComplete && node->isMethod("onExit"))
-      Con::executef(node, "onExit", mOwner->getId());
+   if(mIsComplete)
+      node->onExit(mOwner);
 
    return NULL; // leaves don't have children
 }

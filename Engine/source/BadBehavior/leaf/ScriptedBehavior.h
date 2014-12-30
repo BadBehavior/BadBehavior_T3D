@@ -61,6 +61,11 @@ namespace BadBehavior
       Status getDefaultReturnStatus() const { return mDefaultReturnStatus; }
       PreconditionMode getPreconditionMode() const { return mPreconditionMode; }
 
+      virtual bool precondition( SimObject *owner, bool firstRun );
+      virtual void onEnter( SimObject *owner );
+      virtual void onExit( SimObject *owner );
+      virtual Status behavior( SimObject *owner );
+
       DECLARE_CONOBJECT(ScriptedBehavior);
    };
 

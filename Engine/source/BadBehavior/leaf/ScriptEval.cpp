@@ -70,6 +70,10 @@ Status ScriptEval::evaluateScript( SimObject *owner )
                                        mBehaviorScript.c_str(),
                                        EngineMarshallData< BehaviorReturnType >(mDefaultReturnStatus));
    
+   if(result[0] == '1' || result[0] == '0')
+      // map true or false to SUCCEED or FAILURE
+      return static_cast<Status>(dAtoi(result));
+
    // convert the returned value to our internal enum type
    return EngineUnmarshallData< BehaviorReturnType >()( result );
 }
