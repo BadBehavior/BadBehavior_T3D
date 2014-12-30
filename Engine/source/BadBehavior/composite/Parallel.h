@@ -48,14 +48,18 @@ namespace BadBehavior
          REQUIRE_ALL,
       };
       
+   protected:
       ParallelPolicy mReturnPolicy;
 
+   public:
       Parallel();
 
       virtual Task *createTask();
 
       static void initPersistFields();
       
+      ParallelPolicy getReturnPolicy() const { return mReturnPolicy; }
+
       DECLARE_CONOBJECT(Parallel);
    };
 

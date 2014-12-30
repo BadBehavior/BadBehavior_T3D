@@ -38,17 +38,17 @@ namespace BadBehavior
    {
       typedef LeafNode Parent;
 
+   protected:
       // the function to call
       StringTableEntry mScriptFunction;
       
       // the arguments for the function
       StringTableEntry mScriptArgs[MAX_COMMAND_ARGS];
 
-   public:
-
       // status to return if the command does not return a value
       Status mDefaultReturnStatus;
 
+   public:
       ScriptFunc();
 
       virtual Task *createTask();

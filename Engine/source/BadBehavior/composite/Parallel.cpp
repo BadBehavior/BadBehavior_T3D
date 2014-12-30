@@ -115,7 +115,7 @@ Task* ParallelTask::update()
    {
       mCurrentChild = mChildren.begin();
 
-      switch(static_cast<Parallel *>(mNodeRep)->mReturnPolicy)
+      switch(static_cast<Parallel *>(mNodeRep)->getReturnPolicy())
       {
       // REQUIRE_NONE
       // returns SUCCESS when all children have finished irrespective of their return status.

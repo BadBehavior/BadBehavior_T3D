@@ -41,15 +41,18 @@ namespace BadBehavior
       static bool _setWaitMin(void *object, const char *index, const char *data);
       static bool _setWaitMax(void *object, const char *index, const char *data);
 
-   public:
       S32 mWaitMinMs;
       S32 mWaitMaxMs;
 
+   public:
       RandomWait();
    
       virtual Task *createTask();
       
       static void initPersistFields();
+
+      S32 getWaitMinMs() const { return mWaitMinMs; }
+      S32 getWaitMaxMs() const { return mWaitMaxMs; }
 
       DECLARE_CONOBJECT(RandomWait);
    };

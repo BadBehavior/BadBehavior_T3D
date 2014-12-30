@@ -37,14 +37,14 @@ namespace BadBehavior
    {
       typedef LeafNode Parent;
    
-   public:
-
+   private:
       // status to return if the command does not return a value
       Status mDefaultReturnStatus;
 
       // the torque script to evaluate
       String mBehaviorScript;
-
+   
+   public:
       ScriptEval();
 
       virtual Task *createTask();

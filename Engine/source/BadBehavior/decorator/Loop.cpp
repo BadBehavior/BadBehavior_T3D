@@ -92,8 +92,8 @@ Task* LoopTask::update()
    if( mIsComplete )
    {
       Loop *nodeRep = static_cast<Loop *>(mNodeRep);
-      Loop::TerminationPolicy policy = nodeRep->mTerminationPolicy;
-      S32 numLoops = nodeRep->mNumLoops;
+      Loop::TerminationPolicy policy = nodeRep->getTerminationPolicy();
+      S32 numLoops = nodeRep->getNumLoops();
    
       if( ((policy == Loop::ON_FAILURE) && (mStatus != FAILURE)) ||
           ((policy == Loop::ON_SUCCESS) && (mStatus != SUCCESS)) )

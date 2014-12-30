@@ -44,19 +44,22 @@ namespace BadBehavior
    {
       typedef LeafNode Parent;
    
-   public:
-
+   protected:
       // status to return if the beahvior does not return a value
       Status mDefaultReturnStatus;
 
       // how often should we valuate the precondition
       PreconditionMode mPreconditionMode;
 
+   public:
       ScriptedBehavior();
 
       virtual Task *createTask();
       
       static void initPersistFields();
+
+      Status getDefaultReturnStatus() const { return mDefaultReturnStatus; }
+      PreconditionMode getPreconditionMode() const { return mPreconditionMode; }
 
       DECLARE_CONOBJECT(ScriptedBehavior);
    };
@@ -70,7 +73,6 @@ namespace BadBehavior
    
    protected:
       virtual Task* update();
-      virtual void onTerminate();
 
    public:
       ScriptedBehaviorTask(Node &node);
@@ -78,7 +80,7 @@ namespace BadBehavior
 
 } // namespace BadBehavior
 
-// make the return status enum accessible from script
+// make the return precondition mode accessible from script
 typedef BadBehavior::PreconditionMode BehaviorPreconditionType;
 DefineEnumType( BehaviorPreconditionType );
 

@@ -48,16 +48,18 @@ namespace BadBehavior
 
    protected:
       static bool _setNumLoops(void *object, const char *index, const char *data);
-
-   public:
       S32 mNumLoops;
       TerminationPolicy mTerminationPolicy;
 
+   public:
       Loop();
 
       virtual Task *createTask();
       
       static void initPersistFields();
+
+      S32 getNumLoops() const { return mNumLoops; }
+      TerminationPolicy getTerminationPolicy() const { return mTerminationPolicy; }
 
       DECLARE_CONOBJECT(Loop);
    };

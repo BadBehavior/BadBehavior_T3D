@@ -39,19 +39,22 @@ namespace BadBehavior
 
    protected:
       static bool _setFrequency(void *object, const char *index, const char *data);
-  
-   public:
+      
       // time between ticks (in ms)
       S32 mFrequencyMs;
 
       // status to return between tick
       Status mIdleReturnStatus;
       
+   public:
       Ticker();
 
       virtual Task *createTask();
       
       static void initPersistFields();
+
+      S32 getFrequencyMs() const { return mFrequencyMs; }
+      Status getIdleReturnStatus() const { return mIdleReturnStatus; }
 
       DECLARE_CONOBJECT(Ticker);
    };

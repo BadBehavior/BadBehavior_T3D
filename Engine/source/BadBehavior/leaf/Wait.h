@@ -40,14 +40,16 @@ namespace BadBehavior
    protected:
       static bool _setWait(void *object, const char *index, const char *data);
 
-   public:
       S32 mWaitMs;
 
+   public:
       Wait();
    
       virtual Task *createTask();
       
       static void initPersistFields();
+
+      S32 getWaitMs() const { return mWaitMs; }
 
       DECLARE_CONOBJECT(Wait);
    };

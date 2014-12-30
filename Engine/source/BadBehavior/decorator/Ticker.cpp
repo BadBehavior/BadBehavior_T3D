@@ -89,15 +89,17 @@ Task* TickerTask::update()
       return NULL;
    }
 
+   Ticker *node = static_cast<Ticker *>(mNodeRep);
+
    if(Sim::getCurrentTime() < mNextTimeMs)
    {
       if(!mIsComplete && mStatus != RUNNING)
-         mStatus = static_cast<Ticker *>(mNodeRep)->mIdleReturnStatus;
+         mStatus = node->getIdleReturnStatus();
 
       return NULL;
    }
    
-   mNextTimeMs = Sim::getCurrentTime() + static_cast<Ticker*>(mNodeRep)->mFrequencyMs;
+   mNextTimeMs = Sim::getCurrentTime() + node->getFrequencyMs();
    return (*mCurrentChild); 
 }
       

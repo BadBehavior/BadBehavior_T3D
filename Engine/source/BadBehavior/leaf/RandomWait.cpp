@@ -85,7 +85,7 @@ void RandomWaitTask::onInitialize()
 {
    Parent::onInitialize();
    RandomWait *nodeRep = static_cast<RandomWait*>(mNodeRep);
-   mCompleteMs = Sim::getCurrentTime() + mRandI(nodeRep->mWaitMinMs, nodeRep->mWaitMaxMs);;
+   mCompleteMs = Sim::getCurrentTime() + mRandI(nodeRep->getWaitMinMs(), nodeRep->getWaitMaxMs());
 }
 
 Task* RandomWaitTask::update() 

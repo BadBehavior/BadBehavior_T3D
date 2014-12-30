@@ -74,7 +74,7 @@ void WaitTask::onInitialize()
 {
    Parent::onInitialize();
    Wait *nodeRep = static_cast<Wait*>(mNodeRep);
-   mCompleteMs = Sim::getCurrentTime() + nodeRep->mWaitMs;
+   mCompleteMs = Sim::getCurrentTime() + nodeRep->getWaitMs();
 }
 
 Task* WaitTask::update() 

@@ -85,7 +85,7 @@ Task* ScriptedBehaviorTask::update()
    
    // first check preconditions are valid
    bool precondition = true;
-   if( (node->mPreconditionMode == ONCE && mStatus == INVALID) || (node->mPreconditionMode == TICK) )
+   if( (node->getPreconditionMode() == ONCE && mStatus == INVALID) || (node->getPreconditionMode() == TICK) )
       if(node->isMethod("precondition"))
          precondition = dAtob(Con::executef(node, "precondition", mOwner->getId()));
 
@@ -104,7 +104,7 @@ Task* ScriptedBehaviorTask::update()
       
       // if function didn't return a result, use our default return status
       if(!result || !result[0])
-         mStatus = node->mDefaultReturnStatus;
+         mStatus = node->getDefaultReturnStatus();
       else if(result[0] == '1' || result[0] == '0')
          // map true or false to SUCCEED or FAILURE
          mStatus = static_cast<Status>(dAtoi(result));
@@ -119,14 +119,8 @@ Task* ScriptedBehaviorTask::update()
 
    mIsComplete = mStatus != RUNNING;
 
-   return NULL; // leaves don't have children
-}
-
-
-void ScriptedBehaviorTask::onTerminate()
-{
-   // behavior is complete, call the script side onExit function
-   ScriptedBehavior *node = static_cast<ScriptedBehavior*>(mNodeRep);
-   if(node->isMethod("onExit"))
+   if(mIsComplete && node->isMethod("onExit"))
       Con::executef(node, "onExit", mOwner->getId());
+
+   return NULL; // leaves don't have children
 }
