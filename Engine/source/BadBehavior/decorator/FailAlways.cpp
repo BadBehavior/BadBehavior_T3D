@@ -31,9 +31,9 @@ using namespace BadBehavior;
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(FailAlways);
 
-Task *FailAlways::createTask()
+Task *FailAlways::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 {
-   return new FailAlwaysTask(*this);
+   return new FailAlwaysTask(*this, owner, runner);
 }
 
 void FailAlwaysTask::onInitialize()
@@ -45,8 +45,8 @@ void FailAlwaysTask::onInitialize()
 //------------------------------------------------------------------------------
 // FailAlways decorator task
 //------------------------------------------------------------------------------
-FailAlwaysTask::FailAlwaysTask(Node &node)
-   : Parent(node) 
+FailAlwaysTask::FailAlwaysTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
+   : Parent(node, owner, runner) 
 {
 }
 

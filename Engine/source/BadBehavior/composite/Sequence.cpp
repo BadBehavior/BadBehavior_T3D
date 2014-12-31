@@ -32,16 +32,16 @@ using namespace BadBehavior;
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(Sequence);
 
-Task *Sequence::createTask()
+Task *Sequence::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 {
-   return new SequenceTask(*this);
+   return new SequenceTask(*this, owner, runner);
 }
 
 //------------------------------------------------------------------------------
 // Sequence Task
 //------------------------------------------------------------------------------
-SequenceTask::SequenceTask(Node &node) 
-   : Parent(node) 
+SequenceTask::SequenceTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner) 
+   : Parent(node, owner, runner) 
 {
 }
 

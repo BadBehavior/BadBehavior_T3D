@@ -24,69 +24,35 @@
 #define _BB_SCRIPTEDBEHAVIOR_H_
 
 #ifndef _BB_CORE_H_
-#include "BadBehavior/core/Core.h"
+#include "BadBehavior/core/behavior.h"
 #endif
 
 namespace BadBehavior
 {
-   // specify when the precondition function should be executed
-   enum PreconditionMode
-   {
-      ONCE,    // the first time the behavior is evaluated
-      TICK     // every tick
-   };
-
    //---------------------------------------------------------------------------
    // ScriptedBehavior - A structured behavior leaf node which defines a series
    // Of scripted callbacks
    //---------------------------------------------------------------------------
-   class ScriptedBehavior : public LeafNode
+   class ScriptedBehavior : public Behavior
    {
-      typedef LeafNode Parent;
+      typedef Behavior Parent;
    
    protected:
       // status to return if the beahvior does not return a value
       Status mDefaultReturnStatus;
 
-      // how often should we valuate the precondition
-      PreconditionMode mPreconditionMode;
-
    public:
       ScriptedBehavior();
 
-      virtual Task *createTask();
-      
       static void initPersistFields();
 
-      Status getDefaultReturnStatus() const { return mDefaultReturnStatus; }
-      PreconditionMode getPreconditionMode() const { return mPreconditionMode; }
-
-      virtual bool precondition( SimObject *owner, bool firstRun );
+      virtual bool precondition( SimObject *owner );
       virtual void onEnter( SimObject *owner );
       virtual void onExit( SimObject *owner );
       virtual Status behavior( SimObject *owner );
 
       DECLARE_CONOBJECT(ScriptedBehavior);
    };
-
-   //---------------------------------------------------------------------------
-   // ScriptedBehavior task
-   //---------------------------------------------------------------------------
-   class ScriptedBehaviorTask : public Task
-   {
-      typedef Task Parent;
-   
-   protected:
-      virtual Task* update();
-
-   public:
-      ScriptedBehaviorTask(Node &node);
-   };
-
 } // namespace BadBehavior
-
-// make the return precondition mode accessible from script
-typedef BadBehavior::PreconditionMode BehaviorPreconditionType;
-DefineEnumType( BehaviorPreconditionType );
 
 #endif

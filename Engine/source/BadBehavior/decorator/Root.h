@@ -39,7 +39,7 @@ namespace BadBehavior
       typedef DecoratorNode Parent;
 
    public:
-      virtual Task* createTask();
+      virtual Task* createTask(SimObject &owner, BehaviorTreeRunner &runner);
       DECLARE_CONOBJECT(Root);
    };
 

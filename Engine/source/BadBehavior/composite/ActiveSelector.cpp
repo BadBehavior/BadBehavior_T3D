@@ -31,16 +31,16 @@ using namespace BadBehavior;
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(ActiveSelector);
 
-Task *ActiveSelector::createTask()
+Task *ActiveSelector::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 {
-   return new ActiveSelectorTask(*this);
+   return new ActiveSelectorTask(*this, owner, runner);
 }
 
 //------------------------------------------------------------------------------
 // Active selector task
 //------------------------------------------------------------------------------
-ActiveSelectorTask::ActiveSelectorTask(Node &node)
-   : Parent(node) 
+ActiveSelectorTask::ActiveSelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
+   : Parent(node, owner, runner) 
 {
 }
 

@@ -31,9 +31,9 @@ using namespace BadBehavior;
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(SucceedAlways);
 
-Task *SucceedAlways::createTask()
+Task *SucceedAlways::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 {
-   return new SucceedAlwaysTask(*this);
+   return new SucceedAlwaysTask(*this, owner, runner);
 }
 
 void SucceedAlwaysTask::onInitialize()
@@ -45,8 +45,8 @@ void SucceedAlwaysTask::onInitialize()
 //------------------------------------------------------------------------------
 // SucceedAlways decorator task
 //------------------------------------------------------------------------------
-SucceedAlwaysTask::SucceedAlwaysTask(Node &node)
-   : Parent(node) 
+SucceedAlwaysTask::SucceedAlwaysTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
+   : Parent(node, owner, runner) 
 {
 }
 

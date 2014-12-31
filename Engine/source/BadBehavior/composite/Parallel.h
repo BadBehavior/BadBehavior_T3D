@@ -54,7 +54,7 @@ namespace BadBehavior
    public:
       Parallel();
 
-      virtual Task *createTask();
+      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
 
       static void initPersistFields();
       
@@ -80,7 +80,7 @@ namespace BadBehavior
       Task *pickChild();
 
    public:
-      ParallelTask(Node &node);
+      ParallelTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
 
       virtual void onChildComplete(Status);
    };

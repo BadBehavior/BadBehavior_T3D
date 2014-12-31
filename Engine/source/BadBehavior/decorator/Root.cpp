@@ -31,10 +31,10 @@ using namespace BadBehavior;
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(Root);
 
-Task *Root::createTask()
+Task *Root::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 {
    if(!size())
       return NULL;
 
-   return dynamic_cast<Node *>(*begin())->createTask();
+   return dynamic_cast<Node *>(*begin())->createTask(owner, runner);
 }

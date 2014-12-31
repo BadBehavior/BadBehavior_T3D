@@ -37,7 +37,7 @@ namespace BadBehavior
       typedef CompositeNode Parent;
          
    public:
-      virtual Task *createTask();
+      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
 
       DECLARE_CONOBJECT(PrioritySelector);
    };
@@ -53,7 +53,7 @@ namespace BadBehavior
       virtual Task* update();
    
    public:
-      PrioritySelectorTask(Node &node);
+      PrioritySelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
 
       virtual void onChildComplete(Status);
    };

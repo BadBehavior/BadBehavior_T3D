@@ -67,16 +67,16 @@ bool RandomWait::_setWaitMax(void *object, const char *index, const char *data)
    return false;
 }
 
-Task *RandomWait::createTask()
+Task *RandomWait::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 {
-   return new RandomWaitTask(*this);
+   return new RandomWaitTask(*this, owner, runner);
 }
 
 //------------------------------------------------------------------------------
 // RandomWait task
 //------------------------------------------------------------------------------
-RandomWaitTask::RandomWaitTask(Node &node)
-   : Parent(node), 
+RandomWaitTask::RandomWaitTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
+   : Parent(node, owner, runner), 
      mCompleteMs(0) 
 {
 }

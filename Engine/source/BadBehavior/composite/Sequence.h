@@ -37,7 +37,7 @@ namespace BadBehavior
       typedef CompositeNode Parent;
 
    public:
-      virtual Task* createTask();
+      virtual Task* createTask(SimObject &owner, BehaviorTreeRunner &runner);
       
       DECLARE_CONOBJECT(Sequence);
    };
@@ -53,7 +53,7 @@ namespace BadBehavior
       virtual Task* update();
    
    public:
-      SequenceTask(Node &node);
+      SequenceTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
 
       virtual void onChildComplete(Status);
    };

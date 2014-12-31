@@ -38,7 +38,7 @@ namespace BadBehavior
       typedef CompositeNode Parent;
 
    public:
-      virtual Task *createTask();
+      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
       
       DECLARE_CONOBJECT(RandomSelector);
    };
@@ -59,7 +59,7 @@ namespace BadBehavior
       void pickRandomChild();
       
    public:
-      RandomSelectorTask(Node &node);
+      RandomSelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
 
       virtual void onChildComplete(Status);
    };

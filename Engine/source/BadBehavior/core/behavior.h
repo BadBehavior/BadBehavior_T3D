@@ -20,37 +20,68 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef _BB_SUBTREE_H_
-#define _BB_SUBTREE_H_
+#ifndef _BB_BEHAVIOR_H_
+#define _BB_BEHAVIOR_H_
 
 #ifndef _BB_CORE_H_
-#include "BadBehavior/core/Core.h"
+#include "Core.h"
 #endif
 
 namespace BadBehavior
 {
+   // specify when the precondition function should be executed
+   enum PreconditionMode
+   {
+      ONCE,    // the first time the behavior is evaluated
+      TICK     // every tick
+   };
+
    //---------------------------------------------------------------------------
-   // SubTree decorator
-   // Turns a named Behavior into a subtree of this node.
-   // Does not actually have a child, so is a subclass of leaf
+   // Behavior - Base class for structured behavior leaf nodes
    //---------------------------------------------------------------------------
-   class SubTree : public LeafNode
+   class Behavior : public LeafNode
    {
       typedef LeafNode Parent;
-
-   protected:
-      const char* mSubTreeName;
    
+   protected:
+      // how often should we valuate the precondition
+      PreconditionMode mPreconditionMode;
+
    public:
-      SubTree();
+      Behavior();
 
       virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
       
       static void initPersistFields();
 
-      DECLARE_CONOBJECT(SubTree);
+      const PreconditionMode &getPreconditionMode() const { return mPreconditionMode; }
+
+      virtual bool precondition( SimObject *owner ) = 0;
+      virtual void onEnter( SimObject *owner )  = 0;
+      virtual void onExit( SimObject *owner ) = 0;
+      virtual Status behavior( SimObject *owner ) = 0;
+
+      //DECLARE_CONOBJECT(Behavior);
+   };
+
+   //---------------------------------------------------------------------------
+   // Behavior task
+   //---------------------------------------------------------------------------
+   class BehaviorTask : public Task
+   {
+      typedef Task Parent;
+   
+   protected:
+      virtual Task* update();
+
+   public:
+      BehaviorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
    };
 
 } // namespace BadBehavior
+
+// make the return precondition mode accessible from script
+typedef BadBehavior::PreconditionMode BehaviorPreconditionType;
+DefineEnumType( BehaviorPreconditionType );
 
 #endif

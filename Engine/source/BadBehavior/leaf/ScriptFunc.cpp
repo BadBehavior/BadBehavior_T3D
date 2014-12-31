@@ -59,9 +59,9 @@ void ScriptFunc::initPersistFields()
    Parent::initPersistFields();
 }
 
-Task *ScriptFunc::createTask()
+Task *ScriptFunc::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 {
-   return new ScriptFuncTask(*this);
+   return new ScriptFuncTask(*this, owner, runner);
 }
 
 Status ScriptFunc::evaluate( SimObject *owner )
@@ -105,8 +105,8 @@ Status ScriptFunc::evaluate( SimObject *owner )
 //------------------------------------------------------------------------------
 // ScriptFunc task
 //------------------------------------------------------------------------------
-ScriptFuncTask::ScriptFuncTask(Node &node)
-   : Parent(node)
+ScriptFuncTask::ScriptFuncTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
+   : Parent(node, owner, runner)
 {
 }
 

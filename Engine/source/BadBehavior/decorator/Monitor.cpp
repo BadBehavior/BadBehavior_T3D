@@ -31,16 +31,16 @@ using namespace BadBehavior;
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(Monitor);
 
-Task *Monitor::createTask()
+Task *Monitor::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 {
-   return new MonitorTask(*this);
+   return new MonitorTask(*this, owner, runner);
 }
 
 //------------------------------------------------------------------------------
 // Logger decorator task
 //------------------------------------------------------------------------------
-MonitorTask::MonitorTask(Node &node)
-   : Parent(node) 
+MonitorTask::MonitorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
+   : Parent(node, owner, runner) 
 {
 }
 

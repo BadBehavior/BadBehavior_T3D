@@ -23,72 +23,82 @@
 #include "console/engineAPI.h"
 #include "platform/profiler.h"
 
-#include "ScriptEval.h"
+#include "behavior.h"
 
 using namespace BadBehavior;
 
 //------------------------------------------------------------------------------
-// ScriptEval node - warning, slow!
+// script enum for precondition mode
 //------------------------------------------------------------------------------
-IMPLEMENT_CONOBJECT(ScriptEval);
+ImplementEnumType( BehaviorPreconditionType,
+   "@brief When should the precondition function be evaluated.\n\n"
+   "@ingroup AI\n\n")
+   { ONCE, "ONCE", "The first time the node is executed.\n" },
+   { TICK, "TICK", "Each time the node is executed.\n" },
+EndImplementEnumType;
 
-ScriptEval::ScriptEval()
-   : mDefaultReturnStatus(FAILURE) 
+//------------------------------------------------------------------------------
+// Behavior node
+//------------------------------------------------------------------------------
+Behavior::Behavior()
+   : mPreconditionMode(ONCE)
 {
 }
 
-void ScriptEval::initPersistFields()
+void Behavior::initPersistFields()
 {
    addGroup( "Behavior" );
 
-   addField( "behaviorScript", TypeCommand, Offset(mBehaviorScript, ScriptEval),
-      "@brief The command to execute when the leaf is ticked.  Max 255 characters." );
-
-   addField( "defaultReturnStatus", TYPEID< BadBehavior::Status >(), Offset(mDefaultReturnStatus, ScriptEval),
-      "@brief The default value for this node to return.");
+   addField( "preconditionMode", TYPEID< BadBehavior::PreconditionMode >(), Offset(mPreconditionMode, Behavior),
+      "@brief When to evaluate the precondition function.");
 
    endGroup( "Behavior" );
 
    Parent::initPersistFields();
 }
 
-Task *ScriptEval::createTask(SimObject &owner, BehaviorTreeRunner &runner)
+Task *Behavior::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 {
-   return new ScriptEvalTask(*this, owner, runner);
-}
-
-Status ScriptEval::evaluateScript( SimObject *owner )
-{
-   PROFILE_SCOPE(ScriptEval_evaluateScript);
-
-   if(mBehaviorScript.isEmpty())
-      return mDefaultReturnStatus;
-
-   // get the result
-   const char *result = Con::evaluatef("%%obj=%s; %s return %s;", 
-                                       owner->getIdString(),
-                                       mBehaviorScript.c_str(),
-                                       EngineMarshallData< BehaviorReturnType >(mDefaultReturnStatus));
-   
-   if(result[0] == '1' || result[0] == '0')
-      // map true or false to SUCCEED or FAILURE
-      return static_cast<Status>(dAtoi(result));
-
-   // convert the returned value to our internal enum type
-   return EngineUnmarshallData< BehaviorReturnType >()( result );
+   return new BehaviorTask(*this, owner, runner);
 }
 
 //------------------------------------------------------------------------------
-// RunScript task
+// ScriptedBehavior task
 //------------------------------------------------------------------------------
-ScriptEvalTask::ScriptEvalTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
+BehaviorTask::BehaviorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
    : Parent(node, owner, runner)
 {
 }
 
-Task* ScriptEvalTask::update()
-{
-   mStatus = static_cast<ScriptEval*>(mNodeRep)->evaluateScript( mOwner );
+Task* BehaviorTask::update()
+{  
+   PROFILE_SCOPE(BehaviorTask_update);
+
+   Behavior *node = static_cast<Behavior*>(mNodeRep);
+   
+   // first check preconditions are valid
+   bool precondition = true;
+   if( (node->getPreconditionMode() == ONCE && mStatus == INVALID) || (node->getPreconditionMode() == TICK) )
+      precondition = node->precondition( mOwner );
+   
+   if(precondition)
+   {
+      // run onEnter if this is the first time the node is ticked
+      if(mStatus == INVALID)
+         node->onEnter(mOwner);
+      
+      // execute the main behavior and get its return value
+      mStatus = node->behavior(mOwner);
+   }
+   else
+   {
+      mStatus = FAILURE;
+   }
+
+   mIsComplete = mStatus != RUNNING;
+
+   if(mIsComplete)
+      node->onExit(mOwner);
 
    return NULL; // leaves don't have children
 }

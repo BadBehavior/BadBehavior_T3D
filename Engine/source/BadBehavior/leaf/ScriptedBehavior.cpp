@@ -28,23 +28,12 @@
 using namespace BadBehavior;
 
 //------------------------------------------------------------------------------
-// script enum for precondition mode
-//------------------------------------------------------------------------------
-ImplementEnumType( BehaviorPreconditionType,
-   "@brief When should the precondition function be evaluated.\n\n"
-   "@ingroup AI\n\n")
-   { ONCE, "ONCE", "The first time the node is executed.\n" },
-   { TICK, "TICK", "Each time the node is executed.\n" },
-EndImplementEnumType;
-
-//------------------------------------------------------------------------------
 // ScriptedBehavior node
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(ScriptedBehavior);
 
 ScriptedBehavior::ScriptedBehavior()
-   : mDefaultReturnStatus(FAILURE),
-     mPreconditionMode(ONCE)
+   : mDefaultReturnStatus(FAILURE)
 {
 }
 
@@ -55,26 +44,17 @@ void ScriptedBehavior::initPersistFields()
    addField( "defaultReturnStatus", TYPEID< BadBehavior::Status >(), Offset(mDefaultReturnStatus, ScriptedBehavior),
       "@brief The default value for this node to return.");
 
-   addField( "preconditionMode", TYPEID< BadBehavior::PreconditionMode >(), Offset(mPreconditionMode, ScriptedBehavior),
-      "@brief When to evaluate the precondition function.");
-
    endGroup( "Behavior" );
 
    Parent::initPersistFields();
 }
 
-Task *ScriptedBehavior::createTask()
-{
-   return new ScriptedBehaviorTask(*this);
-}
-
-bool ScriptedBehavior::precondition( SimObject *owner, bool firstRun )
+bool ScriptedBehavior::precondition( SimObject *owner )
 {
    PROFILE_SCOPE( ScriptedBehavior_precondition);
 
-   if( (mPreconditionMode == ONCE && firstRun) || (mPreconditionMode == TICK) )
-      if(isMethod("precondition"))
-         return dAtob(Con::executef(this, "precondition", owner->getId()));
+   if(isMethod("precondition"))
+      return dAtob(Con::executef(this, "precondition", owner->getId()));
 
    return true;
 }
@@ -113,41 +93,3 @@ Status ScriptedBehavior::behavior( SimObject *owner )
    return EngineUnmarshallData< BehaviorReturnType >()( result );
 }
 
-//------------------------------------------------------------------------------
-// ScriptedBehavior task
-//------------------------------------------------------------------------------
-ScriptedBehaviorTask::ScriptedBehaviorTask(Node &node)
-   : Parent(node)
-{
-}
-
-Task* ScriptedBehaviorTask::update()
-{  
-   PROFILE_SCOPE(ScriptedBehaviorTask_update);
-
-   ScriptedBehavior *node = static_cast<ScriptedBehavior*>(mNodeRep);
-   
-   // first check preconditions are valid
-   bool precondition = node->precondition( mOwner, mStatus == INVALID );
-   
-   if(precondition)
-   {
-      // run onEnter if this is the first time the node is ticked
-      if(mStatus == INVALID)
-         node->onEnter(mOwner);
-      
-      // execute the main behavior and get its return value
-      mStatus = node->behavior(mOwner);
-   }
-   else
-   {
-      mStatus = FAILURE;
-   }
-
-   mIsComplete = mStatus != RUNNING;
-
-   if(mIsComplete)
-      node->onExit(mOwner);
-
-   return NULL; // leaves don't have children
-}

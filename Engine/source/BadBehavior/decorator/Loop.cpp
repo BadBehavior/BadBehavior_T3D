@@ -66,16 +66,16 @@ bool Loop::_setNumLoops(void *object, const char *index, const char *data)
    return false;
 }
 
-Task *Loop::createTask()
+Task *Loop::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 {
-   return new LoopTask(*this);
+   return new LoopTask(*this, owner, runner);
 }
 
 //------------------------------------------------------------------------------
 // Loop decorator task
 //------------------------------------------------------------------------------
-LoopTask::LoopTask(Node &node)
-   : Parent(node), 
+LoopTask::LoopTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
+   : Parent(node, owner, runner), 
      mCurrentLoop(0)
 {
 }

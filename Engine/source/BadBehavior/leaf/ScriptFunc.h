@@ -51,7 +51,7 @@ namespace BadBehavior
    public:
       ScriptFunc();
 
-      virtual Task *createTask();
+      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
       
       static void initPersistFields();
 
@@ -72,7 +72,7 @@ namespace BadBehavior
       virtual Task* update();
         
    public:
-      ScriptFuncTask(Node &node);
+      ScriptFuncTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
    };
 
 } // namespace BadBehavior

@@ -30,16 +30,16 @@ using namespace BadBehavior;
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(Inverter);
 
-Task *Inverter::createTask()
+Task *Inverter::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 {
-   return new InverterTask(*this);
+   return new InverterTask(*this, owner, runner);
 }
 
 //------------------------------------------------------------------------------
 // Inverter decorator task
 //------------------------------------------------------------------------------
-InverterTask::InverterTask(Node &node)
-   : Parent(node) 
+InverterTask::InverterTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
+   : Parent(node, owner, runner) 
 {
 }
 
