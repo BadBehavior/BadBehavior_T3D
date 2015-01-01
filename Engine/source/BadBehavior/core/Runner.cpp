@@ -33,13 +33,22 @@ IMPLEMENT_CONOBJECT(BehaviorTreeRunner);
 BehaviorTreeRunner::BehaviorTreeRunner()
    : mOwner(NULL), 
      mRootNode(NULL), 
-     mRootTask(NULL) 
+     mRootTask(NULL),
+     mIsRunning(0),
+     mTickEvent(0),
+     mTickFrequency(100)
 {}
 
 
 BehaviorTreeRunner::~BehaviorTreeRunner()
 {
    delete mRootTask;
+
+   if(Sim::isEventPending(mTickEvent))
+   {
+      Sim::cancelEvent(mTickEvent);
+      mTickEvent = 0;
+   }
 }
 
 
@@ -53,6 +62,9 @@ void BehaviorTreeRunner::initPersistFields()
    addProtectedField("ownerObject", TYPEID< SimObject >(), Offset(mOwner, BehaviorTreeRunner),
       &_setOwner, &defaultProtectedGetFn, "@brief The object that owns the tree to be run.");
 
+   addField("frequency", TypeS32, Offset(mTickFrequency, BehaviorTreeRunner),
+      "@brief The frequency in ms that the tree is ticked at.");
+
    endGroup( "Behavior" );
 
    Parent::initPersistFields();
@@ -60,7 +72,7 @@ void BehaviorTreeRunner::initPersistFields()
 
 
 // processTick is where the magic happens :)
-void BehaviorTreeRunner::processTick()
+void BehaviorTreeRunner::onTick()
 {
    PROFILE_SCOPE(BehaviorTreeRunner_processTick);
 
@@ -116,7 +128,15 @@ void BehaviorTreeRunner::processTick()
          nextTask->setup();
          mTasks.push_back(nextTask);
       }
-   }  
+   }
+
+   if(Sim::isEventPending(mTickEvent))
+   {
+      Sim::cancelEvent(mTickEvent);
+   }
+
+   mTickEvent = Sim::postEvent(this, new BehaviorTreeTickEvent(), Sim::getCurrentTime() + mTickFrequency);
+   mIsRunning = true;
 }
 
 
@@ -140,35 +160,49 @@ bool BehaviorTreeRunner::_setOwner( void *object, const char *index, const char 
    return false;
 }
 
-
 void BehaviorTreeRunner::setOwner(SimObject *owner) 
 { 
    reset();
    mOwner = owner; 
+   start();
 }
 
 
 void BehaviorTreeRunner::setRootNode(CompositeNode *root) 
 { 
    reset();
-   mRootNode = root; 
+   mRootNode = root;
+   start();
 }
 
 
 void BehaviorTreeRunner::stop()
 {
-   setProcessTicks(false);
+   if(Sim::isEventPending(mTickEvent))
+   {
+      Sim::cancelEvent(mTickEvent);
+      mTickEvent = 0;
+   }
+   mIsRunning = false;
 }
 
 
 void BehaviorTreeRunner::start()
 {
-   setProcessTicks(true);
+   if(Sim::isEventPending(mTickEvent))
+   {
+      Sim::cancelEvent(mTickEvent);
+      mTickEvent = 0;
+   }
+   
+   mIsRunning = true;
+   onTick();
 }
 
 
 void BehaviorTreeRunner::reset()
 {
+   stop();
    mTasks.clear();
    if(mRootTask)
    {
@@ -187,7 +221,7 @@ void BehaviorTreeRunner::clear()
 
 bool BehaviorTreeRunner::isRunning()
 {
-   return isProcessingTicks();
+   return mIsRunning;
 }
 
 
@@ -210,6 +244,7 @@ DefineEngineMethod( BehaviorTreeRunner, reset, void, (), ,
                     "Reset the behavior tree. Any internal state is lost.")
 {
    object->reset();
+   object->start();
 }
 
 

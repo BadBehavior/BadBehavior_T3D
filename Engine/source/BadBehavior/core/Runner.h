@@ -29,8 +29,8 @@
 #ifndef _SIMOBJECT_H_
 #include "console/simObject.h"
 #endif
-#ifndef _ITICKABLE_H_
-#include "core/iTickable.h"
+#ifndef _SIMBASE_H_
+#include "console/simBase.h"
 #endif
 #ifndef _TVECTOR_H_
 #include "util/tVector.h"
@@ -41,11 +41,20 @@ namespace BadBehavior
    //---------------------------------------------------------------------------
    // BehaviorTreeRunner - handles the evaluation of the tree
    //---------------------------------------------------------------------------
-   class BehaviorTreeRunner : public SimObject, public virtual ITickable
+   class BehaviorTreeRunner : public SimObject
    {
       typedef SimObject Parent;
 
    private:
+      // is this tree running?
+      bool mIsRunning;
+
+      // event ID of the tick event
+      U32 mTickEvent;
+
+      // frequency of ticks in ms
+      U32 mTickFrequency;
+
       // list of tasks to be processed
       VectorPtr<Task*> mTasks;
 
@@ -61,7 +70,7 @@ namespace BadBehavior
       // setters for the script interface
       static bool _setRootNode( void *object, const char *index, const char *data );
       static bool _setOwner( void *object, const char *index, const char *data );
-
+ 
    public:
       /*Ctor*/ BehaviorTreeRunner();
       /*Dtor*/ ~BehaviorTreeRunner();
@@ -69,7 +78,7 @@ namespace BadBehavior
       // public setters for the script interface
       void setOwner(SimObject *owner);
       void setRootNode(CompositeNode *root);
-      
+
       // for script control
       void stop();
       void start();
@@ -77,15 +86,23 @@ namespace BadBehavior
       void clear();
       bool isRunning();
 
-      // Itickable interface, only using processTick atm
-      virtual void interpolateTick( F32 ){}
-      virtual void advanceTime( F32 ){}
-      virtual void processTick();
+      // tick
+      void onTick();
 
       // script interface
       static void initPersistFields();
 
       DECLARE_CONOBJECT(BehaviorTreeRunner);
+   };
+
+   
+   class BehaviorTreeTickEvent : public SimEvent
+   {
+   public:
+      void process( SimObject *object )
+      {
+         ((BehaviorTreeRunner*)object)->onTick();
+      }
    };
 
 } // namespace BadBehavior
