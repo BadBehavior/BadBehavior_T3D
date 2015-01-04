@@ -32,21 +32,26 @@ using namespace BadBehavior;
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(ScriptedBehavior);
 
+IMPLEMENT_CALLBACK( ScriptedBehavior, onEnter, void, ( SimObject* owner ), ( owner ),
+   "Called when the behavior is first run.\n"
+   "@param owner The object that this behavior tree belongs to." );
+
+IMPLEMENT_CALLBACK( ScriptedBehavior, onExit, void, ( SimObject* owner ), ( owner ),
+   "Called when the behavior is complete.\n"
+   "@param owner The object that this behavior tree belongs to." );
+
+IMPLEMENT_CALLBACK( ScriptedBehavior, precondition, bool, ( SimObject* owner ), ( owner ),
+   "Called prior to evaluating the behavior.\n"
+   "@param owner The object that this behavior tree belongs to.\n"
+   "A return value of false indicates that evaluation of the behavior should stop.\n"
+   "A return value of true indicates that evaluation of the behavior should continue.");
+
+IMPLEMENT_CALLBACK( ScriptedBehavior, behavior, Status, ( SimObject* owner ), ( owner ),
+   "Evaluate the main behavior of this node.\n"
+   "@param owner The object that this behavior tree belongs to.\n");
+
 ScriptedBehavior::ScriptedBehavior()
-   : mDefaultReturnStatus(FAILURE)
 {
-}
-
-void ScriptedBehavior::initPersistFields()
-{
-   addGroup( "Behavior" );
-
-   addField( "defaultReturnStatus", TYPEID< BadBehavior::Status >(), Offset(mDefaultReturnStatus, ScriptedBehavior),
-      "@brief The default value for this node to return.");
-
-   endGroup( "Behavior" );
-
-   Parent::initPersistFields();
 }
 
 bool ScriptedBehavior::precondition( SimObject *owner )
@@ -54,7 +59,7 @@ bool ScriptedBehavior::precondition( SimObject *owner )
    PROFILE_SCOPE( ScriptedBehavior_precondition);
 
    if(isMethod("precondition"))
-      return dAtob(Con::executef(this, "precondition", owner->getId()));
+      return precondition_callback(owner);
 
    return true;
 }
@@ -62,34 +67,17 @@ bool ScriptedBehavior::precondition( SimObject *owner )
 void ScriptedBehavior::onEnter( SimObject *owner )
 {
    PROFILE_SCOPE( ScriptedBehavior_onEnter );
-   if(isMethod("onEnter"))
-      Con::executef(this, "onEnter", owner->getId());
+   onEnter_callback(owner);
 }
 
 void ScriptedBehavior::onExit( SimObject *owner )
 {
    PROFILE_SCOPE( ScriptedBehavior_onExit );
-   if(isMethod("onExit"))
-      Con::executef(this, "onExit", owner->getId());
+   onExit_callback(owner);
 }
 
 Status ScriptedBehavior::behavior( SimObject *owner )
 {
-   PROFILE_SCOPE( ScriptedBehavior_behavior );
-   const char *result = NULL;
-   
-   if(isMethod("behavior"))
-      result = Con::executef(this, "behavior", owner->getId());
-      
-   // if function didn't return a result, use our default return status
-   if(!result || !result[0])
-      return mDefaultReturnStatus;
-      
-   if(result[0] == '1' || result[0] == '0')
-      // map true or false to SUCCEED or FAILURE
-      return static_cast<Status>(dAtoi(result));
-      
-   // convert the returned value to our internal enum type
-   return EngineUnmarshallData< BehaviorReturnType >()( result );
+   PROFILE_SCOPE( ScriptedBehavior_behavior );   
+   return behavior_callback( owner );
 }
-
