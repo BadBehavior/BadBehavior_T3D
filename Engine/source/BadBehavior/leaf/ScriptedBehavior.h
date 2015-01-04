@@ -37,10 +37,6 @@ namespace BadBehavior
    {
       typedef Behavior Parent;
    
-   protected:
-      // status to return if the beahvior does not return a value
-      Status mDefaultReturnStatus;
-
    public:
       ScriptedBehavior();
 
@@ -52,6 +48,10 @@ namespace BadBehavior
       virtual Status behavior( SimObject *owner );
 
       DECLARE_CONOBJECT(ScriptedBehavior);
+      DECLARE_CALLBACK(void, onEnter, (SimObject *owner));
+      DECLARE_CALLBACK(void, onExit, (SimObject *owner));
+      DECLARE_CALLBACK(bool, precondition, (SimObject *owner));
+      DECLARE_CALLBACK(Status, behavior, (SimObject *owner));
    };
 } // namespace BadBehavior
 

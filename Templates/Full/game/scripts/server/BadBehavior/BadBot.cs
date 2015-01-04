@@ -20,6 +20,14 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
+// make the local player invisible to the AI
+//-----------------------------------------------------------------------------
+function setGodMode(%val)
+{
+   LocalClientConnection.player.isGod = %val;
+}
+
 //=============================================================================
 // Supporting functions for an AIPlayer driven by a behavior tree
 //=============================================================================
@@ -82,7 +90,12 @@ function BadBot::setBehavior(%this, %tree)
    if(isObject(%this.behaviorTree))
       %this.behaviorTree.rootNode = %tree;
    else      
-      %this.behaviorTree = BehaviorTreeManager.createTree(%this, %tree); 
+      %this.behaviorTree = BehaviorTreeManager.createTree(%this, %tree);
+   
+   if(isObject(%this.behaviorTree))   
+   {
+      %this.behaviorTree.start();
+   }
 }
 
 function BadBot::clearBehavior(%this)
@@ -108,9 +121,8 @@ function botMatch(%numBots)
 {
    if(!isObject(BotSet))
    {
-      pushInstantGroup();
       new SimSet(BotSet);
-      popInstantGroup();
+      MissionCleanup.add(BotSet);
    }
 
    %numActiveBots = 0;
@@ -123,9 +135,9 @@ function botMatch(%numBots)
    if(%numActiveBots < %numBots)
    {
       %spawnpoint = PatrolPath.getRandom();
-      %bot = BadBot::spawn("Bot" @ getRandom(100000), %spawnpoint.position);
+      %bot = BadBot::spawn("", %spawnpoint.position);//"Bot" @ getRandom(100000), %spawnpoint.position);
       %bot.tetherpoint = %bot.position;
-      %bot.setbehavior(t2);
+      %bot.setbehavior(BotTree);
       BotSet.add(%bot);
    }
    
@@ -137,6 +149,11 @@ function cancelBotmatch()
    cancel($botSchedule);
    while(BotSet.getCount() > 0)
       BotSet.getObject(0).delete();
+}
+
+function BotSet::onRemove(%this)
+{
+   cancelBotmatch();  
 }
 
 //==============================Movement=======================================
@@ -358,6 +375,8 @@ function pickTargetTask::behavior(%this, %obj)
    }
    
    %obj.targetObject = %bestTarget;
+   
+   return SUCCESS;
 }
 
 //=============================================================================
@@ -365,7 +384,7 @@ function pickTargetTask::behavior(%this, %obj)
 //=============================================================================
 function aimAtTargetTask::precondition(%this, %obj)
 {
-   return isObject(%obj.targetObject);
+   return isObject(%obj.targetObject) && %obj.isEnabled();
 }
 
 function aimAtTargetTask::behavior(%this, %obj)
@@ -382,6 +401,8 @@ function aimAtTargetTask::behavior(%this, %obj)
       %correction = VectorAdd(%correction, VectorScale( %targetVel, (%targetDist / %bulletVel) ));
    }
    %obj.setAimObject(%obj.targetObject, %correction);
+   
+   return SUCCESS;
 }
 
 //=============================================================================
@@ -398,6 +419,7 @@ function shootAtTargetTask::precondition(%this, %obj)
 function shootAtTargetTask::behavior(%this, %obj)
 {
    %obj.setImageTrigger(0, true);
+   return SUCCESS;
 }
 
 
@@ -424,4 +446,6 @@ function combatMoveTask::behavior(%this, %obj)
    %moveVec = VectorAdd(%moveVec, VectorScale(%right, 5 * (getRandom(0,2) - 1)));
       
    %obj.moveTo(VectorAdd(%obj.position, %moveVec));
+   
+   return SUCCESS;
 }
