@@ -88,6 +88,9 @@ namespace BadBehavior
 
       // tick
       void onTick();
+      
+      // task reactivation
+      void onReactivateEvent(Task *task);
 
       // script interface
       static void initPersistFields();
@@ -102,6 +105,21 @@ namespace BadBehavior
       void process( SimObject *object )
       {
          ((BehaviorTreeRunner*)object)->onTick();
+      }
+   };
+
+   class TaskReactivateEvent : public SimEvent
+   {
+      Task *mTask;
+   public:
+      TaskReactivateEvent(Task &task) 
+      { 
+         mTask = &task; 
+      }
+
+      void process( SimObject *object )
+      {
+         ((BehaviorTreeRunner*)object)->onReactivateEvent(mTask);
       }
    };
 

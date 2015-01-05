@@ -63,14 +63,14 @@ Task* PrioritySelectorTask::update()
 
    if( mIsComplete )
    {
-      if(mStatus == RUNNING)
+      if(mStatus == RUNNING || mStatus == SUSPENDED)
          mIsComplete = false;
 
       return NULL;
    }
 
    // move on to next child
-   if(mStatus != RUNNING)
+   if(mStatus != RUNNING && mStatus != SUSPENDED)
       (*mCurrentChild)->reset();
    
    return (*mCurrentChild);   

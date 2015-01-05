@@ -135,8 +135,15 @@ void BehaviorTreeRunner::onTick()
       Sim::cancelEvent(mTickEvent);
    }
 
-   mTickEvent = Sim::postEvent(this, new BehaviorTreeTickEvent(), Sim::getCurrentTime() + mTickFrequency);
+   if(mRootTask->getStatus() != SUSPENDED)
+      mTickEvent = Sim::postEvent(this, new BehaviorTreeTickEvent(), Sim::getCurrentTime() + mTickFrequency);
+   
    mIsRunning = true;
+}
+
+void BehaviorTreeRunner::onReactivateEvent(Task *task)
+{
+   
 }
 
 

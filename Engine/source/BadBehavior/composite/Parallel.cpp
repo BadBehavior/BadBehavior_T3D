@@ -69,13 +69,14 @@ ParallelTask::ParallelTask(Node &node, SimObject &owner, BehaviorTreeRunner &run
    : Parent(node, owner, runner),
      mHasFailure(false),
      mHasSuccess(false),
-     mHasRunning(false) 
+     mHasRunning(false),
+     mHasSuspended(false)
 {
 }
 
 void ParallelTask::onInitialize()
 {
-   mHasFailure = mHasSuccess = mHasRunning = false;
+   mHasFailure = mHasSuccess = mHasRunning = mHasSuspended = false;
    Parent::onInitialize();
    for (VectorPtr<Task*>::iterator i = mChildren.begin(); i != mChildren.end(); ++i)
       (*i)->reset();
@@ -102,6 +103,8 @@ void ParallelTask::onChildComplete(Status s)
       mHasFailure = true;
    else if(s == RUNNING)
       mHasRunning = true;
+   else if(s == SUSPENDED)
+      mHasSuspended = true;
 
    ++mCurrentChild;
    pickChild();
@@ -120,28 +123,29 @@ Task* ParallelTask::update()
       // REQUIRE_NONE
       // returns SUCCESS when all children have finished irrespective of their return status.
       case Parallel::REQUIRE_NONE:
-         mStatus = mHasRunning ? RUNNING : SUCCESS;
+         mStatus = mHasRunning ? RUNNING : (mHasSuspended ? SUSPENDED : SUCCESS);
          break;
       
       // REQUIRE_ONE
       // terminates and returns SUCCESS when any of its children succeed
       // returns FAILURE if no children succeed
       case Parallel::REQUIRE_ONE:
-         mStatus = mHasSuccess ? SUCCESS : (mHasRunning ? RUNNING : FAILURE);
+         mStatus = mHasSuccess ? SUCCESS : (mHasRunning ? RUNNING : (mHasSuspended ? SUSPENDED : FAILURE));
          break;
 
       // REQUIRE_ALL
       // returns SUCCESS if all of its children succeed.
       // terminates and returns failure if any of its children fail
       case Parallel::REQUIRE_ALL:
-         mStatus = mHasFailure ? FAILURE : (mHasRunning ? RUNNING : SUCCESS);
+         mStatus = mHasFailure ? FAILURE : (mHasRunning ? RUNNING : (mHasSuspended ? SUSPENDED : SUCCESS));
          break;
       }
 
-      if(mStatus != RUNNING)
+      if(mStatus != RUNNING && mStatus != SUSPENDED)
          mIsComplete = true;
       
       mHasRunning = false;
+      mHasSuspended = false;
       return NULL;
    }
 

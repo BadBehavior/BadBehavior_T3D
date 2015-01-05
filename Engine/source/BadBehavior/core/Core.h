@@ -47,6 +47,7 @@ namespace BadBehavior
        FAILURE,
        SUCCESS,
        RUNNING,
+       SUSPENDED,
    };
    
    class Task;
@@ -127,6 +128,9 @@ namespace BadBehavior
       // the object running us
       BehaviorTreeRunner *mRunner;
 
+      // the parent of this task
+      Task *mParent;
+
       // update
       virtual Task* update() = 0;
       
@@ -144,6 +148,10 @@ namespace BadBehavior
       // status sets and gets
       Status getStatus();
       void setStatus(Status newStatus);
+
+      // parent sets and gets
+      void setParent(Task *parent);
+      Task *getParent();
       
       // run the task
       Task* tick();

@@ -37,6 +37,7 @@ ImplementEnumType( BehaviorReturnType,
    { SUCCESS, "SUCCESS", "The behavior succeeded.\n" },
    { FAILURE, "FAILURE", "The behavior failed.\n" },
    { RUNNING, "RUNNING", "The behavior is still running.\n" },
+   // not needed script side { SUSPENDED, "SUSPENDED", "The behavior has been suspended.\n" },
 EndImplementEnumType;
 
 
@@ -96,7 +97,8 @@ Task::Task(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
      mIsComplete(false), 
      mNodeRep(&node),
      mOwner(&owner),
-     mRunner(&runner)
+     mRunner(&runner),
+     mParent(NULL)
 {
 }
 
@@ -123,7 +125,7 @@ void Task::setup()
 {
    PROFILE_SCOPE(Task_setup);
    
-   if(mStatus != RUNNING)
+   if(mStatus != RUNNING && mStatus != SUSPENDED)
       onInitialize();
    
    mIsComplete = false;
@@ -148,6 +150,16 @@ Status Task::getStatus()
 void Task::setStatus(Status newStatus) 
 { 
    mStatus = newStatus; 
+}
+
+void Task::setParent(Task *parent)
+{
+   mParent = parent;
+}
+
+Task *Task::getParent()
+{
+   return mParent;
 }
 
 void Task::onChildComplete(Status)
@@ -179,6 +191,7 @@ void CompositeTask::onInitialize()
       for(SimSet::iterator i = node->begin(); i != node->end(); ++i)
       {
          mChildren.push_back(static_cast<Node*>(*i)->createTask(*mOwner, *mRunner));
+         mChildren.back()->setParent(static_cast<Task *>(this));
       }
    }
    

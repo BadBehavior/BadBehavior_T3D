@@ -83,7 +83,7 @@ Task* TickerTask::update()
 { 
    if( mIsComplete )
    {
-      if(mStatus == RUNNING)
+      if(mStatus == RUNNING || mStatus == SUSPENDED)
          mIsComplete = false;
       
       return NULL;
@@ -93,7 +93,7 @@ Task* TickerTask::update()
 
    if(Sim::getCurrentTime() < mNextTimeMs)
    {
-      if(!mIsComplete && mStatus != RUNNING)
+      if(!mIsComplete && mStatus != RUNNING && mStatus != SUSPENDED)
          mStatus = node->getIdleReturnStatus();
 
       return NULL;

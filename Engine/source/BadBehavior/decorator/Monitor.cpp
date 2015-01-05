@@ -54,7 +54,7 @@ Task* MonitorTask::update()
 { 
    if( mIsComplete )
    {
-      if(mStatus == RUNNING)
+      if(mStatus == RUNNING || mStatus == SUSPENDED)
          mIsComplete = false;
 
       return NULL;

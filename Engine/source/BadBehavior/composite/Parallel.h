@@ -74,6 +74,7 @@ namespace BadBehavior
       bool mHasFailure;
       bool mHasSuccess;
       bool mHasRunning;
+      bool mHasSuspended;
       
       virtual void onInitialize();
       virtual Task* update();
