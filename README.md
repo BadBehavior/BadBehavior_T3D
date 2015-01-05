@@ -2,6 +2,24 @@ BadBehavior
 ==========
 Behavior Tree System for Torque 3D
 ----------------------------------
+### Introduction
+
+The BadBehavior system is a behavior tree implementation and editor for the Torque3D game engine.
+
+### Features
+
+* Implemented in C++ for efficiency.
+* Supports the common behavior tree node types including sequences, selectors, parallels and a range of decorators.
+* Shared behavior trees - a single behavior tree definition can be used by multiple objects.
+* Behavior trees can be used by used by any type of SimObject
+* Trees can be assembled from smaller sub-trees in a modular fashion
+* A multi-page graphical editor with undo/redo support
+* Flexible behavior leaf nodes:
+  * Ations/conditions can be created entirely in the editor for rapid prototyping
+  * Structured behaviors can be written in script
+  * Performance critical behaviors can be written entirely in C++
+
+### Further information
 
 For tutorials and guides on how to use BadBehavior in your project, refer to:
 * BadBehavior [GitHub Wiki](https://github.com/BadBehavior/BadBehavior_T3D/wiki)
