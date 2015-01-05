@@ -56,12 +56,12 @@ namespace BadBehavior
 
       const PreconditionMode &getPreconditionMode() const { return mPreconditionMode; }
 
-      virtual bool precondition( SimObject *owner ) = 0;
-      virtual void onEnter( SimObject *owner )  = 0;
-      virtual void onExit( SimObject *owner ) = 0;
-      virtual Status behavior( SimObject *owner ) = 0;
+      virtual bool precondition( SimObject *owner ) { return true; }
+      virtual void onEnter( SimObject *owner )  {}
+      virtual void onExit( SimObject *owner ) {}
+      virtual Status behavior( SimObject *owner ) { return SUCCESS; }
 
-      //DECLARE_CONOBJECT(Behavior);
+      DECLARE_CONOBJECT(Behavior);
    };
 
    //---------------------------------------------------------------------------
