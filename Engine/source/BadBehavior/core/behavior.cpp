@@ -40,6 +40,8 @@ EndImplementEnumType;
 //------------------------------------------------------------------------------
 // Behavior node
 //------------------------------------------------------------------------------
+IMPLEMENT_CONOBJECT(Behavior);
+
 Behavior::Behavior()
    : mPreconditionMode(ONCE)
 {
@@ -95,7 +97,7 @@ Task* BehaviorTask::update()
       mStatus = FAILURE;
    }
 
-   mIsComplete = mStatus != RUNNING;
+   mIsComplete = mStatus != RUNNING && mStatus != SUSPENDED;
 
    if(mIsComplete)
       node->onExit(mOwner);
