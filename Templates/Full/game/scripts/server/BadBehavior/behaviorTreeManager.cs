@@ -114,6 +114,7 @@ function BehaviorTreeManager::onBehaviorTreeEditor(%this, %val)
       warn("Resetting all behavior trees");
       
    foreach(%bt in ActiveBehaviorTreeGroup)
+   {
       if(%val)
       {
          %bt.lastState = %bt.isRunning();
@@ -126,6 +127,7 @@ function BehaviorTreeManager::onBehaviorTreeEditor(%this, %val)
             %bt.start();
          %bt.lastState = "";
       }
+   }
 }
 
 BehaviorTreeManager::create();
