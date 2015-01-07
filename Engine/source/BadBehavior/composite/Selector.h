@@ -20,8 +20,8 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef _BB_RANDOMWAIT_H_
-#define _BB_RANDOMWAIT_H_
+#ifndef _BB_SELECTOR_H_
+#define _BBSELECTOR_H_
 
 #ifndef _BB_CORE_H_
 #include "BadBehavior/core/Core.h"
@@ -30,46 +30,32 @@
 namespace BadBehavior
 {
    //---------------------------------------------------------------------------
-   // RandomWait leaf
-   // Pauses for a random period of time between delayMin and delayMax ms before completing.
+   // Selector Node
    //---------------------------------------------------------------------------
-   class RandomWait : public LeafNode
+   class Selector : public CompositeNode
    {
-      typedef LeafNode Parent;
-
-   protected:
-      static bool _setWaitMin(void *object, const char *index, const char *data);
-      static bool _setWaitMax(void *object, const char *index, const char *data);
-
-      S32 mWaitMinMs;
-      S32 mWaitMaxMs;
-
+      typedef CompositeNode Parent;
+         
    public:
-      RandomWait();
-   
       virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
-      
-      static void initPersistFields();
 
-      S32 getWaitMinMs() const { return mWaitMinMs; }
-      S32 getWaitMaxMs() const { return mWaitMaxMs; }
-
-      DECLARE_CONOBJECT(RandomWait);
+      DECLARE_CONOBJECT(Selector);
    };
 
    //---------------------------------------------------------------------------
-   // RandomWait leaf task
+   // Selector Task
    //---------------------------------------------------------------------------
-   class RandomWaitTask : public Task
+   class SelectorTask : public CompositeTask
    {
-      typedef Task Parent;
+      typedef CompositeTask Parent;
 
    protected:
-      virtual void onInitialize();
       virtual Task* update();
-      
+   
    public:
-      RandomWaitTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      SelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+
+      virtual void onChildComplete(Status);
    };
 
 } // namespace BadBehavior

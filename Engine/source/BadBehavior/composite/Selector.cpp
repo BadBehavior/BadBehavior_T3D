@@ -20,44 +20,59 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef _BB_PRIORITYSELECTOR_H_
-#define _BB_PRIORITYSELECTOR_H_
+#include "console/engineAPI.h"
+#include "Selector.h"
 
-#ifndef _BB_CORE_H_
-#include "BadBehavior/core/Core.h"
-#endif
 
-namespace BadBehavior
+using namespace BadBehavior;
+
+//------------------------------------------------------------------------------
+// Selector node
+//------------------------------------------------------------------------------
+IMPLEMENT_CONOBJECT(Selector);
+
+Task *Selector::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 {
-   //---------------------------------------------------------------------------
-   // Priority selector Node
-   //---------------------------------------------------------------------------
-   class PrioritySelector : public CompositeNode
+   return new SelectorTask(*this, owner, runner);
+}
+
+//------------------------------------------------------------------------------
+// Selector task
+//------------------------------------------------------------------------------
+SelectorTask::SelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
+   : Parent(node, owner, runner) 
+{
+}
+
+void SelectorTask::onChildComplete(Status s)
+{
+   mStatus = s;
+
+   if(s == FAILURE)
+      ++mCurrentChild;
+   else
+      mIsComplete = true;
+}
+
+Task* SelectorTask::update()
+{
+   if(mCurrentChild == mChildren.end())
    {
-      typedef CompositeNode Parent;
-         
-   public:
-      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
+      mIsComplete = true;
+   }
 
-      DECLARE_CONOBJECT(PrioritySelector);
-   };
-
-   //---------------------------------------------------------------------------
-   // Priority selector Task
-   //---------------------------------------------------------------------------
-   class PrioritySelectorTask : public CompositeTask
+   if( mIsComplete )
    {
-      typedef CompositeTask Parent;
+      if(mStatus == RUNNING || mStatus == SUSPENDED)
+         mIsComplete = false;
 
-   protected:
-      virtual Task* update();
+      return NULL;
+   }
+
+   // move on to next child
+   if(mStatus != RUNNING && mStatus != SUSPENDED)
+      (*mCurrentChild)->reset();
    
-   public:
-      PrioritySelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+   return (*mCurrentChild);   
+}
 
-      virtual void onChildComplete(Status);
-   };
-
-} // namespace BadBehavior
-
-#endif

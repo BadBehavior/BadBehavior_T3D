@@ -60,7 +60,7 @@ Task* FailAlwaysTask::update()
       return NULL;
    }
    
-   return (*mCurrentChild); 
+   return mStatus != SUSPENDED ? (*mCurrentChild) : NULL; 
 }
       
 void FailAlwaysTask::onChildComplete(Status s)

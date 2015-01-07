@@ -68,7 +68,7 @@ Task* ActiveSelectorTask::update()
 
    if( mIsComplete )
    {
-      if(mStatus == RUNNING)
+      if(mStatus == RUNNING || mStatus == SUSPENDED)
          mIsComplete = false;
       else
          mRunningChild = mChildren.end();

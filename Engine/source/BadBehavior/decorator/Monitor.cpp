@@ -60,13 +60,15 @@ Task* MonitorTask::update()
       return NULL;
    }
    
-   return (*mCurrentChild); 
+   return mStatus != SUSPENDED ? (*mCurrentChild) : NULL; 
 }
       
 void MonitorTask::onChildComplete(Status s)
 {
    mStatus = s;
-   Con::printf("%s child returning %s", static_cast<Monitor *>(mNodeRep)->getInternalName(), EngineMarshallData< BehaviorReturnType > (mStatus));
+   Con::printf("%s (%s) child returning %s", static_cast<Monitor *>(mNodeRep)->getInternalName(), 
+                                             static_cast<Monitor *>(mNodeRep)->getIdString(),
+                                             EngineMarshallData< BehaviorReturnType > (mStatus));
 
    mIsComplete = true;
 }

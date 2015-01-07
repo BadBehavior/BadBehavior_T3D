@@ -33,11 +33,13 @@ using namespace BadBehavior;
 ImplementEnumType( BehaviorReturnType,
    "@brief The return status for a behavior.\n\n"
    "@ingroup AI\n\n")
-   // not needed script side { BadBehavior::INVALID, "INVALID", "The behavior could not be evaluated.\n" },
+   // not needed script side 
+   { BadBehavior::INVALID, "INVALID", "The behavior could not be evaluated.\n" },
    { SUCCESS, "SUCCESS", "The behavior succeeded.\n" },
    { FAILURE, "FAILURE", "The behavior failed.\n" },
    { RUNNING, "RUNNING", "The behavior is still running.\n" },
-   // not needed script side { SUSPENDED, "SUSPENDED", "The behavior has been suspended.\n" },
+   // not needed script side 
+   { SUSPENDED, "SUSPENDED", "The behavior has been suspended.\n" },
 EndImplementEnumType;
 
 

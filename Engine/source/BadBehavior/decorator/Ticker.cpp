@@ -22,18 +22,19 @@
 
 #include "console/engineAPI.h"
 
+#include "BadBehavior\core\Runner.h"
 #include "Ticker.h"
 
 using namespace BadBehavior;
 
 //------------------------------------------------------------------------------
 // Ticker decorator node
+// **** EXPERIMENTAL ****
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(Ticker);
 
 Ticker::Ticker()
-   : mFrequencyMs(100),
-     mIdleReturnStatus(FAILURE)
+   : mFrequencyMs(100)
 {
 }
 
@@ -43,9 +44,6 @@ void Ticker::initPersistFields()
    
    addProtectedField( "frequencyMs", TypeS32, Offset(mFrequencyMs, Ticker), &_setFrequency, &defaultProtectedGetFn,
       "The time to wait between evaluations of this nodes child." );
-
-   addField( "idleReturnStatus", TYPEID< BadBehavior::Status >(), Offset(mIdleReturnStatus, Ticker),
-      "@brief The value for this node to return when it is not ready to be ticked.");
 
    endGroup( "Behavior" );
 
@@ -93,14 +91,17 @@ Task* TickerTask::update()
 
    if(Sim::getCurrentTime() < mNextTimeMs)
    {
-      if(!mIsComplete && mStatus != RUNNING && mStatus != SUSPENDED)
-         mStatus = node->getIdleReturnStatus();
+      if(!mIsComplete && mStatus != SUSPENDED)
+      {
+         mStatus = SUSPENDED;
+         Sim::postEvent(mRunner, new TaskReactivateEvent(*this), mNextTimeMs);
+      }
 
       return NULL;
    }
    
    mNextTimeMs = Sim::getCurrentTime() + node->getFrequencyMs();
-   return (*mCurrentChild); 
+   return mStatus != SUSPENDED ? (*mCurrentChild) : NULL; 
 }
       
 void TickerTask::onChildComplete(Status s)

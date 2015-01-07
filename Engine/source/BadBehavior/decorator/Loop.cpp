@@ -89,6 +89,9 @@ void LoopTask::onInitialize()
 
 Task* LoopTask::update()
 {
+   if(mIsComplete && (mStatus == RUNNING || mStatus == SUSPENDED))
+      mIsComplete = false;
+
    if( mIsComplete )
    {
       Loop *nodeRep = static_cast<Loop *>(mNodeRep);
@@ -108,7 +111,7 @@ Task* LoopTask::update()
       return NULL;
    }
    
-   return (*mCurrentChild); 
+   return mStatus != SUSPENDED ? (*mCurrentChild) : NULL; 
 }
 
 void LoopTask::onChildComplete(Status s)

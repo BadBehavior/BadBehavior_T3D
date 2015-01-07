@@ -27,6 +27,19 @@
 #include "BadBehavior/core/Core.h"
 #endif
 
+//==============================================================================
+// Active Selector
+// Re-evaluates its children from the beginning each tick. Lower priority
+// children which previously returned RUNNING are resumed if re-selected
+//
+// ** NOTE **
+// The "active" nature of this node means that it can only be fully SUSPENDED if
+// it's highest priority child is suspended.
+//
+// USE SPARINGLY - place as high up in the tree as possible and try to early-out
+// of high priority branches that are not going to be selected.
+//==============================================================================
+
 namespace BadBehavior
 {
    //---------------------------------------------------------------------------

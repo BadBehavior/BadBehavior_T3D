@@ -60,7 +60,7 @@ Task* SucceedAlwaysTask::update()
       return NULL;
    }
    
-   return (*mCurrentChild); 
+   return mStatus != SUSPENDED ? (*mCurrentChild) : NULL; 
 }
       
 void SucceedAlwaysTask::onChildComplete(Status s)

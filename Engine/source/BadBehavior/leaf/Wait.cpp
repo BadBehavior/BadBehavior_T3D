@@ -23,6 +23,7 @@
 #include "console/engineAPI.h"
 #include "math/mMathFn.h"
 
+#include "BadBehavior\core\Runner.h"
 #include "Wait.h"
 
 using namespace BadBehavior;
@@ -65,23 +66,24 @@ Task *Wait::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 // Wait task
 //------------------------------------------------------------------------------
 WaitTask::WaitTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner), 
-     mCompleteMs(0) 
+   : Parent(node, owner, runner)
 {
 }
 
 void WaitTask::onInitialize()
 {
    Parent::onInitialize();
-   Wait *nodeRep = static_cast<Wait*>(mNodeRep);
-   mCompleteMs = Sim::getCurrentTime() + nodeRep->getWaitMs();
 }
 
 Task* WaitTask::update() 
 { 
-   if(Sim::getCurrentTime() < mCompleteMs)
-      mStatus = RUNNING;
-   else
+   if(mStatus != RUNNING && mStatus != SUSPENDED)
+   {
+      Sim::postEvent(mRunner, new TaskReactivateEvent(*this), Sim::getCurrentTime() + static_cast<Wait*>(mNodeRep)->getWaitMs());
+      mStatus = SUSPENDED;
+   }
+
+   if(mStatus == RUNNING)
       mStatus = SUCCESS;
 
    return NULL; 

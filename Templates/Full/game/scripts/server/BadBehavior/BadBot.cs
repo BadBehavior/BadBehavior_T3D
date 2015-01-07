@@ -91,11 +91,6 @@ function BadBot::setBehavior(%this, %tree)
       %this.behaviorTree.rootNode = %tree;
    else      
       %this.behaviorTree = BehaviorTreeManager.createTree(%this, %tree);
-   
-   if(isObject(%this.behaviorTree))   
-   {
-      %this.behaviorTree.start();
-   }
 }
 
 function BadBot::clearBehavior(%this)

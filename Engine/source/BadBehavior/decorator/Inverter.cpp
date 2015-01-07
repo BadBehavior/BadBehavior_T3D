@@ -59,7 +59,7 @@ Task* InverterTask::update()
       return NULL;
    }
    
-   return (*mCurrentChild); 
+   return mStatus != SUSPENDED ? (*mCurrentChild) : NULL; 
 }
       
 void InverterTask::onChildComplete(Status s)

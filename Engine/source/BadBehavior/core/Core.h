@@ -159,6 +159,12 @@ namespace BadBehavior
       // called when child task finishes
       virtual void onChildComplete(Status);
 
+      // called when a suspended task becomes active
+      virtual void onResume() { mStatus = RUNNING;
+                                Con::warnf("Resumed %s (%s)", 
+                                mNodeRep->getIdString(),
+                                EngineMarshallData(mStatus));}
+
       // prepare the task
       void setup();
 

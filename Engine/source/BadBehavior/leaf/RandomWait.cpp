@@ -23,6 +23,7 @@
 #include "console/engineAPI.h"
 #include "math/mMathFn.h"
 
+#include "BadBehavior/core/Runner.h"
 #include "RandomWait.h"
 
 using namespace BadBehavior;
@@ -76,23 +77,25 @@ Task *RandomWait::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 // RandomWait task
 //------------------------------------------------------------------------------
 RandomWaitTask::RandomWaitTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner), 
-     mCompleteMs(0) 
+   : Parent(node, owner, runner) 
 {
 }
 
 void RandomWaitTask::onInitialize()
 {
    Parent::onInitialize();
-   RandomWait *nodeRep = static_cast<RandomWait*>(mNodeRep);
-   mCompleteMs = Sim::getCurrentTime() + mRandI(nodeRep->getWaitMinMs(), nodeRep->getWaitMaxMs());
 }
 
 Task* RandomWaitTask::update() 
 { 
-   if(Sim::getCurrentTime() < mCompleteMs)
-      mStatus = RUNNING;
-   else
+   if(mStatus != RUNNING && mStatus != SUSPENDED)
+   {
+      RandomWait *node = static_cast<RandomWait*>(mNodeRep);
+      Sim::postEvent(mRunner, new TaskReactivateEvent(*this), Sim::getCurrentTime() + mRandI(node->getWaitMinMs(), node->getWaitMaxMs()));
+      mStatus = SUSPENDED;
+   }
+
+   if(mStatus == RUNNING)
       mStatus = SUCCESS;
 
    return NULL; 

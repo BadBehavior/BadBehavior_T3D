@@ -143,7 +143,29 @@ void BehaviorTreeRunner::onTick()
 
 void BehaviorTreeRunner::onReactivateEvent(Task *task)
 {
-   
+   if(!mIsRunning)
+      return;
+
+   Con::warnf("Runner received reactivate event");
+   while(task)
+   {
+      if(task->getStatus() == SUSPENDED)
+      {
+         task->onResume();
+         
+         if(!task->getParent() && task->getStatus() != SUSPENDED && !Sim::isEventPending(mTickEvent))
+         {
+            mTickEvent = Sim::postEvent(this, new BehaviorTreeTickEvent(), -1);
+            return;
+         }
+       
+         task = task->getStatus() == RUNNING ? task->getParent() : NULL;
+      }
+      else
+      {
+         break;
+      }
+   }
 }
 
 
@@ -203,7 +225,10 @@ void BehaviorTreeRunner::start()
    }
    
    mIsRunning = true;
-   onTick();
+   if(mRootTask)
+      mRootTask->reset();
+
+   mTickEvent = Sim::postEvent(this, new BehaviorTreeTickEvent(), -1);
 }
 
 

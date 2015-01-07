@@ -62,8 +62,6 @@ namespace BadBehavior
       typedef Task Parent;
 
    protected:
-      S32 mCompleteMs;
-
       virtual void onInitialize();
       virtual Task* update();
       

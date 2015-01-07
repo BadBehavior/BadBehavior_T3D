@@ -43,9 +43,6 @@ namespace BadBehavior
       // time between ticks (in ms)
       S32 mFrequencyMs;
 
-      // status to return between tick
-      Status mIdleReturnStatus;
-      
    public:
       Ticker();
 
@@ -54,7 +51,6 @@ namespace BadBehavior
       static void initPersistFields();
 
       S32 getFrequencyMs() const { return mFrequencyMs; }
-      Status getIdleReturnStatus() const { return mIdleReturnStatus; }
 
       DECLARE_CONOBJECT(Ticker);
    };
