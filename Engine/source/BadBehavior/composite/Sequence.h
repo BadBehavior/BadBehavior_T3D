@@ -24,7 +24,7 @@
 #define _BB_SEQUENCE_H_
 
 #ifndef _BB_CORE_H_
-#include "BadBehavior/core/Core.h"
+#include "BadBehavior/core/Composite.h"
 #endif
 
 namespace BadBehavior
@@ -49,9 +49,6 @@ namespace BadBehavior
    {
       typedef CompositeTask Parent;
 
-   protected:
-      virtual Task* update();
-   
    public:
       SequenceTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
 

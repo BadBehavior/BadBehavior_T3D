@@ -23,17 +23,14 @@
 #ifndef _BBCORE_H_
 #define _BBCORE_H_
 
-#ifndef _DYNAMIC_CONSOLETYPES_H_
-#include "console/dynamicTypes.h"
+#ifndef _ENGINEAPI_H_
+#include "console\engineAPI.h"
 #endif
 #ifndef _SIMSET_H_
 #include "console/simSet.h"
 #endif
 #ifndef _SIMOBJECT_H_
 #include "console/simObject.h"
-#endif
-#ifndef _SIMSET_H_
-#include "console/simSet.h"
 #endif
 
 namespace BadBehavior
@@ -74,33 +71,6 @@ namespace BadBehavior
       typedef Node Parent;
 
    public:
-      virtual void addObject(SimObject *obj);
-      virtual bool acceptsAsChild( SimObject *object ) const;
-   };
-
-   //---------------------------------------------------------------------------
-   // Composite node base class - for nodes with children
-   //---------------------------------------------------------------------------
-   class CompositeNode : public Node
-   {
-      typedef Node Parent;
-
-   public:
-      // override addObject and acceptsAsChild to only allow behavior tree nodes to be added as children
-      virtual void addObject(SimObject *obj);
-      virtual bool acceptsAsChild( SimObject *object ) const;
-   };
-
-   //---------------------------------------------------------------------------
-   // Decorator node base class
-   // using CompositeNode as baseclass as this node has a child
-   //---------------------------------------------------------------------------
-   class DecoratorNode : public CompositeNode
-   {
-      typedef CompositeNode Parent;
-
-   public:
-      // only allow 1 child node to be added
       virtual void addObject(SimObject *obj);
       virtual bool acceptsAsChild( SimObject *object ) const;
    };
@@ -173,26 +143,6 @@ namespace BadBehavior
 
       // reset the task
       void reset();
-   };
-
-   //---------------------------------------------------------------------------
-   // Composite task base class
-   //---------------------------------------------------------------------------
-   class CompositeTask : public Task
-   {
-      typedef Task Parent;
-
-   protected:
-      // vector of pointers to child tasks
-      VectorPtr<Task*> mChildren;
-
-      // the current child task
-      VectorPtr<Task*>::iterator mCurrentChild;
-
-      CompositeTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
-      virtual ~CompositeTask();
-      virtual void onInitialize();
-      virtual void onTerminate();
    };
 
 } // namespace BadBehavior

@@ -24,7 +24,7 @@
 #define _BB_PARALLEL_H_
 
 #ifndef _BB_CORE_H_
-#include "BadBehavior/core/Core.h"
+#include "BadBehavior/core/Composite.h"
 #endif
 
 namespace BadBehavior

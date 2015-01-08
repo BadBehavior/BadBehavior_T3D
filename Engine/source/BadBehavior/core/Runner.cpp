@@ -102,6 +102,7 @@ void BehaviorTreeRunner::onTick()
    Task *currentTask = NULL;
    Task *nextTask = NULL;
    
+   Con::warnf("RunnerTick");
    // loop through the tasks in the task list
    while(mTasks.size())
    {
@@ -172,7 +173,7 @@ void BehaviorTreeRunner::onReactivateEvent(Task *task)
 bool BehaviorTreeRunner::_setRootNode( void *object, const char *index, const char *data )
 {
    BehaviorTreeRunner *runner = static_cast<BehaviorTreeRunner *>( object );   
-   CompositeNode* root = NULL;
+   Node* root = NULL;
    Sim::findObject( data, root );
    if(root)
       runner->setRootNode(root);
@@ -197,7 +198,7 @@ void BehaviorTreeRunner::setOwner(SimObject *owner)
 }
 
 
-void BehaviorTreeRunner::setRootNode(CompositeNode *root) 
+void BehaviorTreeRunner::setRootNode(Node *root) 
 { 
    reset();
    mRootNode = root;

@@ -33,7 +33,7 @@ using namespace BadBehavior;
 IMPLEMENT_CONOBJECT(ScriptEval);
 
 ScriptEval::ScriptEval()
-   : mDefaultReturnStatus(FAILURE) 
+   : mDefaultReturnStatus(SUCCESS) 
 {
 }
 

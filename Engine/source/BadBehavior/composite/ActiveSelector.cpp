@@ -20,9 +20,7 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "console/engineAPI.h"
 #include "ActiveSelector.h"
-
 
 using namespace BadBehavior;
 

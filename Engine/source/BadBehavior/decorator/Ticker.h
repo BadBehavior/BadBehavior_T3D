@@ -23,8 +23,8 @@
 #ifndef _BB_TICKER_H_
 #define _BB_TICKER_H_
 
-#ifndef _BB_CORE_H_
-#include "BadBehavior/core/Core.h"
+#ifndef _BB_DECORATOR_H_
+#include "BadBehavior/core/Decorator.h"
 #endif
 
 namespace BadBehavior
@@ -58,20 +58,20 @@ namespace BadBehavior
    //---------------------------------------------------------------------------
    // Ticker decorator task
    //---------------------------------------------------------------------------
-   class TickerTask : public CompositeTask
+   class TickerTask : public DecoratorTask
    {
-      typedef CompositeTask Parent;
+      typedef DecoratorTask Parent;
 
    protected:
-      S32 mNextTimeMs;
+      U32 mNextTimeMs;
+      U32 mTickEvent;
 
       virtual Task* update();
-      virtual void onInitialize();
       
    public:
       TickerTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
 
-      virtual void onChildComplete(Status s);
+      virtual void onResume();
    };
 
 } // namespace BadBehavior

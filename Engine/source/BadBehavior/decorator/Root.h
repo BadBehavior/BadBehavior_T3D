@@ -23,8 +23,8 @@
 #ifndef _BB_ROOT_H_
 #define _BB_ROOT_H_
 
-#ifndef _BB_CORE_H_
-#include "BadBehavior/core/Core.h"
+#ifndef _BB_DECORATOR_H_
+#include "BadBehavior/core/Decorator.h"
 #endif
 
 namespace BadBehavior

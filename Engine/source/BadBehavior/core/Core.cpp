@@ -58,40 +58,6 @@ bool LeafNode::acceptsAsChild( SimObject *object ) const
 }
 
 
-//============================CompositeNode=====================================
-
-//------------------------------------------------------------------------------
-// override addObject to only allow behavior tree nodes to be added
-//------------------------------------------------------------------------------
-void CompositeNode::addObject(SimObject *object)
-{
-   if(dynamic_cast<LeafNode*>(object) || dynamic_cast<CompositeNode*>(object))
-      Parent::addObject(object);
-}
-
-bool CompositeNode::acceptsAsChild( SimObject *object ) const 
-{ 
-   return (dynamic_cast<LeafNode*>(object) || dynamic_cast<CompositeNode*>(object)); 
-}
-
-
-//===============================DecoratorNode==================================
-
-//------------------------------------------------------------------------------
-//override for decorators to only allow 1 child
-//------------------------------------------------------------------------------
-void DecoratorNode::addObject(SimObject *obj)
-{
-   if(empty())
-      Parent::addObject(obj);
-}
-
-bool DecoratorNode::acceptsAsChild( SimObject *object ) const 
-{
-   return (Parent::acceptsAsChild(object) && empty());
-}
-
-
 //==================================Task========================================
 
 Task::Task(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
@@ -168,40 +134,3 @@ void Task::onChildComplete(Status)
 {
 }
 
-//===========================CompositeTask======================================
-
-CompositeTask::CompositeTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner) 
-   : Parent(node, owner, runner) 
-{
-}
-
-CompositeTask::~CompositeTask()
-{
-   while(mChildren.size())
-   {
-      Task *child = mChildren.back();
-      mChildren.pop_back();
-      delete child;
-   }
-}
-
-void CompositeTask::onInitialize()
-{
-   if(mChildren.empty())
-   {
-      CompositeNode *node = static_cast<CompositeNode *>(mNodeRep);
-      for(SimSet::iterator i = node->begin(); i != node->end(); ++i)
-      {
-         mChildren.push_back(static_cast<Node*>(*i)->createTask(*mOwner, *mRunner));
-         mChildren.back()->setParent(static_cast<Task *>(this));
-      }
-   }
-   
-   mStatus = INVALID;
-   mCurrentChild = mChildren.begin();
-}
-
-void CompositeTask::onTerminate()
-{
-   mStatus = INVALID;
-}

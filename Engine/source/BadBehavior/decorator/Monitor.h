@@ -23,8 +23,8 @@
 #ifndef _BB_MONITOR_H_
 #define _BB_MONITOR_H_
 
-#ifndef _BB_CORE_H_
-#include "BadBehavior/core/Core.h"
+#ifndef _BB_DECORATOR_H_
+#include "BadBehavior/core/Decorator.h"
 #endif
 
 namespace BadBehavior
@@ -46,13 +46,9 @@ namespace BadBehavior
    //---------------------------------------------------------------------------
    // Monitor decorator task
    //---------------------------------------------------------------------------
-   class MonitorTask : public CompositeTask
+   class MonitorTask : public DecoratorTask
    {
-      typedef CompositeTask Parent;
-
-   protected:
-      virtual Task* update();
-      virtual void onInitialize();
+      typedef DecoratorTask Parent;
 
    public:
       MonitorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);

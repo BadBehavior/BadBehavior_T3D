@@ -20,7 +20,6 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "console/engineAPI.h"
 #include "Inverter.h"
 
 using namespace BadBehavior;
@@ -43,34 +42,13 @@ InverterTask::InverterTask(Node &node, SimObject &owner, BehaviorTreeRunner &run
 {
 }
 
-void InverterTask::onInitialize()
-{
-   Parent::onInitialize();
-   (*mCurrentChild)->reset();
-}
-
-Task* InverterTask::update() 
-{ 
-   if( mIsComplete )
-   {
-      if(mStatus == RUNNING || mStatus == SUSPENDED)
-         mIsComplete = false;
-      
-      return NULL;
-   }
-   
-   return mStatus != SUSPENDED ? (*mCurrentChild) : NULL; 
-}
-      
 void InverterTask::onChildComplete(Status s)
 {
+   Parent::onChildComplete(s);
+   
    // invert SUCCESS or FAILURE, leave INVALID and RUNNING unchanged
-   if (s == SUCCESS)
+   if (mStatus == SUCCESS)
       mStatus = FAILURE;
-   else if (s == FAILURE)
+   else if (mStatus == FAILURE)
       mStatus = SUCCESS;
-   else
-      mStatus = s;
-
-   mIsComplete = true;
 }

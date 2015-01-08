@@ -20,8 +20,6 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "console/engineAPI.h"
-
 #include "BadBehavior\core\Runner.h"
 #include "Ticker.h"
 
@@ -67,14 +65,9 @@ Task *Ticker::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 //------------------------------------------------------------------------------
 TickerTask::TickerTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
    : Parent(node, owner, runner), 
-     mNextTimeMs(0) 
+     mNextTimeMs(0),
+     mTickEvent(0)
 {
-}
-
-void TickerTask::onInitialize()
-{
-   Parent::onInitialize();
-   (*mCurrentChild)->reset();
 }
 
 Task* TickerTask::update() 
@@ -94,19 +87,24 @@ Task* TickerTask::update()
       if(!mIsComplete && mStatus != SUSPENDED)
       {
          mStatus = SUSPENDED;
-         Sim::postEvent(mRunner, new TaskReactivateEvent(*this), mNextTimeMs);
+         mTickEvent = Sim::postEvent(mRunner, new TaskReactivateEvent(*this), mNextTimeMs);
       }
 
       return NULL;
    }
    
    mNextTimeMs = Sim::getCurrentTime() + node->getFrequencyMs();
-   return mStatus != SUSPENDED ? (*mCurrentChild) : NULL; 
+   return mStatus != SUSPENDED ? mChild : NULL; 
 }
       
-void TickerTask::onChildComplete(Status s)
+void TickerTask::onResume()
 {
-   mStatus = s;
-   mIsComplete = true;
-}
+   if(Sim::isEventPending(mTickEvent))
+      mStatus = SUSPENDED;
+   else
+      mStatus = RUNNING;
 
+   Con::warnf("Resumed %s (%s)", 
+               mNodeRep->getIdString(),
+               EngineMarshallData(mStatus));
+}

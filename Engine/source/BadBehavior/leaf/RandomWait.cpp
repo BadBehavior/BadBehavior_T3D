@@ -20,7 +20,6 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "console/engineAPI.h"
 #include "math/mMathFn.h"
 
 #include "BadBehavior/core/Runner.h"
@@ -87,7 +86,7 @@ void RandomWaitTask::onInitialize()
 }
 
 Task* RandomWaitTask::update() 
-{ 
+{
    if(mStatus != RUNNING && mStatus != SUSPENDED)
    {
       RandomWait *node = static_cast<RandomWait*>(mNodeRep);

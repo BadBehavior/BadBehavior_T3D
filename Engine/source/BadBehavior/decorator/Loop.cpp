@@ -20,8 +20,6 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "console/engineAPI.h"
-
 #include "Loop.h"
 
 using namespace BadBehavior;
@@ -84,38 +82,34 @@ void LoopTask::onInitialize()
 {
    Parent::onInitialize();
    mCurrentLoop = 0;
-   (*mCurrentChild)->reset();
 }
 
 Task* LoopTask::update()
 {
-   if(mIsComplete && (mStatus == RUNNING || mStatus == SUSPENDED))
-      mIsComplete = false;
+   if(Parent::update())
+      return mChild;
 
+   // child has terminated with SUCCESS or FAILURE
    if( mIsComplete )
    {
+      // check if we should continue looping or reset
       Loop *nodeRep = static_cast<Loop *>(mNodeRep);
       Loop::TerminationPolicy policy = nodeRep->getTerminationPolicy();
       S32 numLoops = nodeRep->getNumLoops();
-   
+      
+      // termination policy not met?
       if( ((policy == Loop::ON_FAILURE) && (mStatus != FAILURE)) ||
           ((policy == Loop::ON_SUCCESS) && (mStatus != SUCCESS)) )
       {
+         // more looping to be done
          if ( (++mCurrentLoop < numLoops) || (numLoops == 0) )
          {
             mIsComplete = false;
             mStatus = RUNNING;
          }
       }
-      
-      return NULL;
    }
    
-   return mStatus != SUSPENDED ? (*mCurrentChild) : NULL; 
-}
-
-void LoopTask::onChildComplete(Status s)
-{
-   mStatus = s;
-   mIsComplete = true;
+   // no children to return
+   return NULL;
 }

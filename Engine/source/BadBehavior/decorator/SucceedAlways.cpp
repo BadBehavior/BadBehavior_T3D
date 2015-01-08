@@ -20,8 +20,6 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "console/engineAPI.h"
-
 #include "SucceedAlways.h"
 
 using namespace BadBehavior;
@@ -36,12 +34,6 @@ Task *SucceedAlways::createTask(SimObject &owner, BehaviorTreeRunner &runner)
    return new SucceedAlwaysTask(*this, owner, runner);
 }
 
-void SucceedAlwaysTask::onInitialize()
-{
-   Parent::onInitialize();
-   (*mCurrentChild)->reset();
-}
-
 //------------------------------------------------------------------------------
 // SucceedAlways decorator task
 //------------------------------------------------------------------------------
@@ -50,22 +42,10 @@ SucceedAlwaysTask::SucceedAlwaysTask(Node &node, SimObject &owner, BehaviorTreeR
 {
 }
 
-Task* SucceedAlwaysTask::update() 
-{ 
-   if( mIsComplete )
-   {
-      if(mStatus == RUNNING || mStatus == SUSPENDED)
-         mIsComplete = false;
-      
-      return NULL;
-   }
-   
-   return mStatus != SUSPENDED ? (*mCurrentChild) : NULL; 
-}
-      
 void SucceedAlwaysTask::onChildComplete(Status s)
 {
-   mStatus = (s == FAILURE) ? SUCCESS : s;
-   mIsComplete = true;
+   Parent::onChildComplete(s);
+   if(mStatus == FAILURE)
+      mStatus = SUCCESS;
 }
 

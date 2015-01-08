@@ -33,7 +33,7 @@ using namespace BadBehavior;
 IMPLEMENT_CONOBJECT(ScriptFunc);
 
 ScriptFunc::ScriptFunc()
-   : mDefaultReturnStatus(FAILURE),
+   : mDefaultReturnStatus(SUCCESS),
      mScriptFunction(StringTable->insert(""))
 {
    for(U8 i = 0; i < MAX_COMMAND_ARGS; ++i)

@@ -20,9 +20,6 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "console/engineAPI.h"
-#include "platform/profiler.h"
-
 #include "FollowBehaviorAction.h"
 
 #include "T3D/aiPlayer.h"

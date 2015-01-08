@@ -20,9 +20,7 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "console/engineAPI.h"
 #include "Selector.h"
-
 
 using namespace BadBehavior;
 
@@ -48,31 +46,9 @@ void SelectorTask::onChildComplete(Status s)
 {
    mStatus = s;
 
-   if(s == FAILURE)
+   // if child failed, move on to the next child
+   if(mStatus == FAILURE)
       ++mCurrentChild;
    else
       mIsComplete = true;
 }
-
-Task* SelectorTask::update()
-{
-   if(mCurrentChild == mChildren.end())
-   {
-      mIsComplete = true;
-   }
-
-   if( mIsComplete )
-   {
-      if(mStatus == RUNNING || mStatus == SUSPENDED)
-         mIsComplete = false;
-
-      return NULL;
-   }
-
-   // move on to next child
-   if(mStatus != RUNNING && mStatus != SUSPENDED)
-      (*mCurrentChild)->reset();
-   
-   return (*mCurrentChild);   
-}
-

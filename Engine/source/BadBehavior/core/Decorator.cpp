@@ -20,49 +20,87 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "math/mMathFn.h"
-
-#include "RandomSelector.h"
+#include "Decorator.h"
 
 using namespace BadBehavior;
 
 //------------------------------------------------------------------------------
-// Random selector node
+// Base decorator node
+// overrides for decorators to only allow 1 child
 //------------------------------------------------------------------------------
-IMPLEMENT_CONOBJECT(RandomSelector);
-
-Task *RandomSelector::createTask(SimObject &owner, BehaviorTreeRunner &runner)
+void DecoratorNode::addObject(SimObject *obj)
 {
-   return new RandomSelectorTask(*this, owner, runner);
+   if(empty())
+      Parent::addObject(obj);
+}
+
+bool DecoratorNode::acceptsAsChild( SimObject *object ) const 
+{
+   return (dynamic_cast<Node *>(object) && empty());
 }
 
 //------------------------------------------------------------------------------
-// Random selector task
+// Base decorator task
 //------------------------------------------------------------------------------
-RandomSelectorTask::RandomSelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner)
+DecoratorTask::DecoratorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
+   : Parent(node, owner, runner),
+   mChild(NULL)
 {
 }
 
-void RandomSelectorTask::onInitialize()
+DecoratorTask::~DecoratorTask()
 {
-   Parent::onInitialize();
-
-   // randomize the order of our child tasks
-   VectorPtr<Task *> randomChildren;
-
-   while(mChildren.size() > 0)
+   if(mChild)
    {
-      U32 index = mRandI(0, mChildren.size() - 1);
-      Task* child = mChildren[index];
-      randomChildren.push_back(child);
-      mChildren.erase_fast(index);
+      delete mChild;
+      mChild = NULL;
    }
+}
 
-   mChildren = randomChildren;
+void DecoratorTask::onInitialize()
+{
+   if(!mChild)
+   {
+      if(mNodeRep->size() > 0)
+      {
+         Node *childNode = static_cast<Node*>(*mNodeRep->begin());
+         if(childNode)
+         {
+            mChild = childNode->createTask(*mOwner, *mRunner);
+            if(mChild)
+            {
+               mChild->setParent(this);
+               mChild->reset();
+            }
+         }
+      }
+   }
+   
+   mStatus = INVALID;
+}
 
-   // normal init
-   mCurrentChild = mChildren.begin();
-   if(mCurrentChild != mChildren.end())
-      (*mCurrentChild)->reset();
+void DecoratorTask::onTerminate()
+{
+   mStatus = INVALID;
+}
+
+Task* DecoratorTask::update() 
+{ 
+   // first time through, return child
+   if(!mIsComplete)
+      return mStatus != SUSPENDED ? mChild : NULL;
+   
+   // child has completed, are we latent?
+   if(mStatus == RUNNING || mStatus == SUSPENDED)
+      mIsComplete = false;
+   
+   // no more children
+   return NULL; 
+}
+      
+void DecoratorTask::onChildComplete(Status s)
+{
+   // set our status to the child status and flag completed
+   mStatus = s;
+   mIsComplete = true;
 }

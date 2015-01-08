@@ -23,8 +23,8 @@
 #ifndef _BB_LOOP_H_
 #define _BB_LOOP_H_
 
-#ifndef _BB_CORE_H_
-#include "BadBehavior/core/Core.h"
+#ifndef _BB_DECORATOR_H_
+#include "BadBehavior/core/Decorator.h"
 #endif
 
 namespace BadBehavior
@@ -67,9 +67,9 @@ namespace BadBehavior
    //---------------------------------------------------------------------------
    // loop task
    //---------------------------------------------------------------------------
-   class LoopTask : public CompositeTask
+   class LoopTask : public DecoratorTask
    {
-      typedef CompositeTask Parent;
+      typedef DecoratorTask Parent;
 
    protected:
       S32 mCurrentLoop;
@@ -79,8 +79,6 @@ namespace BadBehavior
 
    public:
       LoopTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
-
-      virtual void onChildComplete(Status s);
    };
    
 } // namespace BadBehavior

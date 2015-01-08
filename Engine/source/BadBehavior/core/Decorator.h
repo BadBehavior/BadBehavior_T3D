@@ -20,43 +20,49 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef _BB_INVERTER_H_
-#define _BB_INVERTER_H_
-
 #ifndef _BB_DECORATOR_H_
-#include "BadBehavior/core/Decorator.h"
+#define _BB_DECORATOR_H_
+
+#ifndef _BB_CORE_H_
+#include "BadBehavior/core/Core.h"
 #endif
 
 namespace BadBehavior
 {
    //---------------------------------------------------------------------------
-   // inverter decorator
-   // invert the return value of the child,
-   // SUCCESS becomes FAILURE, FAILURE becomes SUCCESS, INVALID and RUNNING are unmodified
+   // Decorator node base class
    //---------------------------------------------------------------------------
-   class Inverter : public DecoratorNode
+   class DecoratorNode : public Node
    {
-      typedef DecoratorNode Parent;
+      typedef Node Parent;
 
    public:
-      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
-      
-      DECLARE_CONOBJECT(Inverter);
+      // only allow 1 child node to be added
+      virtual void addObject(SimObject *obj);
+      virtual bool acceptsAsChild( SimObject *object ) const;
    };
 
    //---------------------------------------------------------------------------
-   // inverter decorator task
+   // Decorator task base class
    //---------------------------------------------------------------------------
-   class InverterTask : public DecoratorTask
+   class DecoratorTask : public Task
    {
-      typedef DecoratorTask Parent;
+      typedef Task Parent;
+
+   protected:
+      Task* mChild;
+
+      virtual Task* update();
+      virtual void onInitialize();
+      virtual void onTerminate();
 
    public:
-      InverterTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      DecoratorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      virtual ~DecoratorTask();
 
       virtual void onChildComplete(Status s);
    };
-
+   
 } // namespace BadBehavior
 
 #endif

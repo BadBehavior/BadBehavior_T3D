@@ -59,7 +59,7 @@ namespace BadBehavior
       VectorPtr<Task*> mTasks;
 
       // the root node of the tree
-      SimObjectPtr<CompositeNode> mRootNode;
+      SimObjectPtr<Node> mRootNode;
       
       // the task associated with the root node
       Task *mRootTask;
@@ -77,7 +77,7 @@ namespace BadBehavior
 
       // public setters for the script interface
       void setOwner(SimObject *owner);
-      void setRootNode(CompositeNode *root);
+      void setRootNode(Node *root);
 
       // for script control
       void stop();

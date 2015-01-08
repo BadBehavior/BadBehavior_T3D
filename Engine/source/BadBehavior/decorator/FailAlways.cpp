@@ -20,8 +20,6 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "console/engineAPI.h"
-
 #include "FailAlways.h"
 
 using namespace BadBehavior;
@@ -36,12 +34,6 @@ Task *FailAlways::createTask(SimObject &owner, BehaviorTreeRunner &runner)
    return new FailAlwaysTask(*this, owner, runner);
 }
 
-void FailAlwaysTask::onInitialize()
-{
-   Parent::onInitialize();
-   (*mCurrentChild)->reset();
-}
-
 //------------------------------------------------------------------------------
 // FailAlways decorator task
 //------------------------------------------------------------------------------
@@ -49,23 +41,11 @@ FailAlwaysTask::FailAlwaysTask(Node &node, SimObject &owner, BehaviorTreeRunner 
    : Parent(node, owner, runner) 
 {
 }
-
-Task* FailAlwaysTask::update() 
-{ 
-   if( mIsComplete )
-   {
-      if(mStatus == RUNNING || mStatus == SUSPENDED)
-         mIsComplete = false;
-      
-      return NULL;
-   }
-   
-   return mStatus != SUSPENDED ? (*mCurrentChild) : NULL; 
-}
       
 void FailAlwaysTask::onChildComplete(Status s)
 {
-   mStatus = (s == SUCCESS) ? FAILURE : s;
-   mIsComplete = true;
+   Parent::onChildComplete(s);
+   if(mStatus == SUCCESS)
+      mStatus = FAILURE;
 }
 
