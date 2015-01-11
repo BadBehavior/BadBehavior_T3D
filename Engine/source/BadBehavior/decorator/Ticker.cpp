@@ -66,45 +66,63 @@ Task *Ticker::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 TickerTask::TickerTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
    : Parent(node, owner, runner), 
      mNextTimeMs(0),
-     mTickEvent(0)
+     mEventId(0)
 {
+}
+
+TickerTask::~TickerTask()
+{
+   cancelEvent();
+}
+
+void TickerTask::cancelEvent()
+{
+   if(Sim::isEventPending(mEventId))
+   {
+      Sim::cancelEvent(mEventId);
+      mEventId = 0;
+   }
+}
+
+void TickerTask::onInitialize()
+{
+   Parent::onInitialize();
+   cancelEvent();
+}
+
+void TickerTask::onTerminate()
+{
+   Parent::onTerminate();
+   cancelEvent();
 }
 
 Task* TickerTask::update() 
 { 
-   if( mIsComplete )
+   if(mStatus == RESUME)
    {
-      if(mStatus == RUNNING || mStatus == SUSPENDED)
-         mIsComplete = false;
-      
-      return NULL;
+      mStatus = INVALID;
+      mIsComplete = false;
    }
 
+   if( mIsComplete )
+      return NULL;
+   
    Ticker *node = static_cast<Ticker *>(mNodeRep);
 
-   if(Sim::getCurrentTime() < mNextTimeMs)
+   if(mStatus == INVALID)
    {
-      if(!mIsComplete && mStatus != SUSPENDED)
+      if(Sim::getCurrentTime() < mNextTimeMs)
       {
          mStatus = SUSPENDED;
-         mTickEvent = Sim::postEvent(mRunner, new TaskReactivateEvent(*this), mNextTimeMs);
+         mEventId = Sim::postEvent(mRunner, new TaskReactivateEvent(*this), mNextTimeMs);
+         mIsComplete = false;
+         return NULL;
       }
-
-      return NULL;
+      else
+      {
+         mNextTimeMs = Sim::getCurrentTime() + node->getFrequencyMs();
+      }
    }
-   
-   mNextTimeMs = Sim::getCurrentTime() + node->getFrequencyMs();
-   return mStatus != SUSPENDED ? mChild : NULL; 
-}
-      
-void TickerTask::onResume()
-{
-   if(Sim::isEventPending(mTickEvent))
-      mStatus = SUSPENDED;
-   else
-      mStatus = RUNNING;
 
-   Con::warnf("Resumed %s (%s)", 
-               mNodeRep->getIdString(),
-               EngineMarshallData(mStatus));
+   return mChild; 
 }

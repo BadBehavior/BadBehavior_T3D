@@ -45,6 +45,7 @@ namespace BadBehavior
        SUCCESS,
        RUNNING,
        SUSPENDED,
+       RESUME
    };
    
    class Task;
@@ -116,7 +117,7 @@ namespace BadBehavior
       virtual ~Task();
       
       // status sets and gets
-      Status getStatus();
+      virtual Status getStatus();
       void setStatus(Status newStatus);
 
       // parent sets and gets
@@ -130,10 +131,7 @@ namespace BadBehavior
       virtual void onChildComplete(Status);
 
       // called when a suspended task becomes active
-      virtual void onResume() { mStatus = RUNNING;
-                                Con::warnf("Resumed %s (%s)", 
-                                mNodeRep->getIdString(),
-                                EngineMarshallData(mStatus));}
+      virtual void onResume(); 
 
       // prepare the task
       void setup();

@@ -20,59 +20,25 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef _BB_WAIT_H_
-#define _BB_WAIT_H_
+#ifndef _BB_STEPPER_H_
+#define _BB_STEPPER_H_
 
 #ifndef _BB_CORE_H_
-#include "BadBehavior/core/Core.h"
+#include "Core.h"
 #endif
 
 namespace BadBehavior
 {
    //---------------------------------------------------------------------------
-   // Wait leaf
-   // Pauses for a set time period.
+   // helper class for stepping through a tree
    //---------------------------------------------------------------------------
-   class Wait : public LeafNode
+   class BehaviorTreeStepper
    {
-      typedef LeafNode Parent;
-
-   protected:
-      static bool _setWait(void *object, const char *index, const char *data);
-
-      S32 mWaitMs;
-
    public:
-      Wait();
-   
-      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
-      
-      static void initPersistFields();
+      BehaviorTreeStepper();
+      ~BehaviorTreeStepper();
 
-      S32 getWaitMs() const { return mWaitMs; }
-
-      DECLARE_CONOBJECT(Wait);
-   };
-
-   //---------------------------------------------------------------------------
-   // Wait leaf task
-   //---------------------------------------------------------------------------
-   class WaitTask : public Task
-   {
-      typedef Task Parent;
-
-   protected:
-      U32 mEventId;
-
-      virtual void onInitialize();
-      virtual void onTerminate();
-      virtual Task* update();
-
-      void cancelEvent();
-      
-   public:
-      WaitTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
-      virtual ~WaitTask();
+      Status stepThrough(VectorPtr<Task *> &taskVector);
    };
 
 } // namespace BadBehavior

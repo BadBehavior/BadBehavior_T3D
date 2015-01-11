@@ -91,8 +91,7 @@ Status FollowBehaviorAction::behavior( SimObject *owner )
    // try and stay at followDistance from the followObject
    Point3F targetPos = followObject->getPosition();
    Point3F followVec = aiPlayer->getPosition() - targetPos;
-   followVec.z = 0.f;
-
+   
    F32 curDist = followVec.len();
 
    if(mFabs(curDist - followDistance) > aiPlayer->getMoveTolerance())

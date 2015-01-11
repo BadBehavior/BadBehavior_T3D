@@ -38,6 +38,7 @@
 
 namespace BadBehavior
 {
+
    //---------------------------------------------------------------------------
    // BehaviorTreeRunner - handles the evaluation of the tree
    //---------------------------------------------------------------------------
@@ -54,9 +55,6 @@ namespace BadBehavior
 
       // frequency of ticks in ms
       U32 mTickFrequency;
-
-      // list of tasks to be processed
-      VectorPtr<Task*> mTasks;
 
       // the root node of the tree
       SimObjectPtr<Node> mRootNode;

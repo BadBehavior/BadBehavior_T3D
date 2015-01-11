@@ -20,57 +20,60 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "Root.h"
+#include "Stepper.h"
 
 using namespace BadBehavior;
 
-//------------------------------------------------------------------------------
-// Root decorator node
-//------------------------------------------------------------------------------
-IMPLEMENT_CONOBJECT(Root);
-
-Task *Root::createTask(SimObject &owner, BehaviorTreeRunner &runner)
-{
-   return new RootTask(*this, owner, runner);
-}
-
-//------------------------------------------------------------------------------
-// Root decorator task
-//------------------------------------------------------------------------------
-RootTask::RootTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner) 
+BehaviorTreeStepper::BehaviorTreeStepper() 
 {
 }
 
-void RootTask::onInitialize()
+BehaviorTreeStepper::~BehaviorTreeStepper()
 {
-   Parent::onInitialize();
-   mTasks.clear();
 }
-
-Task *RootTask::update()
+      
+Status BehaviorTreeStepper::stepThrough(VectorPtr<Task *> &taskVector) 
 {
-   if(mChild)
+   if(taskVector.empty()) return INVALID;
+         
+   if(taskVector.back()->getStatus() == SUSPENDED)
+      return SUSPENDED;
+
+   Status status = INVALID;
+
+   // loop through the tasks in the task list
+   while(!taskVector.empty())
    {
-      if(mTasks.empty())
-      {
-         mChild->setup();
-         mTasks.push_back(mChild);
-      }
+      // get a task
+      Task *currentTask = taskVector.back();
 
-      mStatus = mStepper.stepThrough(mTasks);
+      // tick the task
+      Task *nextTask = currentTask->tick();
+      
+      // if task returned no children, it has completed
+      if(!nextTask)
+      {
+         // stop if it's RUNNING or SUSPENED
+         status = currentTask->getStatus();
+         if(status == RUNNING || status == SUSPENDED)
+            break;
+               
+         // otherwise, remove it from the list
+         taskVector.pop_back();
+         if(!taskVector.empty())
+            // and tell its parent that it completed
+            taskVector.back()->onChildComplete(currentTask->getStatus());
+
+         // complete the task
+         currentTask->finish();
+      }
+      else
+      {
+         // add the child as a task
+         nextTask->setup();
+         taskVector.push_back(nextTask);
+      }
    }
 
-   mIsComplete = mTasks.empty();
-
-   return NULL;
-}
-
-Status RootTask::getStatus()
-{
-   if(mTasks.empty())
-      return mStatus;
-
-   // propagate status from suspended tasks
-   return mTasks.back()->getStatus();
+   return status;
 }

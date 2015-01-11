@@ -65,25 +65,49 @@ Task *Wait::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 // Wait task
 //------------------------------------------------------------------------------
 WaitTask::WaitTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner)
+   : Parent(node, owner, runner),
+   mEventId(0)
 {
+}
+
+WaitTask::~WaitTask()
+{
+   cancelEvent();
+}
+
+void WaitTask::cancelEvent()
+{
+   if(Sim::isEventPending(mEventId))
+   {
+      Sim::cancelEvent(mEventId);
+      mEventId = 0;
+   }
 }
 
 void WaitTask::onInitialize()
 {
    Parent::onInitialize();
+   cancelEvent();
+}
+
+void WaitTask::onTerminate()
+{
+   Parent::onTerminate();
+   cancelEvent();
 }
 
 Task* WaitTask::update() 
 { 
-   if(mStatus != RUNNING && mStatus != SUSPENDED)
+   if(mStatus == RESUME)
    {
-      Sim::postEvent(mRunner, new TaskReactivateEvent(*this), Sim::getCurrentTime() + static_cast<Wait*>(mNodeRep)->getWaitMs());
+      mStatus = SUCCESS;
+      mIsComplete = true;
+   }
+   else if(mStatus == INVALID)
+   {
+      mEventId = Sim::postEvent(mRunner, new TaskReactivateEvent(*this), Sim::getCurrentTime() + static_cast<Wait*>(mNodeRep)->getWaitMs());
       mStatus = SUSPENDED;
    }
-
-   if(mStatus == RUNNING)
-      mStatus = SUCCESS;
 
    return NULL; 
 }

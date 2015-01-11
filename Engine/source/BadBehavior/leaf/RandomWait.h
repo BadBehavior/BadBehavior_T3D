@@ -65,11 +65,17 @@ namespace BadBehavior
       typedef Task Parent;
 
    protected:
+      U32 mEventId;
+
       virtual void onInitialize();
+      virtual void onTerminate();
       virtual Task* update();
+
+      void cancelEvent();
       
    public:
       RandomWaitTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      virtual ~RandomWaitTask();
    };
 
 } // namespace BadBehavior

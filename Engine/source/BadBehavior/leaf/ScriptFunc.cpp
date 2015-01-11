@@ -114,5 +114,8 @@ Task* ScriptFuncTask::update()
 {
    mStatus = static_cast<ScriptFunc*>(mNodeRep)->evaluate( mOwner );
 
+   if(mStatus != RUNNING && mStatus != SUSPENDED)
+      mIsComplete = true;
+
    return NULL; // leaves don't have children
 }

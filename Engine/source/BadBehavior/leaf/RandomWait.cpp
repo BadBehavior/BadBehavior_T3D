@@ -80,22 +80,45 @@ RandomWaitTask::RandomWaitTask(Node &node, SimObject &owner, BehaviorTreeRunner 
 {
 }
 
+RandomWaitTask::~RandomWaitTask()
+{
+   cancelEvent();
+}
+
+void RandomWaitTask::cancelEvent()
+{
+   if(Sim::isEventPending(mEventId))
+   {
+      Sim::cancelEvent(mEventId);
+      mEventId = 0;
+   }
+}
+
 void RandomWaitTask::onInitialize()
 {
    Parent::onInitialize();
+   cancelEvent();
+}
+
+void RandomWaitTask::onTerminate()
+{
+   Parent::onTerminate();
+   cancelEvent();
 }
 
 Task* RandomWaitTask::update() 
 {
-   if(mStatus != RUNNING && mStatus != SUSPENDED)
+   if(mStatus == RESUME)
+   {
+      mStatus = SUCCESS;
+      mIsComplete = true;
+   }
+   else if(mStatus == INVALID)
    {
       RandomWait *node = static_cast<RandomWait*>(mNodeRep);
-      Sim::postEvent(mRunner, new TaskReactivateEvent(*this), Sim::getCurrentTime() + mRandI(node->getWaitMinMs(), node->getWaitMaxMs()));
+      mEventId = Sim::postEvent(mRunner, new TaskReactivateEvent(*this), Sim::getCurrentTime() + mRandI(node->getWaitMinMs(), node->getWaitMaxMs()));
       mStatus = SUSPENDED;
    }
-
-   if(mStatus == RUNNING)
-      mStatus = SUCCESS;
 
    return NULL; 
 }

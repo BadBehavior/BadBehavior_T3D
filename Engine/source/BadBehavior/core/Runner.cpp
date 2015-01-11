@@ -89,84 +89,25 @@ void BehaviorTreeRunner::onTick()
       }
    }
 
-   if(mTasks.empty())
-   {
-      // init the root node
-      mRootTask->setup();
-
-      // add it to the task list
-      mTasks.push_back(mRootTask);
-   }
-
-   // some vars we will use
-   Task *currentTask = NULL;
-   Task *nextTask = NULL;
+   // Evaluate the tree
+   mRootTask->setup();
+   mRootTask->tick();
+   Con::warnf("Tree returned %s", EngineMarshallData(mRootTask->getStatus()));
+   mRootTask->finish();
    
-   Con::warnf("RunnerTick");
-   // loop through the tasks in the task list
-   while(mTasks.size())
-   {
-      // get a task
-      currentTask = mTasks.back();
-
-      // tick the task, and get its child and status
-      nextTask = currentTask->tick();
-      
-      // if task returned no children, it has completed
-      if(!nextTask)
-      {
-         // so remove it from the list
-         mTasks.pop_back();
-         if(mTasks.size())
-            // and tell its parent that it completed
-            mTasks.back()->onChildComplete(currentTask->getStatus());
-
-         currentTask->finish();
-      }
-      else
-      {
-         // add the child as a task
-         nextTask->setup();
-         mTasks.push_back(nextTask);
-      }
-   }
-
+   // schedule the next tick
    if(Sim::isEventPending(mTickEvent))
-   {
       Sim::cancelEvent(mTickEvent);
-   }
 
-   if(mRootTask->getStatus() != SUSPENDED)
-      mTickEvent = Sim::postEvent(this, new BehaviorTreeTickEvent(), Sim::getCurrentTime() + mTickFrequency);
+   mTickEvent = Sim::postEvent(this, new BehaviorTreeTickEvent(), Sim::getCurrentTime() + mTickFrequency);
    
    mIsRunning = true;
 }
 
 void BehaviorTreeRunner::onReactivateEvent(Task *task)
 {
-   if(!mIsRunning)
-      return;
-
-   Con::warnf("Runner received reactivate event");
-   while(task)
-   {
-      if(task->getStatus() == SUSPENDED)
-      {
-         task->onResume();
-         
-         if(!task->getParent() && task->getStatus() != SUSPENDED && !Sim::isEventPending(mTickEvent))
-         {
-            mTickEvent = Sim::postEvent(this, new BehaviorTreeTickEvent(), -1);
-            return;
-         }
-       
-         task = task->getStatus() == RUNNING ? task->getParent() : NULL;
-      }
-      else
-      {
-         break;
-      }
-   }
+   if(task->getStatus() == SUSPENDED)
+      task->onResume();
 }
 
 
@@ -236,7 +177,6 @@ void BehaviorTreeRunner::start()
 void BehaviorTreeRunner::reset()
 {
    stop();
-   mTasks.clear();
    if(mRootTask)
    {
       delete mRootTask;

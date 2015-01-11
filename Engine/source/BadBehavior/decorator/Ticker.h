@@ -64,14 +64,18 @@ namespace BadBehavior
 
    protected:
       U32 mNextTimeMs;
-      U32 mTickEvent;
+      U32 mEventId;
 
+      virtual void onInitialize();
+      virtual void onTerminate();
       virtual Task* update();
+      
+      void cancelEvent();
       
    public:
       TickerTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
 
-      virtual void onResume();
+      virtual ~TickerTask();
    };
 
 } // namespace BadBehavior
