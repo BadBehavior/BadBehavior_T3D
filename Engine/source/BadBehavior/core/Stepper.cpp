@@ -24,14 +24,6 @@
 
 using namespace BadBehavior;
 
-BehaviorTreeStepper::BehaviorTreeStepper() 
-{
-}
-
-BehaviorTreeStepper::~BehaviorTreeStepper()
-{
-}
-      
 Status BehaviorTreeStepper::stepThrough(VectorPtr<Task *> &taskVector) 
 {
    if(taskVector.empty()) return INVALID;

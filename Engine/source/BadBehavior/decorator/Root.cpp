@@ -38,39 +38,35 @@ Task *Root::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 // Root decorator task
 //------------------------------------------------------------------------------
 RootTask::RootTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner) 
+   : Parent(node, owner, runner),
+     mBranch(NULL)
 {
+}
+
+RootTask::~RootTask()
+{
+   if(mBranch)
+      delete mBranch;
 }
 
 void RootTask::onInitialize()
 {
    Parent::onInitialize();
-   mTasks.clear();
+   if(!mBranch)
+      mBranch = new BehaviorTreeBranch(mChild);
+   else
+      mBranch->reset();
 }
 
 Task *RootTask::update()
 {
-   if(mChild)
-   {
-      if(mTasks.empty())
-      {
-         mChild->setup();
-         mTasks.push_back(mChild);
-      }
+   mStatus = mBranch->update();
 
-      mStatus = mStepper.stepThrough(mTasks);
-   }
-
-   mIsComplete = mTasks.empty();
-
+   mIsComplete = mStatus != RUNNING && mStatus != SUSPENDED;
    return NULL;
 }
 
 Status RootTask::getStatus()
 {
-   if(mTasks.empty())
-      return mStatus;
-
-   // propagate status from suspended tasks
-   return mTasks.back()->getStatus();
+   return mBranch->getStatus();
 }

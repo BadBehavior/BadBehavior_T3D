@@ -20,24 +20,47 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef _BB_STEPPER_H_
-#define _BB_STEPPER_H_
+#include "Stepper.h"
+#include "Branch.h"
 
-#ifndef _BB_CORE_H_
-#include "Core.h"
-#endif
+using namespace BadBehavior;
 
-namespace BadBehavior
+BehaviorTreeBranch::BehaviorTreeBranch() 
+   : mRootTask(NULL) 
 {
-   //---------------------------------------------------------------------------
-   // helper class for stepping through a tree
-   //---------------------------------------------------------------------------
-   class BehaviorTreeStepper
+}
+
+BehaviorTreeBranch::BehaviorTreeBranch(Task *root) 
+   : mRootTask(root), 
+     mStatus(INVALID) 
+{
+}
+         
+Status BehaviorTreeBranch::getStatus() 
+{
+   if(!mTasks.empty())
+      return mTasks.back()->getStatus();
+            
+   return mStatus;
+}
+
+Status BehaviorTreeBranch::update() 
+{
+   if(mRootTask)
    {
-   public:
-      static Status stepThrough(VectorPtr<Task *> &taskVector);
-   };
+      if(mTasks.empty())
+      {
+         mRootTask->setup();
+         mTasks.push_back(mRootTask);
+      }
+   }
+   mStatus = BehaviorTreeStepper::stepThrough(mTasks);
+   return mStatus;
+}
 
-} // namespace BadBehavior
-
-#endif
+void BehaviorTreeBranch::reset()
+{
+   mStatus = INVALID;
+   mRootTask->reset();
+   mTasks.clear();
+}

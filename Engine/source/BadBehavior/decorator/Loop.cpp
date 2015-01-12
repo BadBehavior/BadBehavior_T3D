@@ -89,6 +89,9 @@ Task* LoopTask::update()
    if(Parent::update())
       return mChild;
 
+   if(mStatus == RUNNING || mStatus == SUSPENDED)
+      mIsComplete = false;
+
    // child has terminated with SUCCESS or FAILURE
    if( mIsComplete )
    {

@@ -20,53 +20,33 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef _BB_ROOT_H_
-#define _BB_ROOT_H_
-
 #ifndef _BB_BRANCH_H_
-#include "BadBehavior\core\Branch.h"
-#endif
-#ifndef _BB_DECORATOR_H_
-#include "BadBehavior/core/Decorator.h"
+#define _BB_BRANCH_H_
+
+#ifndef _BB_CORE_H_
+#include "Core.h"
 #endif
 
 namespace BadBehavior
 {
-   //---------------------------------------------------------------------------
-   // Root decorator
-   // A placeholder node to mark the start of a tree. 
-   // Used by the editor, bypassed during tree evaluation.
-   //---------------------------------------------------------------------------
-   class Root : public DecoratorNode
+   // The branch class handles a single execution path in the tree
+   // Typically used for the tree root and for handling suspension and concurrency
+   class BehaviorTreeBranch
    {
-      typedef DecoratorNode Parent;
+   private:
+      Status mStatus;
+      Task *mRootTask;
+      VectorPtr<Task *> mTasks;
 
    public:
-      virtual Task* createTask(SimObject &owner, BehaviorTreeRunner &runner);
+      BehaviorTreeBranch();
+      BehaviorTreeBranch(Task *root);
 
-      DECLARE_CONOBJECT(Root);
+      Status getStatus();
+      Status update();
+      void reset();
    };
 
-   //---------------------------------------------------------------------------
-   // Root task
-   //---------------------------------------------------------------------------
-   class RootTask : public DecoratorTask
-   {
-      typedef DecoratorTask Parent;
-
-   protected:
-      BehaviorTreeBranch *mBranch;
-      
-      virtual Task* update();
-      virtual void onInitialize();
-      //virtual void onTerminate();
-
-   public:
-      RootTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
-      virtual ~RootTask();
-
-      virtual Status getStatus();
-   };
 
 } // namespace BadBehavior
 

@@ -27,6 +27,10 @@
 #include "BadBehavior/core/Composite.h"
 #endif
 
+#ifndef _BB_ROOT_H_
+#include "BadBehavior/core/Branch.h"
+#endif
+
 namespace BadBehavior
 {
    //---------------------------------------------------------------------------
@@ -71,19 +75,15 @@ namespace BadBehavior
       typedef CompositeTask Parent;
 
    protected:
-      bool mHasFailure;
-      bool mHasSuccess;
-      bool mHasRunning;
-      bool mHasSuspended;
+      Vector<BehaviorTreeBranch> mBranches;
       
       virtual void onInitialize();
       virtual Task* update();
-      Task *pickChild();
 
    public:
       ParallelTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
 
-      virtual void onChildComplete(Status);
+      virtual Status getStatus();
    };
 
 } // namespace BadBehavior
