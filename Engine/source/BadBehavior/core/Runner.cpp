@@ -106,10 +106,9 @@ void BehaviorTreeRunner::onTick()
 
 void BehaviorTreeRunner::onReactivateEvent(Task *task)
 {
-   if(task->getStatus() == SUSPENDED)
+   if(task)
       task->onResume();
 }
-
 
 bool BehaviorTreeRunner::_setRootNode( void *object, const char *index, const char *data )
 {

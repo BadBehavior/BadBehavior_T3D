@@ -26,6 +26,9 @@
 #ifndef _BB_DECORATOR_H_
 #include "BadBehavior/core/Decorator.h"
 #endif
+#ifndef _BB_BRANCH_H_
+#include "BadBehavior\core\Branch.h"
+#endif
 
 namespace BadBehavior
 {
@@ -66,6 +69,8 @@ namespace BadBehavior
       U32 mNextTimeMs;
       U32 mEventId;
 
+      BehaviorTreeBranch *mBranch;
+
       virtual void onInitialize();
       virtual void onTerminate();
       virtual Task* update();
@@ -74,8 +79,9 @@ namespace BadBehavior
       
    public:
       TickerTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
-
       virtual ~TickerTask();
+
+      virtual Status getStatus();
    };
 
 } // namespace BadBehavior

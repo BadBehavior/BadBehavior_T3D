@@ -40,6 +40,7 @@ ImplementEnumType( BehaviorReturnType,
    { BadBehavior::RUNNING, "RUNNING", "The behavior is still running.\n" },
    // not needed script side 
    { BadBehavior::SUSPENDED, "SUSPENDED", "The behavior has been suspended.\n" },
+   { BadBehavior::RESUME, "RESUME", "The behavior is resuming from suspended.\n" }
 EndImplementEnumType;
 
 
@@ -136,8 +137,9 @@ void Task::onChildComplete(Status)
 
 void Task::onResume()
 { 
-   mStatus = RESUME;
-   Con::warnf("Resumed %s (%s)", 
-               mNodeRep->getIdString(),
-               EngineMarshallData(mStatus));
+   if(mStatus == SUSPENDED)
+      mStatus = RESUME;
+   
+   Con::warnf("onResume %s", 
+               mNodeRep->getIdString());
 }

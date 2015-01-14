@@ -27,7 +27,7 @@
 #include "BadBehavior/core/Composite.h"
 #endif
 
-#ifndef _BB_ROOT_H_
+#ifndef _BB_BRANCH_H_
 #include "BadBehavior/core/Branch.h"
 #endif
 
