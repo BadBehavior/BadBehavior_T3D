@@ -308,7 +308,10 @@ function findHealthTask::behavior(%this, %obj)
       if(%item.dataBlock.category !$= "Health" || !%item.isEnabled() || %item.isHidden())
          continue;
       
-      if(%obj.checkInFov(%item, %db.visionFov))
+      // broken in 3.6
+      //if(%obj.checkInFov(%item, %db.visionFov))
+      // this does the same thing.....
+      if(VectorDot(VectorNormalize(VectorSub(%item.position, %obj.position)), %obj.getForwardVector()) > mCos(%db.visionFov))
       {
          %dist = VectorDist(%obj.position, %item.position);
          if(%dist < %bestDist)
@@ -367,7 +370,9 @@ function pickTargetTask::behavior(%this, %obj)
       if(%target == %obj || !%target.isEnabled() || %target.isGod)
          continue;
       
-      if(%obj.checkInFov(%target, %db.visionFov))
+      //if(%obj.checkInFov(%target, %db.visionFov)) - broken in 3.6
+      // this does the same thing.....
+      if(VectorDot(VectorNormalize(VectorSub(%obj.targetObject.position, %obj.position)), %obj.getForwardVector()) > mCos(%db.visionFov))
       {
          %dist = VectorDist(%obj.position, %target.position);
          if(%dist < %bestDist)
@@ -415,7 +420,7 @@ function aimAtTargetTask::behavior(%this, %obj)
 function shootAtTargetTask::precondition(%this, %obj)
 {
    return isObject(%obj.targetObject) && 
-          %obj.checkInLos(%obj.targetObject) && 
+          %obj.checkInLos(%obj.targetObject) &&
           VectorDot(VectorNormalize(VectorSub(%obj.getAimLocation(), %obj.position)), %obj.getForwardVector()) > 0.9 &&
           %obj.getImageAmmo($WeaponSlot);  
 }
