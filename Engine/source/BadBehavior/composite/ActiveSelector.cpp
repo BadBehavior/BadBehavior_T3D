@@ -105,52 +105,12 @@ Task* ActiveSelectorTask::update()
       mIsComplete = true;
 
    return NULL;
-   //if(mCurrentChild == mChildren.end())
-   //{
-   //   mIsComplete = true;
-   //}
-
-   //if( mIsComplete )
-   //{
-   //   if(mStatus == RUNNING || mStatus == SUSPENDED)
-   //      mIsComplete = false;
-   //   else
-   //      mRunningChild = mChildren.end();
-
-   //   mCurrentChild = mChildren.begin();
-
-   //   return NULL;
-   //}
-
-   //// return child
-   //if(mCurrentChild != mRunningChild)
-   //   (*mCurrentChild)->reset();
-   //
-   //return (*mCurrentChild);   
 }
 
 Status ActiveSelectorTask::getStatus()
 {
-   if(mCurrentBranch != mBranches.end())
-      return mCurrentBranch->getStatus();
+   if(mStatus == SUSPENDED && mCurrentBranch != mBranches.end())
+      return mCurrentBranch->getStatus(); // suspended branch may have resumed
 
    return mStatus;
 }
-
-
-
-
-//void ActiveSelectorTask::onChildComplete(Status s)
-//{
-//   mStatus = s;
-//
-//   if(mStatus == FAILURE)
-//      ++mCurrentChild;
-//   else
-//   {
-//      if(mStatus == RUNNING)
-//         mRunningChild = mCurrentChild;
-//      
-//      mIsComplete = true;
-//   }
-//}

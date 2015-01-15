@@ -34,6 +34,12 @@
 // Active Selector
 // Re-evaluates its children from the beginning each tick. Lower priority
 // children which previously returned RUNNING are resumed if re-selected
+//
+// ***** TODO - This runs OK, but needs some more work!!!
+// -- abort previously running branches
+// -- Time-based re-evaluation of higher priority branches instead of every tick
+// -- clean up the init
+//
 //==============================================================================
 
 namespace BadBehavior
@@ -79,9 +85,7 @@ namespace BadBehavior
       ActiveSelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
 
       Status getStatus();
-
-      //virtual void onChildComplete(Status);
-   };
+};
 
 } // namespace BadBehavior
 

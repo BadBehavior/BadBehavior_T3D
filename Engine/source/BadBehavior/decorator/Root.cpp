@@ -68,5 +68,8 @@ Task *RootTask::update()
 
 Status RootTask::getStatus()
 {
-   return mBranch->getStatus();
+   if(mStatus == SUSPENDED)
+      return mBranch->getStatus();
+
+   return mStatus;
 }
