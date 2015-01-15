@@ -158,7 +158,6 @@ Status ParallelTask::getStatus()
    {
       // need to check if the parallel is still suspended.
       // A parallel will only report SUSPENDED when all of its children are suspended
-      bool hasSuspended = false;
       for(Vector<BehaviorTreeBranch>::iterator it = mBranches.begin(); it != mBranches.end(); ++it)
       {
          switch(it->getStatus())
