@@ -21,9 +21,8 @@
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-// frequency for behavior tree ticks (in milliseconds)
+// Base frequency for behavior tree ticks (in milliseconds)
 //-----------------------------------------------------------------------------
-
 $BotTickFrequency = 100;
 
 // ----------------------------------------------------------------------------
@@ -47,10 +46,11 @@ datablock PlayerData(BadBotData : DefaultPlayerData)
    itemObjectTypes = $TypeMasks::itemObjectType;
    
    // just some numbers for testing
-   optimalRange["Ryder"] = 10;
-   optimalRange["Lurker"] = 20;
-   rangeTolerance = 5;
+   optimalRange["Ryder"] = 8;
+   optimalRange["Lurker"] = 12;
+   rangeTolerance = 3;
    switchTargetProbability = 0.1;
+   burstLength = 500; // number of milliseconds to hold the trigger down
    
    // don't allow quirky weapons
    maxInv[LurkerGrenadeLauncher] = 0;
@@ -80,7 +80,7 @@ function BadBot::spawn(%name, %startPos)
    
    %bot.tetherPoint = %startPos;
    
-   %bot.allowSprinting(false);
+   %bot.allowSprinting(false); // hack for aiplayer trigger index out of bounds in 3.6
    
    return %bot;      
 }
@@ -427,7 +427,11 @@ function shootAtTargetTask::precondition(%this, %obj)
 
 function shootAtTargetTask::behavior(%this, %obj)
 {
+   if(isEventPending(%obj.triggerSchedule))
+      cancel(%obj.triggerSchedule);
+   
    %obj.setImageTrigger(0, true);
+   %obj.triggerSchedule = %obj.schedule(%obj.dataBlock.burstLength, setImageTrigger, 0, false);
    return SUCCESS;
 }
 
