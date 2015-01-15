@@ -141,6 +141,7 @@ void BehaviorTreeRunner::setOwner(SimObject *owner)
 { 
    reset();
    mOwner = owner; 
+   deleteNotify(mOwner);
    start();
 }
 
