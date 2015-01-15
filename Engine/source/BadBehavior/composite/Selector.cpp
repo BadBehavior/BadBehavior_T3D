@@ -20,49 +20,35 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "math/mMathFn.h"
-
-#include "RandomSelector.h"
+#include "Selector.h"
 
 using namespace BadBehavior;
 
 //------------------------------------------------------------------------------
-// Random selector node
+// Selector node
 //------------------------------------------------------------------------------
-IMPLEMENT_CONOBJECT(RandomSelector);
+IMPLEMENT_CONOBJECT(Selector);
 
-Task *RandomSelector::createTask(SimObject &owner, BehaviorTreeRunner &runner)
+Task *Selector::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 {
-   return new RandomSelectorTask(*this, owner, runner);
+   return new SelectorTask(*this, owner, runner);
 }
 
 //------------------------------------------------------------------------------
-// Random selector task
+// Selector task
 //------------------------------------------------------------------------------
-RandomSelectorTask::RandomSelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner)
+SelectorTask::SelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
+   : Parent(node, owner, runner) 
 {
 }
 
-void RandomSelectorTask::onInitialize()
+void SelectorTask::onChildComplete(Status s)
 {
-   Parent::onInitialize();
+   mStatus = s;
 
-   // randomize the order of our child tasks
-   VectorPtr<Task *> randomChildren;
-
-   while(mChildren.size() > 0)
-   {
-      U32 index = mRandI(0, mChildren.size() - 1);
-      Task* child = mChildren[index];
-      randomChildren.push_back(child);
-      mChildren.erase_fast(index);
-   }
-
-   mChildren = randomChildren;
-
-   // normal init
-   mCurrentChild = mChildren.begin();
-   if(mCurrentChild != mChildren.end())
-      (*mCurrentChild)->reset();
+   // if child failed, move on to the next child
+   if(mStatus == FAILURE)
+      ++mCurrentChild;
+   else
+      mIsComplete = true;
 }

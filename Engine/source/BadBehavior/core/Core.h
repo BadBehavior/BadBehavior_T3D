@@ -23,17 +23,14 @@
 #ifndef _BBCORE_H_
 #define _BBCORE_H_
 
-#ifndef _DYNAMIC_CONSOLETYPES_H_
-#include "console/dynamicTypes.h"
+#ifndef _ENGINEAPI_H_
+#include "console\engineAPI.h"
 #endif
 #ifndef _SIMSET_H_
 #include "console/simSet.h"
 #endif
 #ifndef _SIMOBJECT_H_
 #include "console/simObject.h"
-#endif
-#ifndef _SIMSET_H_
-#include "console/simSet.h"
 #endif
 
 namespace BadBehavior
@@ -47,6 +44,8 @@ namespace BadBehavior
        FAILURE,
        SUCCESS,
        RUNNING,
+       SUSPENDED,
+       RESUME
    };
    
    class Task;
@@ -77,33 +76,6 @@ namespace BadBehavior
       virtual bool acceptsAsChild( SimObject *object ) const;
    };
 
-   //---------------------------------------------------------------------------
-   // Composite node base class - for nodes with children
-   //---------------------------------------------------------------------------
-   class CompositeNode : public Node
-   {
-      typedef Node Parent;
-
-   public:
-      // override addObject and acceptsAsChild to only allow behavior tree nodes to be added as children
-      virtual void addObject(SimObject *obj);
-      virtual bool acceptsAsChild( SimObject *object ) const;
-   };
-
-   //---------------------------------------------------------------------------
-   // Decorator node base class
-   // using CompositeNode as baseclass as this node has a child
-   //---------------------------------------------------------------------------
-   class DecoratorNode : public CompositeNode
-   {
-      typedef CompositeNode Parent;
-
-   public:
-      // only allow 1 child node to be added
-      virtual void addObject(SimObject *obj);
-      virtual bool acceptsAsChild( SimObject *object ) const;
-   };
-
 
    //---------------------------------------------------------------------------
    // base class for all behavior tree tasks
@@ -127,6 +99,9 @@ namespace BadBehavior
       // the object running us
       BehaviorTreeRunner *mRunner;
 
+      // the parent of this task
+      Task *mParent;
+
       // update
       virtual Task* update() = 0;
       
@@ -142,14 +117,21 @@ namespace BadBehavior
       virtual ~Task();
       
       // status sets and gets
-      Status getStatus();
+      virtual Status getStatus();
       void setStatus(Status newStatus);
+
+      // parent sets and gets
+      void setParent(Task *parent);
+      Task *getParent();
       
       // run the task
       Task* tick();
       
       // called when child task finishes
       virtual void onChildComplete(Status);
+
+      // called when a suspended task becomes active
+      virtual void onResume(); 
 
       // prepare the task
       void setup();
@@ -159,26 +141,6 @@ namespace BadBehavior
 
       // reset the task
       void reset();
-   };
-
-   //---------------------------------------------------------------------------
-   // Composite task base class
-   //---------------------------------------------------------------------------
-   class CompositeTask : public Task
-   {
-      typedef Task Parent;
-
-   protected:
-      // vector of pointers to child tasks
-      VectorPtr<Task*> mChildren;
-
-      // the current child task
-      VectorPtr<Task*>::iterator mCurrentChild;
-
-      CompositeTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
-      virtual ~CompositeTask();
-      virtual void onInitialize();
-      virtual void onTerminate();
    };
 
 } // namespace BadBehavior

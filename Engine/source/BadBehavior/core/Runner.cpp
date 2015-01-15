@@ -89,61 +89,31 @@ void BehaviorTreeRunner::onTick()
       }
    }
 
-   if(mTasks.empty())
-   {
-      // init the root node
-      mRootTask->setup();
-
-      // add it to the task list
-      mTasks.push_back(mRootTask);
-   }
-
-   // some vars we will use
-   Task *currentTask = NULL;
-   Task *nextTask = NULL;
+   // Evaluate the tree
+   mRootTask->setup();
+   mRootTask->tick();
+   //Con::warnf("Tree returned %s", EngineMarshallData(mRootTask->getStatus()));
+   mRootTask->finish();
    
-   // loop through the tasks in the task list
-   while(mTasks.size())
-   {
-      // get a task
-      currentTask = mTasks.back();
-
-      // tick the task, and get its child and status
-      nextTask = currentTask->tick();
-      
-      // if task returned no children, it has completed
-      if(!nextTask)
-      {
-         // so remove it from the list
-         mTasks.pop_back();
-         if(mTasks.size())
-            // and tell its parent that it completed
-            mTasks.back()->onChildComplete(currentTask->getStatus());
-
-         currentTask->finish();
-      }
-      else
-      {
-         // add the child as a task
-         nextTask->setup();
-         mTasks.push_back(nextTask);
-      }
-   }
-
+   // schedule the next tick
    if(Sim::isEventPending(mTickEvent))
-   {
       Sim::cancelEvent(mTickEvent);
-   }
 
    mTickEvent = Sim::postEvent(this, new BehaviorTreeTickEvent(), Sim::getCurrentTime() + mTickFrequency);
+   
    mIsRunning = true;
 }
 
+void BehaviorTreeRunner::onReactivateEvent(Task *task)
+{
+   if(task)
+      task->onResume();
+}
 
 bool BehaviorTreeRunner::_setRootNode( void *object, const char *index, const char *data )
 {
    BehaviorTreeRunner *runner = static_cast<BehaviorTreeRunner *>( object );   
-   CompositeNode* root = NULL;
+   Node* root = NULL;
    Sim::findObject( data, root );
    if(root)
       runner->setRootNode(root);
@@ -168,7 +138,7 @@ void BehaviorTreeRunner::setOwner(SimObject *owner)
 }
 
 
-void BehaviorTreeRunner::setRootNode(CompositeNode *root) 
+void BehaviorTreeRunner::setRootNode(Node *root) 
 { 
    reset();
    mRootNode = root;
@@ -196,14 +166,16 @@ void BehaviorTreeRunner::start()
    }
    
    mIsRunning = true;
-   onTick();
+   if(mRootTask)
+      mRootTask->reset();
+
+   mTickEvent = Sim::postEvent(this, new BehaviorTreeTickEvent(), -1);
 }
 
 
 void BehaviorTreeRunner::reset()
 {
    stop();
-   mTasks.clear();
    if(mRootTask)
    {
       delete mRootTask;

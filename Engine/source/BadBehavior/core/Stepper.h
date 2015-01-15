@@ -20,41 +20,22 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef _BB_INVERTER_H_
-#define _BB_INVERTER_H_
+#ifndef _BB_STEPPER_H_
+#define _BB_STEPPER_H_
 
-#ifndef _BB_DECORATOR_H_
-#include "BadBehavior/core/Decorator.h"
+#ifndef _BB_CORE_H_
+#include "Core.h"
 #endif
 
 namespace BadBehavior
 {
    //---------------------------------------------------------------------------
-   // inverter decorator
-   // invert the return value of the child,
-   // SUCCESS becomes FAILURE, FAILURE becomes SUCCESS, INVALID and RUNNING are unmodified
+   // helper class for stepping through a tree
    //---------------------------------------------------------------------------
-   class Inverter : public DecoratorNode
+   class BehaviorTreeStepper
    {
-      typedef DecoratorNode Parent;
-
    public:
-      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
-      
-      DECLARE_CONOBJECT(Inverter);
-   };
-
-   //---------------------------------------------------------------------------
-   // inverter decorator task
-   //---------------------------------------------------------------------------
-   class InverterTask : public DecoratorTask
-   {
-      typedef DecoratorTask Parent;
-
-   public:
-      InverterTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
-
-      virtual void onChildComplete(Status s);
+      static Status stepThrough(VectorPtr<Task *> &taskVector);
    };
 
 } // namespace BadBehavior

@@ -38,6 +38,7 @@
 
 namespace BadBehavior
 {
+
    //---------------------------------------------------------------------------
    // BehaviorTreeRunner - handles the evaluation of the tree
    //---------------------------------------------------------------------------
@@ -55,11 +56,8 @@ namespace BadBehavior
       // frequency of ticks in ms
       U32 mTickFrequency;
 
-      // list of tasks to be processed
-      VectorPtr<Task*> mTasks;
-
       // the root node of the tree
-      SimObjectPtr<CompositeNode> mRootNode;
+      SimObjectPtr<Node> mRootNode;
       
       // the task associated with the root node
       Task *mRootTask;
@@ -77,7 +75,7 @@ namespace BadBehavior
 
       // public setters for the script interface
       void setOwner(SimObject *owner);
-      void setRootNode(CompositeNode *root);
+      void setRootNode(Node *root);
 
       // for script control
       void stop();
@@ -88,6 +86,9 @@ namespace BadBehavior
 
       // tick
       void onTick();
+      
+      // task reactivation
+      void onReactivateEvent(Task *task);
 
       // script interface
       static void initPersistFields();
@@ -102,6 +103,21 @@ namespace BadBehavior
       void process( SimObject *object )
       {
          ((BehaviorTreeRunner*)object)->onTick();
+      }
+   };
+
+   class TaskReactivateEvent : public SimEvent
+   {
+      Task *mTask;
+   public:
+      TaskReactivateEvent(Task &task) 
+      { 
+         mTask = &task; 
+      }
+
+      void process( SimObject *object )
+      {
+         ((BehaviorTreeRunner*)object)->onReactivateEvent(mTask);
       }
    };
 

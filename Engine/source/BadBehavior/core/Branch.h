@@ -20,42 +20,33 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef _BB_INVERTER_H_
-#define _BB_INVERTER_H_
+#ifndef _BB_BRANCH_H_
+#define _BB_BRANCH_H_
 
-#ifndef _BB_DECORATOR_H_
-#include "BadBehavior/core/Decorator.h"
+#ifndef _BB_CORE_H_
+#include "Core.h"
 #endif
 
 namespace BadBehavior
 {
-   //---------------------------------------------------------------------------
-   // inverter decorator
-   // invert the return value of the child,
-   // SUCCESS becomes FAILURE, FAILURE becomes SUCCESS, INVALID and RUNNING are unmodified
-   //---------------------------------------------------------------------------
-   class Inverter : public DecoratorNode
+   // The branch class handles a single execution path in the tree
+   // Typically used for the tree root and for handling suspension and concurrency
+   class BehaviorTreeBranch
    {
-      typedef DecoratorNode Parent;
+   private:
+      Status mStatus;
+      Task *mRootTask;
+      VectorPtr<Task *> mTasks;
 
    public:
-      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
-      
-      DECLARE_CONOBJECT(Inverter);
+      BehaviorTreeBranch();
+      BehaviorTreeBranch(Task *root);
+
+      Status getStatus();
+      Status update();
+      void reset();
    };
 
-   //---------------------------------------------------------------------------
-   // inverter decorator task
-   //---------------------------------------------------------------------------
-   class InverterTask : public DecoratorTask
-   {
-      typedef DecoratorTask Parent;
-
-   public:
-      InverterTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
-
-      virtual void onChildComplete(Status s);
-   };
 
 } // namespace BadBehavior
 

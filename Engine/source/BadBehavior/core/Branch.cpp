@@ -20,49 +20,47 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "math/mMathFn.h"
-
-#include "RandomSelector.h"
+#include "Stepper.h"
+#include "Branch.h"
 
 using namespace BadBehavior;
 
-//------------------------------------------------------------------------------
-// Random selector node
-//------------------------------------------------------------------------------
-IMPLEMENT_CONOBJECT(RandomSelector);
-
-Task *RandomSelector::createTask(SimObject &owner, BehaviorTreeRunner &runner)
-{
-   return new RandomSelectorTask(*this, owner, runner);
-}
-
-//------------------------------------------------------------------------------
-// Random selector task
-//------------------------------------------------------------------------------
-RandomSelectorTask::RandomSelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner)
+BehaviorTreeBranch::BehaviorTreeBranch() 
+   : mRootTask(NULL) 
 {
 }
 
-void RandomSelectorTask::onInitialize()
+BehaviorTreeBranch::BehaviorTreeBranch(Task *root) 
+   : mRootTask(root), 
+     mStatus(INVALID) 
 {
-   Parent::onInitialize();
+}
+         
+Status BehaviorTreeBranch::getStatus() 
+{
+   if(!mTasks.empty())
+      return mTasks.back()->getStatus();
+            
+   return mStatus;
+}
 
-   // randomize the order of our child tasks
-   VectorPtr<Task *> randomChildren;
-
-   while(mChildren.size() > 0)
+Status BehaviorTreeBranch::update() 
+{
+   if(mRootTask)
    {
-      U32 index = mRandI(0, mChildren.size() - 1);
-      Task* child = mChildren[index];
-      randomChildren.push_back(child);
-      mChildren.erase_fast(index);
+      if(mTasks.empty())
+      {
+         mRootTask->setup();
+         mTasks.push_back(mRootTask);
+      }
    }
+   mStatus = BehaviorTreeStepper::stepThrough(mTasks);
+   return mStatus;
+}
 
-   mChildren = randomChildren;
-
-   // normal init
-   mCurrentChild = mChildren.begin();
-   if(mCurrentChild != mChildren.end())
-      (*mCurrentChild)->reset();
+void BehaviorTreeBranch::reset()
+{
+   mStatus = INVALID;
+   mRootTask->reset();
+   mTasks.clear();
 }

@@ -20,10 +20,7 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "console/engineAPI.h"
-
 #include "Sequence.h"
-
 
 using namespace BadBehavior;
 
@@ -49,28 +46,10 @@ void SequenceTask::onChildComplete(Status s)
 {
    mStatus = s;
 
-   if(s == SUCCESS)
+   // if child succeeded, move on to the next child
+   if(mStatus == SUCCESS)
       ++mCurrentChild;
    else
       mIsComplete = true;
 }
 
-Task* SequenceTask::update()
-{
-   if (mCurrentChild == mChildren.end())
-      mIsComplete = true;
-
-   if( mIsComplete )
-   {
-      if(mStatus == RUNNING)
-         mIsComplete = false;
-
-      return NULL;
-   }
-
-   if(mStatus != RUNNING)
-      (*mCurrentChild)->reset();
-
-   // return child
-   return (*mCurrentChild);   
-}

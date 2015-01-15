@@ -33,7 +33,7 @@ using namespace BadBehavior;
 IMPLEMENT_CONOBJECT(ScriptFunc);
 
 ScriptFunc::ScriptFunc()
-   : mDefaultReturnStatus(FAILURE),
+   : mDefaultReturnStatus(SUCCESS),
      mScriptFunction(StringTable->insert(""))
 {
    for(U8 i = 0; i < MAX_COMMAND_ARGS; ++i)
@@ -113,6 +113,9 @@ ScriptFuncTask::ScriptFuncTask(Node &node, SimObject &owner, BehaviorTreeRunner 
 Task* ScriptFuncTask::update()
 {
    mStatus = static_cast<ScriptFunc*>(mNodeRep)->evaluate( mOwner );
+
+   if(mStatus != RUNNING && mStatus != SUSPENDED)
+      mIsComplete = true;
 
    return NULL; // leaves don't have children
 }

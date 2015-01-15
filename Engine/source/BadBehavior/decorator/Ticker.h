@@ -23,8 +23,11 @@
 #ifndef _BB_TICKER_H_
 #define _BB_TICKER_H_
 
-#ifndef _BB_CORE_H_
-#include "BadBehavior/core/Core.h"
+#ifndef _BB_DECORATOR_H_
+#include "BadBehavior/core/Decorator.h"
+#endif
+#ifndef _BB_BRANCH_H_
+#include "BadBehavior\core\Branch.h"
 #endif
 
 namespace BadBehavior
@@ -43,9 +46,6 @@ namespace BadBehavior
       // time between ticks (in ms)
       S32 mFrequencyMs;
 
-      // status to return between tick
-      Status mIdleReturnStatus;
-      
    public:
       Ticker();
 
@@ -54,7 +54,6 @@ namespace BadBehavior
       static void initPersistFields();
 
       S32 getFrequencyMs() const { return mFrequencyMs; }
-      Status getIdleReturnStatus() const { return mIdleReturnStatus; }
 
       DECLARE_CONOBJECT(Ticker);
    };
@@ -62,20 +61,27 @@ namespace BadBehavior
    //---------------------------------------------------------------------------
    // Ticker decorator task
    //---------------------------------------------------------------------------
-   class TickerTask : public CompositeTask
+   class TickerTask : public DecoratorTask
    {
-      typedef CompositeTask Parent;
+      typedef DecoratorTask Parent;
 
    protected:
-      S32 mNextTimeMs;
+      U32 mNextTimeMs;
+      U32 mEventId;
 
-      virtual Task* update();
+      BehaviorTreeBranch *mBranch;
+
       virtual void onInitialize();
+      virtual void onTerminate();
+      virtual Task* update();
+      
+      void cancelEvent();
       
    public:
       TickerTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      virtual ~TickerTask();
 
-      virtual void onChildComplete(Status s);
+      virtual Status getStatus();
    };
 
 } // namespace BadBehavior

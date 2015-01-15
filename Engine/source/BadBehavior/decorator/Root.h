@@ -23,8 +23,11 @@
 #ifndef _BB_ROOT_H_
 #define _BB_ROOT_H_
 
-#ifndef _BB_CORE_H_
-#include "BadBehavior/core/Core.h"
+#ifndef _BB_BRANCH_H_
+#include "BadBehavior\core\Branch.h"
+#endif
+#ifndef _BB_DECORATOR_H_
+#include "BadBehavior/core/Decorator.h"
 #endif
 
 namespace BadBehavior
@@ -40,7 +43,29 @@ namespace BadBehavior
 
    public:
       virtual Task* createTask(SimObject &owner, BehaviorTreeRunner &runner);
+
       DECLARE_CONOBJECT(Root);
+   };
+
+   //---------------------------------------------------------------------------
+   // Root task
+   //---------------------------------------------------------------------------
+   class RootTask : public DecoratorTask
+   {
+      typedef DecoratorTask Parent;
+
+   protected:
+      BehaviorTreeBranch *mBranch;
+      
+      virtual Task* update();
+      virtual void onInitialize();
+      //virtual void onTerminate();
+
+   public:
+      RootTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      virtual ~RootTask();
+
+      virtual Status getStatus();
    };
 
 } // namespace BadBehavior

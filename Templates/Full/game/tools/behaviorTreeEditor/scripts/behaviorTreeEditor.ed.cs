@@ -91,8 +91,8 @@ function BTEditor::updateNodeTypes(%this)
    };
    %set.add( new ScriptObject() { nodeType = "ActiveSelector"; } );
    %set.add( new ScriptObject() { nodeType = "Parallel"; } );
-   %set.add( new ScriptObject() { nodeType = "PrioritySelector"; } );
    %set.add( new ScriptObject() { nodeType = "RandomSelector"; } );
+   %set.add( new ScriptObject() { nodeType = "Selector"; } );
    %set.add( new ScriptObject() { nodeType = "Sequence"; } );
    BTNodeTypes.add(%set);
    

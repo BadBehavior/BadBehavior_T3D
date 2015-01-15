@@ -24,7 +24,11 @@
 #define _BB_PARALLEL_H_
 
 #ifndef _BB_CORE_H_
-#include "BadBehavior/core/Core.h"
+#include "BadBehavior/core/Composite.h"
+#endif
+
+#ifndef _BB_BRANCH_H_
+#include "BadBehavior/core/Branch.h"
 #endif
 
 namespace BadBehavior
@@ -71,18 +75,17 @@ namespace BadBehavior
       typedef CompositeTask Parent;
 
    protected:
-      bool mHasFailure;
-      bool mHasSuccess;
-      bool mHasRunning;
+      Vector<BehaviorTreeBranch> mBranches;
+
+      bool mHasSuccess, mHasFailure;
       
       virtual void onInitialize();
       virtual Task* update();
-      Task *pickChild();
 
    public:
       ParallelTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
 
-      virtual void onChildComplete(Status);
+      virtual Status getStatus();
    };
 
 } // namespace BadBehavior

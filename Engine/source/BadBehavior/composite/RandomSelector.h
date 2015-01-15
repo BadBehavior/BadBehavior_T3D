@@ -23,8 +23,8 @@
 #ifndef _BB_RANDOMSELECTOR_H_
 #define _BB_RANDOMSELECTOR_H_
 
-#ifndef _BB_CORE_H_
-#include "BadBehavior/core/Core.h"
+#ifndef _BB_SELECTOR_H_
+#include "Selector.h"
 #endif
 
 namespace BadBehavior
@@ -33,9 +33,9 @@ namespace BadBehavior
    // Random selector node
    // selects its children in a random order until one of them succeeds
    //---------------------------------------------------------------------------
-   class RandomSelector : public CompositeNode
+   class RandomSelector : public Selector
    {
-      typedef CompositeNode Parent;
+      typedef Selector Parent;
 
    public:
       virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
@@ -46,22 +46,15 @@ namespace BadBehavior
    //---------------------------------------------------------------------------
    // Random selector task
    //---------------------------------------------------------------------------
-   class RandomSelectorTask : public CompositeTask
+   class RandomSelectorTask : public SelectorTask
    {
-      typedef CompositeTask Parent;
+      typedef SelectorTask Parent;
 
    protected: 
-      Vector<U32> mChildSelection; // list of child indices to pick from
-
-      virtual Task* update();
       virtual void onInitialize();
-      
-      void pickRandomChild();
       
    public:
       RandomSelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
-
-      virtual void onChildComplete(Status);
    };
 
 } // namespace BadBehavior

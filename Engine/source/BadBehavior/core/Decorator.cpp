@@ -20,59 +20,87 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "console/engineAPI.h"
-#include "PrioritySelector.h"
-
+#include "Decorator.h"
 
 using namespace BadBehavior;
 
 //------------------------------------------------------------------------------
-// Priority selector node
+// Base decorator node
+// overrides for decorators to only allow 1 child
 //------------------------------------------------------------------------------
-IMPLEMENT_CONOBJECT(PrioritySelector);
-
-Task *PrioritySelector::createTask(SimObject &owner, BehaviorTreeRunner &runner)
+void DecoratorNode::addObject(SimObject *obj)
 {
-   return new PrioritySelectorTask(*this, owner, runner);
+   if(empty())
+      Parent::addObject(obj);
+}
+
+bool DecoratorNode::acceptsAsChild( SimObject *object ) const 
+{
+   return (dynamic_cast<Node *>(object) && empty());
 }
 
 //------------------------------------------------------------------------------
-// Priority selector task
+// Base decorator task
 //------------------------------------------------------------------------------
-PrioritySelectorTask::PrioritySelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner) 
+DecoratorTask::DecoratorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
+   : Parent(node, owner, runner),
+   mChild(NULL)
 {
 }
 
-void PrioritySelectorTask::onChildComplete(Status s)
+DecoratorTask::~DecoratorTask()
 {
-   mStatus = s;
-
-   if(s == FAILURE)
-      ++mCurrentChild;
-   else
-      mIsComplete = true;
-}
-
-Task* PrioritySelectorTask::update()
-{
-   if(mCurrentChild == mChildren.end())
+   if(mChild)
    {
-      mIsComplete = true;
+      delete mChild;
+      mChild = NULL;
    }
+}
 
-   if( mIsComplete )
+void DecoratorTask::onInitialize()
+{
+   if(!mChild)
    {
-      if(mStatus == RUNNING)
-         mIsComplete = false;
-
-      return NULL;
+      if(mNodeRep->size() > 0)
+      {
+         Node *childNode = static_cast<Node*>(*mNodeRep->begin());
+         if(childNode)
+         {
+            mChild = childNode->createTask(*mOwner, *mRunner);
+            if(mChild)
+            {
+               mChild->setParent(this);
+               mChild->reset();
+            }
+         }
+      }
    }
-
-   // move on to next child
-   if(mStatus != RUNNING)
-      (*mCurrentChild)->reset();
    
-   return (*mCurrentChild);   
+   mStatus = INVALID;
 }
 
+void DecoratorTask::onTerminate()
+{
+   mStatus = INVALID;
+}
+
+Task* DecoratorTask::update() 
+{ 
+   // first time through, return child
+   if(!mIsComplete)
+      return mStatus != SUSPENDED ? mChild : NULL;
+   
+   // child has completed, are we latent?
+   if(mStatus == RUNNING || mStatus == SUSPENDED)
+      mIsComplete = false;
+   
+   // no more children
+   return NULL; 
+}
+      
+void DecoratorTask::onChildComplete(Status s)
+{
+   // set our status to the child status and flag completed
+   mStatus = s;
+   mIsComplete = true;
+}

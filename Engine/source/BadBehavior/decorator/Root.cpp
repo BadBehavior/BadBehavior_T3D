@@ -20,21 +20,56 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "console/engineAPI.h"
-
 #include "Root.h"
 
 using namespace BadBehavior;
 
 //------------------------------------------------------------------------------
-// Root decorator
+// Root decorator node
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(Root);
 
 Task *Root::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 {
-   if(!size())
-      return NULL;
+   return new RootTask(*this, owner, runner);
+}
 
-   return dynamic_cast<Node *>(*begin())->createTask(owner, runner);
+//------------------------------------------------------------------------------
+// Root decorator task
+//------------------------------------------------------------------------------
+RootTask::RootTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
+   : Parent(node, owner, runner),
+     mBranch(NULL)
+{
+}
+
+RootTask::~RootTask()
+{
+   if(mBranch)
+      delete mBranch;
+}
+
+void RootTask::onInitialize()
+{
+   Parent::onInitialize();
+   if(!mBranch)
+      mBranch = new BehaviorTreeBranch(mChild);
+   else
+      mBranch->reset();
+}
+
+Task *RootTask::update()
+{
+   mStatus = mBranch->update();
+
+   mIsComplete = mStatus != RUNNING && mStatus != SUSPENDED;
+   return NULL;
+}
+
+Status RootTask::getStatus()
+{
+   if(mStatus == SUSPENDED)
+      return mBranch->getStatus();
+
+   return mStatus;
 }

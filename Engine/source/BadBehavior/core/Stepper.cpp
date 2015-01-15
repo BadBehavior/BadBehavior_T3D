@@ -20,49 +20,52 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "math/mMathFn.h"
-
-#include "RandomSelector.h"
+#include "Stepper.h"
 
 using namespace BadBehavior;
 
-//------------------------------------------------------------------------------
-// Random selector node
-//------------------------------------------------------------------------------
-IMPLEMENT_CONOBJECT(RandomSelector);
-
-Task *RandomSelector::createTask(SimObject &owner, BehaviorTreeRunner &runner)
+Status BehaviorTreeStepper::stepThrough(VectorPtr<Task *> &taskVector) 
 {
-   return new RandomSelectorTask(*this, owner, runner);
-}
+   if(taskVector.empty()) return INVALID;
+         
+   if(taskVector.back()->getStatus() == SUSPENDED)
+      return SUSPENDED;
 
-//------------------------------------------------------------------------------
-// Random selector task
-//------------------------------------------------------------------------------
-RandomSelectorTask::RandomSelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner)
-{
-}
+   Status status = INVALID;
 
-void RandomSelectorTask::onInitialize()
-{
-   Parent::onInitialize();
-
-   // randomize the order of our child tasks
-   VectorPtr<Task *> randomChildren;
-
-   while(mChildren.size() > 0)
+   // loop through the tasks in the task list
+   while(!taskVector.empty())
    {
-      U32 index = mRandI(0, mChildren.size() - 1);
-      Task* child = mChildren[index];
-      randomChildren.push_back(child);
-      mChildren.erase_fast(index);
+      // get a task
+      Task *currentTask = taskVector.back();
+
+      // tick the task
+      Task *nextTask = currentTask->tick();
+      
+      // if task returned no children, it has completed
+      if(!nextTask)
+      {
+         // stop if it's RUNNING or SUSPENED
+         status = currentTask->getStatus();
+         if(status == RUNNING || status == SUSPENDED)
+            break;
+               
+         // otherwise, remove it from the list
+         taskVector.pop_back();
+         if(!taskVector.empty())
+            // and tell its parent that it completed
+            taskVector.back()->onChildComplete(currentTask->getStatus());
+
+         // complete the task
+         currentTask->finish();
+      }
+      else
+      {
+         // add the child as a task
+         nextTask->setup();
+         taskVector.push_back(nextTask);
+      }
    }
 
-   mChildren = randomChildren;
-
-   // normal init
-   mCurrentChild = mChildren.begin();
-   if(mCurrentChild != mChildren.end())
-      (*mCurrentChild)->reset();
+   return status;
 }

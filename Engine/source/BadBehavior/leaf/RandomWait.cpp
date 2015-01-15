@@ -20,9 +20,9 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "console/engineAPI.h"
 #include "math/mMathFn.h"
 
+#include "BadBehavior/core/Runner.h"
 #include "RandomWait.h"
 
 using namespace BadBehavior;
@@ -76,24 +76,49 @@ Task *RandomWait::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 // RandomWait task
 //------------------------------------------------------------------------------
 RandomWaitTask::RandomWaitTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner), 
-     mCompleteMs(0) 
+   : Parent(node, owner, runner) 
 {
+}
+
+RandomWaitTask::~RandomWaitTask()
+{
+   cancelEvent();
+}
+
+void RandomWaitTask::cancelEvent()
+{
+   if(Sim::isEventPending(mEventId))
+   {
+      Sim::cancelEvent(mEventId);
+      mEventId = 0;
+   }
 }
 
 void RandomWaitTask::onInitialize()
 {
    Parent::onInitialize();
-   RandomWait *nodeRep = static_cast<RandomWait*>(mNodeRep);
-   mCompleteMs = Sim::getCurrentTime() + mRandI(nodeRep->getWaitMinMs(), nodeRep->getWaitMaxMs());
+   cancelEvent();
+}
+
+void RandomWaitTask::onTerminate()
+{
+   Parent::onTerminate();
+   cancelEvent();
 }
 
 Task* RandomWaitTask::update() 
-{ 
-   if(Sim::getCurrentTime() < mCompleteMs)
-      mStatus = RUNNING;
-   else
+{
+   if(mStatus == RESUME)
+   {
       mStatus = SUCCESS;
+      mIsComplete = true;
+   }
+   else if(mStatus == INVALID)
+   {
+      RandomWait *node = static_cast<RandomWait*>(mNodeRep);
+      mEventId = Sim::postEvent(mRunner, new TaskReactivateEvent(*this), Sim::getCurrentTime() + mRandI(node->getWaitMinMs(), node->getWaitMaxMs()));
+      mStatus = SUSPENDED;
+   }
 
    return NULL; 
 }

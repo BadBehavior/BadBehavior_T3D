@@ -97,7 +97,7 @@ Task* BehaviorTask::update()
       mStatus = FAILURE;
    }
 
-   mIsComplete = mStatus != RUNNING;
+   mIsComplete = mStatus != RUNNING && mStatus != SUSPENDED;
 
    if(mIsComplete)
       node->onExit(mOwner);

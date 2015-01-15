@@ -20,9 +20,7 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "console/engineAPI.h"
 #include "ActiveSelector.h"
-
 
 using namespace BadBehavior;
 
@@ -31,9 +29,26 @@ using namespace BadBehavior;
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(ActiveSelector);
 
+ActiveSelector::ActiveSelector()
+   //:  mRecheckFrequency(0)
+{
+}
+
 Task *ActiveSelector::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 {
    return new ActiveSelectorTask(*this, owner, runner);
+}
+
+void ActiveSelector::initPersistFields()
+{
+   //addGroup( "Behavior" );
+
+   //addField( "recheckFrequency", TypeS32, Offset(mRecheckFrequency, ActiveSelector),
+   //   "@brief The minimum time period in milliseconds between re-evaluations of higher priority branches.");
+
+   //endGroup( "Behavior" );
+
+   Parent::initPersistFields();
 }
 
 //------------------------------------------------------------------------------
@@ -44,44 +59,58 @@ ActiveSelectorTask::ActiveSelectorTask(Node &node, SimObject &owner, BehaviorTre
 {
 }
 
-void ActiveSelectorTask::onChildComplete(Status s)
+void ActiveSelectorTask::onInitialize()
 {
-   mStatus = s;
+   Parent::onInitialize();
 
-   if(mStatus == FAILURE)
-      ++mCurrentChild;
+   if(mBranches.empty())
+   {
+      for (VectorPtr<Task*>::iterator i = mChildren.begin(); i != mChildren.end(); ++i)
+      {
+         mBranches.push_back(BehaviorTreeBranch(*i));
+      }
+   }
    else
    {
-      if(mStatus == RUNNING)
-         mRunningChild = mCurrentChild;
-      
-      mIsComplete = true;
+      for (Vector<BehaviorTreeBranch>::iterator it = mBranches.begin(); it != mBranches.end(); ++it)
+      {
+         it->reset();
+      }
    }
+
+   mCurrentBranch = mBranches.begin();
+   mRunningBranch = mBranches.end();
 }
+
 
 Task* ActiveSelectorTask::update()
 {
-   if(mCurrentChild == mChildren.end())
+   if(mBranches.empty())
    {
-      mIsComplete = true;
-   }
-
-   if( mIsComplete )
-   {
-      if(mStatus == RUNNING)
-         mIsComplete = false;
-      else
-         mRunningChild = mChildren.end();
-
-      mCurrentChild = mChildren.begin();
-
+      mStatus = INVALID;
       return NULL;
    }
 
-   // return child
-   if(mCurrentChild != mRunningChild)
-      (*mCurrentChild)->reset();
-   
-   return (*mCurrentChild);   
+   for(mCurrentBranch = mBranches.begin(); mCurrentBranch != mBranches.end(); ++mCurrentBranch)
+   {
+      mStatus = mCurrentBranch->update();
+
+      if(mStatus == FAILURE)
+         continue;
+      
+      break;
+   }
+
+   if( (mStatus != RUNNING && mStatus != SUSPENDED) || mCurrentBranch == mBranches.end() )
+      mIsComplete = true;
+
+   return NULL;
 }
 
+Status ActiveSelectorTask::getStatus()
+{
+   if(mStatus == SUSPENDED && mCurrentBranch != mBranches.end())
+      return mCurrentBranch->getStatus(); // suspended branch may have resumed
+
+   return mStatus;
+}

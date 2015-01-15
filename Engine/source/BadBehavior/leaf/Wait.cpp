@@ -20,9 +20,9 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "console/engineAPI.h"
 #include "math/mMathFn.h"
 
+#include "BadBehavior\core\Runner.h"
 #include "Wait.h"
 
 using namespace BadBehavior;
@@ -65,24 +65,49 @@ Task *Wait::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 // Wait task
 //------------------------------------------------------------------------------
 WaitTask::WaitTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner), 
-     mCompleteMs(0) 
+   : Parent(node, owner, runner),
+   mEventId(0)
 {
+}
+
+WaitTask::~WaitTask()
+{
+   cancelEvent();
+}
+
+void WaitTask::cancelEvent()
+{
+   if(Sim::isEventPending(mEventId))
+   {
+      Sim::cancelEvent(mEventId);
+      mEventId = 0;
+   }
 }
 
 void WaitTask::onInitialize()
 {
    Parent::onInitialize();
-   Wait *nodeRep = static_cast<Wait*>(mNodeRep);
-   mCompleteMs = Sim::getCurrentTime() + nodeRep->getWaitMs();
+   cancelEvent();
+}
+
+void WaitTask::onTerminate()
+{
+   Parent::onTerminate();
+   cancelEvent();
 }
 
 Task* WaitTask::update() 
 { 
-   if(Sim::getCurrentTime() < mCompleteMs)
-      mStatus = RUNNING;
-   else
+   if(mStatus == RESUME)
+   {
       mStatus = SUCCESS;
+      mIsComplete = true;
+   }
+   else if(mStatus == INVALID)
+   {
+      mEventId = Sim::postEvent(mRunner, new TaskReactivateEvent(*this), Sim::getCurrentTime() + static_cast<Wait*>(mNodeRep)->getWaitMs());
+      mStatus = SUSPENDED;
+   }
 
    return NULL; 
 }

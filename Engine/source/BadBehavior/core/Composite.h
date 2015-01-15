@@ -20,43 +20,51 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef _BB_INVERTER_H_
-#define _BB_INVERTER_H_
+#ifndef _BB_COMPOSITE_H_
+#define _BB_COMPOSITE_H_
 
-#ifndef _BB_DECORATOR_H_
-#include "BadBehavior/core/Decorator.h"
+#ifndef _BB_CORE_H_
+#include "Core.h"
 #endif
 
 namespace BadBehavior
 {
    //---------------------------------------------------------------------------
-   // inverter decorator
-   // invert the return value of the child,
-   // SUCCESS becomes FAILURE, FAILURE becomes SUCCESS, INVALID and RUNNING are unmodified
+   // Composite node base class - for nodes with children
    //---------------------------------------------------------------------------
-   class Inverter : public DecoratorNode
+   class CompositeNode : public Node
    {
-      typedef DecoratorNode Parent;
+      typedef Node Parent;
 
    public:
-      virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
-      
-      DECLARE_CONOBJECT(Inverter);
+      // override addObject and acceptsAsChild to only allow behavior tree nodes to be added as children
+      virtual void addObject(SimObject *obj);
+      virtual bool acceptsAsChild( SimObject *object ) const;
    };
 
    //---------------------------------------------------------------------------
-   // inverter decorator task
+   // Composite task base class
    //---------------------------------------------------------------------------
-   class InverterTask : public DecoratorTask
+   class CompositeTask : public Task
    {
-      typedef DecoratorTask Parent;
+      typedef Task Parent;
+
+   protected:
+      // vector of pointers to child tasks
+      VectorPtr<Task*> mChildren;
+
+      // the current child task
+      VectorPtr<Task*>::iterator mCurrentChild;
+
+      virtual void onInitialize();
+      virtual void onTerminate();
+      virtual Task* update();
 
    public:
-      InverterTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
-
-      virtual void onChildComplete(Status s);
+      CompositeTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      virtual ~CompositeTask();
    };
-
+   
 } // namespace BadBehavior
 
 #endif

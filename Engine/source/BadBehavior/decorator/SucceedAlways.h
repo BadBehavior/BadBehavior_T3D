@@ -23,8 +23,8 @@
 #ifndef _BB_SUCCEEDALWAYS_H_
 #define _BB_SUCCEEDALWAYS_H_
 
-#ifndef _BB_CORE_H_
-#include "BadBehavior/core/Core.h"
+#ifndef _BB_DECORATOR_H_
+#include "BadBehavior/core/Decorator.h"
 #endif
 
 namespace BadBehavior
@@ -46,13 +46,9 @@ namespace BadBehavior
    //---------------------------------------------------------------------------
    // SucceedAlways task
    //---------------------------------------------------------------------------
-   class SucceedAlwaysTask : public CompositeTask
+   class SucceedAlwaysTask : public DecoratorTask
    {
-      typedef CompositeTask Parent;
-
-   protected:
-      virtual Task* update();
-      virtual void onInitialize();
+      typedef DecoratorTask Parent;
 
    public:
       SucceedAlwaysTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);

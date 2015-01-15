@@ -20,40 +20,37 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef _BB_PRIORITYSELECTOR_H_
-#define _BB_PRIORITYSELECTOR_H_
+#ifndef _BB_SELECTOR_H_
+#define _BBSELECTOR_H_
 
 #ifndef _BB_CORE_H_
-#include "BadBehavior/core/Core.h"
+#include "BadBehavior/core/Composite.h"
 #endif
 
 namespace BadBehavior
 {
    //---------------------------------------------------------------------------
-   // Priority selector Node
+   // Selector Node
    //---------------------------------------------------------------------------
-   class PrioritySelector : public CompositeNode
+   class Selector : public CompositeNode
    {
       typedef CompositeNode Parent;
          
    public:
       virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
 
-      DECLARE_CONOBJECT(PrioritySelector);
+      DECLARE_CONOBJECT(Selector);
    };
 
    //---------------------------------------------------------------------------
-   // Priority selector Task
+   // Selector Task
    //---------------------------------------------------------------------------
-   class PrioritySelectorTask : public CompositeTask
+   class SelectorTask : public CompositeTask
    {
       typedef CompositeTask Parent;
 
-   protected:
-      virtual Task* update();
-   
    public:
-      PrioritySelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
+      SelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
 
       virtual void onChildComplete(Status);
    };

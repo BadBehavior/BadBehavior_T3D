@@ -20,8 +20,6 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "console/engineAPI.h"
-
 #include "Monitor.h"
 
 using namespace BadBehavior;
@@ -44,29 +42,11 @@ MonitorTask::MonitorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runne
 {
 }
 
-void MonitorTask::onInitialize()
-{
-   Parent::onInitialize();
-   (*mCurrentChild)->reset();
-}
-
-Task* MonitorTask::update() 
-{ 
-   if( mIsComplete )
-   {
-      if(mStatus == RUNNING)
-         mIsComplete = false;
-
-      return NULL;
-   }
-   
-   return (*mCurrentChild); 
-}
-      
 void MonitorTask::onChildComplete(Status s)
 {
-   mStatus = s;
-   Con::printf("%s child returning %s", static_cast<Monitor *>(mNodeRep)->getInternalName(), EngineMarshallData< BehaviorReturnType > (mStatus));
+   Parent::onChildComplete(s);
 
-   mIsComplete = true;
+   Con::printf("%s (%s) child returning %s", static_cast<Monitor *>(mNodeRep)->getInternalName(), 
+                                             static_cast<Monitor *>(mNodeRep)->getIdString(),
+                                             EngineMarshallData< BehaviorReturnType > (mStatus));
 }
