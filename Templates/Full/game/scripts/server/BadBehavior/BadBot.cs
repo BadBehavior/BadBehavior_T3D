@@ -20,6 +20,12 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
+//-----------------------------------------------------------------------------
+// frequency for behavior tree ticks (in milliseconds)
+//-----------------------------------------------------------------------------
+
+$BotTickFrequency = 100;
+
 // ----------------------------------------------------------------------------
 // make the local player invisible to the AI
 //-----------------------------------------------------------------------------
@@ -91,6 +97,8 @@ function BadBot::setBehavior(%this, %tree)
       %this.behaviorTree.rootNode = %tree;
    else      
       %this.behaviorTree = BehaviorTreeManager.createTree(%this, %tree);
+      
+   %this.behaviorTree.frequency = $BotTickFrequency;
 }
 
 function BadBot::clearBehavior(%this)
@@ -110,6 +118,12 @@ function BadBotData::onRemove(%data, %obj)
 {
    if(isObject(%obj.behaviorTree))
       %obj.behaviorTree.delete();
+}
+
+function BadBotData::onDisabled(%this, %obj, %state)
+{
+   %obj.behaviorTree.stop();
+   Parent::onDisabled(%this, %obj, %state);
 }
 
 function botMatch(%numBots)
