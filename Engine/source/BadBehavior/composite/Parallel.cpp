@@ -64,13 +64,17 @@ Task *Parallel::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 // Parallel Task
 //------------------------------------------------------------------------------
 ParallelTask::ParallelTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner)
+   : Parent(node, owner, runner),
+   mHasSuccess(false),
+   mHasFailure(false)
 {
 }
 
 void ParallelTask::onInitialize()
 {
    Parent::onInitialize();
+
+   mHasSuccess = mHasFailure = false;
 
    if(mBranches.empty())
    {
@@ -90,42 +94,32 @@ void ParallelTask::onInitialize()
 
 Task* ParallelTask::update()
 {
+   bool hasRunning = false, hasSuspended = false,  hasResume = false;
    for (Vector<BehaviorTreeBranch>::iterator it = mBranches.begin(); it != mBranches.end(); ++it)
    {
       Status s = it->getStatus();
       if(s == INVALID || s == RUNNING || s == RESUME)
       {
-         it->update();
-      }
-   }
+         s = it->update();
 
-   return NULL;
-}
-
-
-Status ParallelTask::getStatus()
-{
-   bool hasSuccess = false, hasFailure = false, hasRunning = false, hasSuspended = false, hasResume = false;
-
-   for(Vector<BehaviorTreeBranch>::iterator it = mBranches.begin(); it != mBranches.end(); ++it)
-   {
-      switch(it->getStatus())
-      {
-      case SUCCESS:
-         hasSuccess = true;
-         break;
-      case FAILURE:
-         hasFailure = true;
-         break;
-      case RUNNING:
-         hasRunning = true;
-         break;
-      case SUSPENDED:
-         hasSuspended = true;
-         break;
-      case RESUME:
-         hasResume = true;
-         break;
+         switch(it->getStatus())
+         {
+         case SUCCESS:
+            mHasSuccess = true;
+            break;
+         case FAILURE:
+            mHasFailure = true;
+            break;
+         case RUNNING:
+            hasRunning = true;
+            break;
+         case SUSPENDED:
+            hasSuspended = true;
+            break;
+         case RESUME:
+            hasResume = true;
+            break;
+         }
       }
    }
 
@@ -141,18 +135,40 @@ Status ParallelTask::getStatus()
    // terminates and returns SUCCESS when any of its children succeed
    // returns FAILURE if no children succeed
    case Parallel::REQUIRE_ONE:
-      mStatus = hasSuccess ? SUCCESS : ( hasResume ? RESUME : ( hasRunning ? RUNNING : ( hasSuspended ? SUSPENDED : FAILURE ) ) );
+      mStatus = mHasSuccess ? SUCCESS : ( hasResume ? RESUME : ( hasRunning ? RUNNING : ( hasSuspended ? SUSPENDED : FAILURE ) ) );
       break;
 
    // REQUIRE_ALL
    // returns SUCCESS if all of its children succeed.
    // terminates and returns failure if any of its children fail
    case Parallel::REQUIRE_ALL:
-      mStatus = hasFailure ? FAILURE : ( hasResume ? RESUME : ( hasRunning ? RUNNING : ( hasSuspended ? SUSPENDED : SUCCESS ) ) );
+      mStatus = mHasFailure ? FAILURE : ( hasResume ? RESUME : ( hasRunning ? RUNNING : ( hasSuspended ? SUSPENDED : SUCCESS ) ) );
       break;
    }
 
    mIsComplete = (mStatus != RUNNING && mStatus != SUSPENDED && mStatus != RESUME);
-  
+
+   return NULL;
+}
+
+
+Status ParallelTask::getStatus()
+{
+   if(mStatus == SUSPENDED)
+   {
+      // need to check if the parallel is still suspended.
+      // A parallel will only report SUSPENDED when all of its children are suspended
+      bool hasSuspended = false;
+      for(Vector<BehaviorTreeBranch>::iterator it = mBranches.begin(); it != mBranches.end(); ++it)
+      {
+         switch(it->getStatus())
+         {
+         case RUNNING:
+            return RUNNING;
+         case RESUME:
+            return RESUME;
+         }
+      }
+   }
    return mStatus;
 }

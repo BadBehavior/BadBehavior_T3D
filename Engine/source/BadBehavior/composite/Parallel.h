@@ -76,6 +76,8 @@ namespace BadBehavior
 
    protected:
       Vector<BehaviorTreeBranch> mBranches;
+
+      bool mHasSuccess, mHasFailure;
       
       virtual void onInitialize();
       virtual Task* update();
