@@ -140,6 +140,6 @@ void Task::onResume()
    if(mStatus == SUSPENDED)
       mStatus = RESUME;
    
-   Con::warnf("onResume %s", 
-               mNodeRep->getIdString());
+   //Con::warnf("onResume %s", 
+   //            mNodeRep->getIdString());
 }

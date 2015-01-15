@@ -92,7 +92,7 @@ void BehaviorTreeRunner::onTick()
    // Evaluate the tree
    mRootTask->setup();
    mRootTask->tick();
-   Con::warnf("Tree returned %s", EngineMarshallData(mRootTask->getStatus()));
+   //Con::warnf("Tree returned %s", EngineMarshallData(mRootTask->getStatus()));
    mRootTask->finish();
    
    // schedule the next tick

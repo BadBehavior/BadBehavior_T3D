@@ -26,18 +26,14 @@
 #ifndef _BB_CORE_H_
 #include "BadBehavior/core/Composite.h"
 #endif
+#ifndef _BB_BRANCH_H_
+#include "BadBehavior/core/Branch.h"
+#endif
 
 //==============================================================================
 // Active Selector
 // Re-evaluates its children from the beginning each tick. Lower priority
 // children which previously returned RUNNING are resumed if re-selected
-//
-// ** NOTE **
-// The "active" nature of this node means that it can only be fully SUSPENDED if
-// it's highest priority child is suspended.
-//
-// USE SPARINGLY - place as high up in the tree as possible and try to early-out
-// of high priority branches that are not going to be selected.
 //==============================================================================
 
 namespace BadBehavior
@@ -48,9 +44,18 @@ namespace BadBehavior
    class ActiveSelector : public CompositeNode
    {
       typedef CompositeNode Parent;
+
+   protected:
+      //U32 mRecheckFrequency;
          
    public:
+      ActiveSelector();
+
       virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
+
+      static void initPersistFields();
+
+      //U32 getRecheckFrequency() const { return mRecheckFrequency; }
 
       DECLARE_CONOBJECT(ActiveSelector);
    };
@@ -63,14 +68,19 @@ namespace BadBehavior
       typedef CompositeTask Parent;
 
    protected:
-      VectorPtr<Task*>::iterator mRunningChild;
+      Vector<BehaviorTreeBranch>::iterator mRunningBranch;
+      Vector<BehaviorTreeBranch>::iterator mCurrentBranch;
+      Vector<BehaviorTreeBranch> mBranches;
       
+      virtual void onInitialize();
       virtual Task* update();
    
    public:
       ActiveSelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner);
 
-      virtual void onChildComplete(Status);
+      Status getStatus();
+
+      //virtual void onChildComplete(Status);
    };
 
 } // namespace BadBehavior
