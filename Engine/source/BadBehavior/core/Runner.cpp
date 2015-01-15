@@ -70,6 +70,13 @@ void BehaviorTreeRunner::initPersistFields()
    Parent::initPersistFields();
 }
 
+void BehaviorTreeRunner::onDeleteNotify(SimObject *object)
+{
+   // delete ourselves nicely
+   // - this takes care of any events registered to this runner
+   safeDeleteObject();
+}
+
 
 // processTick is where the magic happens :)
 void BehaviorTreeRunner::onTick()

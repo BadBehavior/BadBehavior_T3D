@@ -77,6 +77,9 @@ namespace BadBehavior
       void setOwner(SimObject *owner);
       void setRootNode(Node *root);
 
+      // notification if our owner is deleted
+      virtual void onDeleteNotify(SimObject *object);
+
       // for script control
       void stop();
       void start();

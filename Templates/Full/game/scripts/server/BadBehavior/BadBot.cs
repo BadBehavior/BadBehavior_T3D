@@ -115,12 +115,6 @@ function BadBotData::onAdd(%data, %obj)
       %obj.cycleWeapon("next");
 }
 
-function BadBotData::onRemove(%data, %obj)
-{
-   if(isObject(%obj.behaviorTree))
-      %obj.behaviorTree.delete();
-}
-
 function BadBotData::onDisabled(%this, %obj, %state)
 {
    %obj.behaviorTree.stop();
