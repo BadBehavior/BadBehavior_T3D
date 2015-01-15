@@ -98,6 +98,7 @@ function BadBot::setBehavior(%this, %tree)
    else      
       %this.behaviorTree = BehaviorTreeManager.createTree(%this, %tree);
 
+
    %this.behaviorTree.frequency = $BotTickFrequency;
 }
 
