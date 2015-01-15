@@ -407,6 +407,7 @@ function aimAtTargetTask::behavior(%this, %obj)
       // simple target leading
       %targetDist = VectorDist(%targetPos, %obj.position);
       %bulletVel = %projectile.muzzleVelocity;
+      %targetVel = %obj.targetObject.getVelocity();      
       %correction = VectorAdd(%correction, VectorScale( %targetVel, (%targetDist / %bulletVel) ));
    }
    %obj.setAimObject(%obj.targetObject, %correction);
