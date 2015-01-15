@@ -15,7 +15,7 @@ The BadBehavior system is a behavior tree implementation and editor for the Torq
 * Trees can be assembled from smaller sub-trees in a modular fashion
 * A multi-page graphical editor with undo/redo support
 * Flexible behavior leaf nodes:
-  * Ations/conditions can be created entirely in the editor for rapid prototyping
+  * Actions/conditions can be created entirely in the editor for rapid prototyping
   * Structured behaviors can be written in script
   * Performance critical behaviors can be written entirely in C++
 
