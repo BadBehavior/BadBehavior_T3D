@@ -1,5 +1,5 @@
 //--- OBJECT WRITE BEGIN ---
-new Root(FollowBehavior) {
+new Root(FollowTree) {
    canSave = "1";
    canSaveDynamicFields = "1";
 
