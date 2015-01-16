@@ -146,7 +146,6 @@ function botMatch(%numBots)
       %bot.tetherpoint = %bot.position;
       %bot.setbehavior(BotTree);
       BotSet.add(%bot);
-      %bot.isGod=true;
    }
    
    $botSchedule = schedule(100, 0, botMatch, %numBots);
