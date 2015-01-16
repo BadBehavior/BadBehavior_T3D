@@ -49,6 +49,7 @@ BehaviorTreeRunner::~BehaviorTreeRunner()
       Sim::cancelEvent(mTickEvent);
       mTickEvent = 0;
    }
+   Con::warnf("Runner deleted");
 }
 
 
@@ -74,7 +75,8 @@ void BehaviorTreeRunner::onDeleteNotify(SimObject *object)
 {
    // delete ourselves nicely
    // - this takes care of any events registered to this runner
-   safeDeleteObject();
+   if(object == mOwner.getObject())
+      safeDeleteObject();
 }
 
 
