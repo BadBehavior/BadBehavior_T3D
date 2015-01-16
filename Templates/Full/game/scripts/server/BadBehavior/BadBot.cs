@@ -40,7 +40,7 @@ function setGodMode(%val)
 datablock PlayerData(BadBotData : DefaultPlayerData)
 {
    VisionRange = 40;
-   VisionFov = 180;
+   VisionFov = 120;
    findItemRange = 20;
    targetObjectTypes = $TypeMasks::PlayerObjectType;
    itemObjectTypes = $TypeMasks::itemObjectType;
@@ -50,7 +50,7 @@ datablock PlayerData(BadBotData : DefaultPlayerData)
    optimalRange["Lurker"] = 12;
    rangeTolerance = 3;
    switchTargetProbability = 0.1;
-   burstLength = 500; // number of milliseconds to hold the trigger down
+   burstLength = 750; // number of milliseconds to hold the trigger down
    
    // don't allow quirky weapons
    maxInv[LurkerGrenadeLauncher] = 0;
@@ -314,7 +314,7 @@ function findHealthTask::behavior(%this, %obj)
       // broken in 3.6
       //if(%obj.checkInFov(%item, %db.visionFov))
       // this does the same thing.....
-      if(VectorDot(VectorNormalize(VectorSub(%item.position, %obj.position)), %obj.getForwardVector()) > mCos(%db.visionFov))
+      if(VectorDot(VectorNormalize(VectorSub(%item.position, %obj.position)), %obj.getForwardVector()) > mCos(%db.visionFov / 2))
       {
          %dist = VectorDist(%obj.position, %item.position);
          if(%dist < %bestDist)
@@ -375,7 +375,7 @@ function pickTargetTask::behavior(%this, %obj)
       
       //if(%obj.checkInFov(%target, %db.visionFov)) - broken in 3.6
       // this does the same thing.....
-      if(VectorDot(VectorNormalize(VectorSub(%obj.targetObject.position, %obj.position)), %obj.getForwardVector()) > mCos(%db.visionFov))
+      if(VectorDot(VectorNormalize(VectorSub(%obj.targetObject.position, %obj.position)), %obj.getForwardVector()) > mCos(%db.visionFov / 2))
       {
          %dist = VectorDist(%obj.position, %target.position);
          if(%dist < %bestDist)
@@ -407,7 +407,7 @@ function aimAtTargetTask::behavior(%this, %obj)
    %correction = "0 0 1";
    if(isObject(%projectile))
    {
-      // simple target leading
+      // simple target leading approximation (not for ballistics)
       %targetDist = VectorDist(%targetPos, %obj.position);
       %bulletVel = %projectile.muzzleVelocity;
       %targetVel = %obj.targetObject.getVelocity();      
