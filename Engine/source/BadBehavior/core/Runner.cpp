@@ -49,7 +49,6 @@ BehaviorTreeRunner::~BehaviorTreeRunner()
       Sim::cancelEvent(mTickEvent);
       mTickEvent = 0;
    }
-   Con::warnf("Runner deleted");
 }
 
 
