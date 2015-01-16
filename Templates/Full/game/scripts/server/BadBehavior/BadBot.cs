@@ -123,6 +123,9 @@ function BadBotData::onDisabled(%this, %obj, %state)
 
 function botMatch(%numBots)
 {
+   // Avoid having lots of dead bodies lying around.
+   $CorpseTimeoutValue = 2000;
+
    if(!isObject(BotSet))
    {
       new SimSet(BotSet);
