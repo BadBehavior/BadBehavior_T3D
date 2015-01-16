@@ -18,6 +18,12 @@ new Root(WanderTree) {
          canSave = "1";
          canSaveDynamicFields = "1";
       };
+      new RandomWait() {
+         waitMinMs = "0";
+         waitMaxMs = "1000";
+         canSave = "1";
+         canSaveDynamicFields = "1";
+      };
    };
 };
 //--- OBJECT WRITE END ---
