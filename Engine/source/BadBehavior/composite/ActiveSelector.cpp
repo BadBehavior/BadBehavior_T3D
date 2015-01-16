@@ -30,7 +30,7 @@ using namespace BadBehavior;
 IMPLEMENT_CONOBJECT(ActiveSelector);
 
 ActiveSelector::ActiveSelector()
-   //:  mRecheckFrequency(0)
+   :  mRecheckFrequency(0)
 {
 }
 
@@ -41,12 +41,12 @@ Task *ActiveSelector::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 
 void ActiveSelector::initPersistFields()
 {
-   //addGroup( "Behavior" );
+   addGroup( "Behavior" );
 
-   //addField( "recheckFrequency", TypeS32, Offset(mRecheckFrequency, ActiveSelector),
-   //   "@brief The minimum time period in milliseconds between re-evaluations of higher priority branches.");
+   addField( "recheckFrequency", TypeS32, Offset(mRecheckFrequency, ActiveSelector),
+      "@brief The minimum time period in milliseconds to wait between re-evaluations of higher priority branches.");
 
-   //endGroup( "Behavior" );
+   endGroup( "Behavior" );
 
    Parent::initPersistFields();
 }
@@ -55,7 +55,8 @@ void ActiveSelector::initPersistFields()
 // Active selector task
 //------------------------------------------------------------------------------
 ActiveSelectorTask::ActiveSelectorTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner) 
+   : Parent(node, owner, runner),
+   mRecheckTime(0)
 {
 }
 
@@ -70,33 +71,46 @@ void ActiveSelectorTask::onInitialize()
          mBranches.push_back(BehaviorTreeBranch(*i));
       }
    }
-   else
-   {
-      for (Vector<BehaviorTreeBranch>::iterator it = mBranches.begin(); it != mBranches.end(); ++it)
-      {
-         it->reset();
-      }
-   }
 
    mCurrentBranch = mBranches.begin();
    mRunningBranch = mBranches.end();
+   mRecheckTime = 0;
 }
 
 
 Task* ActiveSelectorTask::update()
 {
+   // empty node, bail
    if(mBranches.empty())
    {
       mStatus = INVALID;
       return NULL;
    }
 
-   for(mCurrentBranch = mBranches.begin(); mCurrentBranch != mBranches.end(); ++mCurrentBranch)
+   // is it time to re-check higher priority branches?
+   if(Sim::getCurrentTime() >= mRecheckTime)
    {
+      // pick highest priority branch
+      mCurrentBranch = mBranches.begin();
+      
+      // determine the next recheck time
+      mRecheckTime = Sim::getCurrentTime() + static_cast<ActiveSelector *>(mNodeRep)->getRecheckFrequency();
+   }
+
+   // run a branch, if it fails move on to the next
+   for(mCurrentBranch; mCurrentBranch != mBranches.end(); ++mCurrentBranch)
+   {
+      // reset the branch if it's not the current running branch
+      if(mCurrentBranch != mRunningBranch)
+         mCurrentBranch->reset();
+
       mStatus = mCurrentBranch->update();
 
-      if(mStatus == FAILURE)
+      if(mStatus == FAILURE) // move on to next
          continue;
+
+      if(mStatus == RUNNING || mStatus == SUSPENDED) // track the current running branch
+         mRunningBranch = mCurrentBranch;
       
       break;
    }

@@ -35,10 +35,8 @@
 // Re-evaluates its children from the beginning each tick. Lower priority
 // children which previously returned RUNNING are resumed if re-selected
 //
-// ***** TODO - This runs OK, but needs some more work!!!
-// -- abort previously running branches
-// -- Time-based re-evaluation of higher priority branches instead of every tick
-// -- clean up the init
+// ***** TODO - This runs OK, but may need a bit more work
+// -- abort previously running branches?
 //
 //==============================================================================
 
@@ -52,7 +50,7 @@ namespace BadBehavior
       typedef CompositeNode Parent;
 
    protected:
-      //U32 mRecheckFrequency;
+      U32 mRecheckFrequency;
          
    public:
       ActiveSelector();
@@ -61,7 +59,7 @@ namespace BadBehavior
 
       static void initPersistFields();
 
-      //U32 getRecheckFrequency() const { return mRecheckFrequency; }
+      U32 getRecheckFrequency() const { return mRecheckFrequency; }
 
       DECLARE_CONOBJECT(ActiveSelector);
    };
@@ -77,6 +75,8 @@ namespace BadBehavior
       Vector<BehaviorTreeBranch>::iterator mRunningBranch;
       Vector<BehaviorTreeBranch>::iterator mCurrentBranch;
       Vector<BehaviorTreeBranch> mBranches;
+
+      U32 mRecheckTime;
       
       virtual void onInitialize();
       virtual Task* update();
