@@ -26,6 +26,9 @@
 #ifndef _BB_CORE_H_
 #include "Core.h"
 #endif
+#ifndef _BB_SIGNAL_H_
+#include "Signal.h"
+#endif
 #ifndef _SIMOBJECT_H_
 #include "console/simObject.h"
 #endif
@@ -65,6 +68,9 @@ namespace BadBehavior
       // the game object that is using this tree
       SimObjectPtr<SimObject> mOwner;
 
+      // signal handler for throwing signals around
+      SignalHandler mSignalHandler;
+
       // setters for the script interface
       static bool _setRootNode( void *object, const char *index, const char *data );
       static bool _setOwner( void *object, const char *index, const char *data );
@@ -89,6 +95,11 @@ namespace BadBehavior
 
       // tick
       void onTick();
+
+      // signal handling
+      void subscribeToSignal(const char *signal, SignalSubscriber *subscriber);
+      void unsubscribeFromSignal(const char *signal, SignalSubscriber *subscriber);
+      void postSignal(const char *signal);
       
       // task reactivation
       void onReactivateEvent(Task *task);

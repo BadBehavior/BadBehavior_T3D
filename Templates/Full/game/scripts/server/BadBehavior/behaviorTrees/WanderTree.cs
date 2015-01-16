@@ -8,14 +8,13 @@ new Root(WanderTree) {
       canSaveDynamicFields = "1";
 
       new ScriptedBehavior() {
-         preconditionMode = "TICK";
+         preconditionMode = "ONCE";
          class = "wanderTask";
          canSave = "1";
          canSaveDynamicFields = "1";
       };
-      new RandomWait() {
-         waitMinMs = "1000";
-         waitMaxMs = "3000";
+      new WaitForSignal() {
+         signalName = "onReachDestination";
          canSave = "1";
          canSaveDynamicFields = "1";
       };

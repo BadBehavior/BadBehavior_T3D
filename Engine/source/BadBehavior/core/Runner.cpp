@@ -97,6 +97,9 @@ void BehaviorTreeRunner::onTick()
       }
    }
 
+   // dispatch any signals
+   mSignalHandler.dispatchSignals();
+
    // Evaluate the tree
    mRootTask->setup();
    mRootTask->tick();
@@ -190,6 +193,7 @@ void BehaviorTreeRunner::reset()
       delete mRootTask;
       mRootTask = 0;
    }
+   mSignalHandler.reset();
 }
 
 
@@ -203,6 +207,24 @@ void BehaviorTreeRunner::clear()
 bool BehaviorTreeRunner::isRunning()
 {
    return mIsRunning;
+}
+
+
+void BehaviorTreeRunner::subscribeToSignal(const char *signal, SignalSubscriber *subscriber)
+{
+   mSignalHandler.registerSubscriber(signal, subscriber);
+}
+
+
+void BehaviorTreeRunner::unsubscribeFromSignal(const char *signal, SignalSubscriber *subscriber)
+{
+   mSignalHandler.unregisterSubscriber(signal, subscriber);
+}
+
+
+void BehaviorTreeRunner::postSignal(const char *signal)
+{
+   mSignalHandler.postSignal(signal);
 }
 
 
@@ -225,7 +247,6 @@ DefineEngineMethod( BehaviorTreeRunner, reset, void, (), ,
                     "Reset the behavior tree. Any internal state is lost.")
 {
    object->reset();
-   object->start();
 }
 
 
@@ -240,4 +261,11 @@ DefineEngineMethod( BehaviorTreeRunner, isRunning, bool, (), ,
                     "Is the behavior tree running")
 {
    return object->isRunning();
+}
+
+
+DefineEngineMethod(BehaviorTreeRunner, postSignal, void, (const char *signal),, 
+   "@brief Posts a signal to the behavior tree.\n\n")
+{
+   object->postSignal( signal );
 }

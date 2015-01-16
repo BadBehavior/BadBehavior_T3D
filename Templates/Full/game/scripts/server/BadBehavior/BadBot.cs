@@ -146,6 +146,7 @@ function botMatch(%numBots)
       %bot.tetherpoint = %bot.position;
       %bot.setbehavior(BotTree);
       BotSet.add(%bot);
+      %bot.isGod=true;
    }
    
    $botSchedule = schedule(100, 0, botMatch, %numBots);
@@ -169,11 +170,15 @@ function BadBot::moveTo(%this, %dest, %slowDown)
 {
    %pos = isObject(%dest) ? %dest.getPosition() : %dest;
    %this.setMoveDestination(%pos, %slowDown);
-   %this.atDestination = false;
+   %obj.atDestination = false;
 }
 
+// forward onReachDestination to the behavior tree as a signal
 function BadBotData::onReachDestination(%data, %obj)
 {
+   if(isObject(%obj.behaviorTree))
+      %obj.behaviorTree.postSignal("onReachDestination");
+      
    %obj.atDestination = true;
 }
 
@@ -223,21 +228,11 @@ function RandomPointOnCircle(%center, %radius)
 // wander behavior task
 //==============================================================================
 
-function wanderTask::onEnter(%this, %obj)
+function wanderTask::behavior(%this, %obj)
 {
-   //echo("wanderTask::onEnter");
    %obj.clearAim();
    %basePoint = %obj.tetherPoint !$= "" ? %obj.tetherPoint : %obj.position;
    %obj.moveTo(RandomPointOnCircle(%basePoint, 10));
-   %obj.atDestination = false;   
-}
-
-function wanderTask::behavior(%this, %obj)
-{
-//   echo("wanderTask::behavior");
-   if(!%obj.atDestination)
-      return RUNNING;
-   
    return SUCCESS;
 }
 
@@ -253,18 +248,14 @@ function moveToClosestNodeTask::precondition(%this, %obj)
 
 function moveToClosestNodeTask::onEnter(%this, %obj)
 {
-   %obj.clearAim();
-   %obj.currentNode = %obj.getClosestNodeOnPath(%obj.path);
-   %obj.moveToNextNode();
-   %obj.atDestination = false;  
+   %obj.clearAim();  
 }
 
 function moveToClosestNodeTask::behavior(%this, %obj)
 {
-   if(%obj.atDestination)
-      return SUCCESS;
-   
-   return RUNNING;
+   %obj.currentNode = %obj.getClosestNodeOnPath(%obj.path);
+   %obj.moveTo(patrolPath.getObject(%obj.currentNode));
+   return SUCCESS;
 }
 
 //==============================================================================
@@ -281,19 +272,12 @@ function patrolTask::onEnter(%this, %obj)
 {
 //   echo("patrolTask::onEnter");
    %obj.clearAim();
-   %obj.currentNode = %obj.getClosestNodeOnPath(%obj.path);
-   %obj.atDestination = true;
 }
 
 function patrolTask::behavior(%this, %obj)
 {
-//   echo("patrolTask::behavior");
-   if(%obj.atDestination)
-   {
-      %obj.moveToNextNode();
-      %obj.atDestination = 0;
-   }
-   return RUNNING;
+   %obj.moveToNextNode();
+   return SUCCESS;
 }
 
 //=============================================================================
