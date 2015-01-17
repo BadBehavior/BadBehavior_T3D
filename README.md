@@ -4,7 +4,7 @@ Behavior Tree System for Torque 3D
 ----------------------------------
 ### Introduction
 
-The BadBehavior system is a behavior tree implementation and editor for the Torque3D game engine.
+The BadBehavior system is an experimental behavior tree implementation and editor for the Torque3D game engine. BadBehavior is very much a work in progress, but feel free to mess around with it and see what you can make it do.
 
 ### Features
 
