@@ -18,6 +18,7 @@ The BadBehavior system is a behavior tree implementation and editor for the Torq
   * Actions/conditions can be created entirely in the editor for rapid prototyping
   * Structured behaviors can be written in script
   * Performance critical behaviors can be written entirely in C++
+* Self contained - no changes to existing engine classes
 
 ### Further information
 
