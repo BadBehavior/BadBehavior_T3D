@@ -130,8 +130,6 @@ class Torque3D
         if(T3D_Generator::$platform == "mac" || T3D_Generator::$platform == "win32")
            includeModule( 'openal' );
 
-        includeModule( 'BadBehavior' );
-   
         // Dependencies
         
         addProjectDependency( 'lmng' );
