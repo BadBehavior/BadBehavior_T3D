@@ -33,42 +33,69 @@ function setGodMode(%val)
    LocalClientConnection.player.isGod = %val;
 }
 
-//=============================================================================
-// Supporting functions for an AIPlayer driven by a behavior tree
-//=============================================================================
-
+//-----------------------------------------------------------------------------
+// bot datablock
+//-----------------------------------------------------------------------------
 datablock PlayerData(BadBotData : DefaultPlayerData)
 {
+   // max visible distance
    VisionRange = 40;
+   
+   // vision field of view
    VisionFov = 120;
+   
+   // max range to look for items
    findItemRange = 20;
+   
+   // the type of object to search for when looking for targets
    targetObjectTypes = $TypeMasks::PlayerObjectType;
+   
+   // the type of object to search for when looking for items
    itemObjectTypes = $TypeMasks::itemObjectType;
    
-   // just some numbers for testing
-   optimalRange["Ryder"] = 8;
-   optimalRange["Lurker"] = 12;
-   rangeTolerance = 3;
-   switchTargetProbability = 0.1;
-   burstLength = 750; // number of milliseconds to hold the trigger down
+   // some numbers for testing
    
-   // don't allow quirky weapons
+   // distance the bot wants to be from its target when using the Ryder
+   optimalRange["Ryder"] = 8;
+   
+   // distance the bot wants to be from its target when using the Lurker
+   optimalRange["Lurker"] = 12;
+   
+   // +/- deviation from optimal range that is tolerated
+   rangeTolerance = 3;
+   
+   // probability that the bot will switch from its current target to another, closer target
+   switchTargetProbability = 0.1;
+   
+   // number of milliseconds to hold the trigger down
+   burstLength = 750;
+   
+   // disable other weapons, we don't know how to use them yet
    maxInv[LurkerGrenadeLauncher] = 0;
    maxInv[LurkerGrenadeAmmo] = 0;
    maxInv[ProxMine] = 0;
    maxInv[DeployableTurret] = 0;
 };
 
+
+//=============================================================================
+// Supporting functions for an AIPlayer driven by a behavior tree
+//=============================================================================
+
+// Spawn a bot called %name located at %startpos
 function BadBot::spawn(%name, %startPos)
 {
+   // create the bot
    %bot = new AIPlayer(%name) {
       dataBlock = BadBotData; 
       class = "BadBot";
    };
    
+   // give it a name
    if(%name !$= "")
       %bot.setShapeName(%name);
    
+   // set its position, or use the default if no position is given
    if(%startPos $= "")
    {
       %spawnPoint = pickPlayerSpawnPoint(PlayerDropPoints);
@@ -78,12 +105,15 @@ function BadBot::spawn(%name, %startPos)
    
    %bot.setPosition(%startPos);
    
+   // tetherpoint will give the bot a place to call home
    %bot.tetherPoint = %startPos;
    
-   %bot.allowSprinting(false); // hack for aiplayer trigger index out of bounds in 3.6
+   // hack for aiplayer trigger index out of bounds in 3.6
+   %bot.allowSprinting(false);
    
    return %bot;      
 }
+
 
 // override getMuzzleVector so that the bots aim at where they are looking
 function BadBot::getMuzzleVector(%this, %slot)
@@ -91,6 +121,8 @@ function BadBot::getMuzzleVector(%this, %slot)
    return %this.getEyeVector();
 }
 
+
+// give the bot a behavior tree
 function BadBot::setBehavior(%this, %tree)
 {
    if(isObject(%this.behaviorTree))
@@ -98,40 +130,52 @@ function BadBot::setBehavior(%this, %tree)
    else      
       %this.behaviorTree = BehaviorTreeManager.createTree(%this, %tree);
 
-
    %this.behaviorTree.frequency = $BotTickFrequency;
 }
 
+
+// stop running a behavior tree
 function BadBot::clearBehavior(%this)
 {
    if(isObject(%this.behaviorTree))
       %this.behaviorTree.clear();
 }
 
+
+// use onAdd to equip the bot
 function BadBotData::onAdd(%data, %obj)
 {
+   // give him the standard player loadout
    game.loadout(%obj);
+   
+   // randomly pick Ryder or Lurker
    if(getRandom(0,1))
       %obj.cycleWeapon("next");
 }
 
+
+// Override onDisabled so we can stop running the behavior tree
 function BadBotData::onDisabled(%this, %obj, %state)
 {
    %obj.behaviorTree.stop();
    Parent::onDisabled(%this, %obj, %state);
 }
 
+
+// simple function to spawn a given number of bots, and get them fighting each other
 function botMatch(%numBots)
 {
    // Avoid having lots of dead bodies lying around.
    $CorpseTimeoutValue = 2000;
 
+   // Simset to keep track of spawned bots
    if(!isObject(BotSet))
    {
       new SimSet(BotSet);
       MissionCleanup.add(BotSet);
    }
 
+   // keep replenishing dead bots
    %numActiveBots = 0;
    foreach(%bot in BotSet)
    {
@@ -146,11 +190,15 @@ function botMatch(%numBots)
       %bot.tetherpoint = %bot.position;
       %bot.setbehavior(BotTree);
       BotSet.add(%bot);
+      MissionCleanup.add(bot);
    }
    
+   // keep spawning bots as necessary
    $botSchedule = schedule(100, 0, botMatch, %numBots);
 }
 
+
+// stop the match and delete the bots
 function cancelBotmatch()
 {
    cancel($botSchedule);
@@ -158,13 +206,14 @@ function cancelBotmatch()
       BotSet.getObject(0).delete();
 }
 
+
 function BotSet::onRemove(%this)
 {
    cancelBotmatch();  
 }
 
-//==============================Movement=======================================
 
+// moveTo command, %dest can be either a location or an object
 function BadBot::moveTo(%this, %dest, %slowDown)
 {
    %pos = isObject(%dest) ? %dest.getPosition() : %dest;
@@ -206,7 +255,8 @@ function BadBot::getClosestNodeOnPath(%this, %path)
    return -1;
 }
 
-//=============================Misc Bot Cmds===================================
+
+// send a chat message from the bot
 function BadBot::say(%this, %message)
 {
    chatMessageAll(%this, '\c3%1: %2', %this.getShapeName(), %message);  
@@ -222,11 +272,32 @@ function RandomPointOnCircle(%center, %radius)
    return VectorAdd(%center, %randVec);  
 }
 
+//===========================ScriptedBehavior Tasks=============================
+/*
+   ScriptedBehavior Tasks are composed of four (optional) parts:
+   1) precondition - this function should return a boolean indicating whether
+      or not the behavior should continue. If precondition returns true, the
+      rest of the behavior is evaluated. If precondition returns false, the
+      behavior will abort.
+      
+      There are two options for the evaluation of the precondition that can be 
+      set in the editor:
+      ONCE - The precondition is run the first time the behavior becomes active
+      TICK - The precondition is run each time the behavior is ticked (if latent)
+   
+   2) onEnter - This is called the first time the behavior is run if the 
+      precondition was successful. onEnter does not use a return value.
+      
+   3) onExit - This is called if the behavior reaches completion. onExit does
+      not use a return value.
+   
+   4) behavior - This is the main behavior function, evaluated each tick.
+      behavior must return a status (SUCCES / FAILURE / RUNNING).
+*/
 
 //==============================================================================
 // wander behavior task
 //==============================================================================
-
 function wanderTask::behavior(%this, %obj)
 {
    %obj.clearAim();
@@ -239,7 +310,6 @@ function wanderTask::behavior(%this, %obj)
 //==============================================================================
 // Move to closest node task
 //==============================================================================
-
 function moveToClosestNodeTask::precondition(%this, %obj)
 {
    return isObject(%obj.path);  
@@ -260,7 +330,6 @@ function moveToClosestNodeTask::behavior(%this, %obj)
 //==============================================================================
 // Patrol behavior task
 //==============================================================================
-
 function patrolTask::precondition(%this, %obj)
 {
 //   echo("patrolTask::precondition");
@@ -284,6 +353,7 @@ function patrolTask::behavior(%this, %obj)
 //=============================================================================
 function findHealthTask::behavior(%this, %obj)
 {
+   // search for a health item
    %bestDist = 9999;
    %bestItem = -1;
    %db = %obj.dataBlock;
@@ -335,7 +405,7 @@ function getHealthTask::behavior(%this, %obj)
 }
 
 //=============================================================================
-// scanForTarget task
+// pickTarget task
 //=============================================================================
 function pickTargetTask::precondition(%this, %obj)
 {
