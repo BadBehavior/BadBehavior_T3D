@@ -96,7 +96,11 @@ function BadBot::spawn(%name, %startPos)
       %bot.setShapeName(%name);
    
    // set its position, or use the default if no position is given
-   if(%startPos $= "")
+   if(isObject(%startPos))
+   {
+      %startPos = %startPos.position;
+   }
+   else if(%startPos $= "")
    {
       %spawnPoint = pickPlayerSpawnPoint(PlayerDropPoints);
       if(isObject(%spawnPoint))
@@ -172,9 +176,8 @@ function botMatch(%numBots)
    if(!isObject(BotSet))
    {
       new SimSet(BotSet);
-      MissionCleanup.add(BotSet);
    }
-
+   
    // keep replenishing dead bots
    %numActiveBots = 0;
    foreach(%bot in BotSet)
@@ -186,11 +189,10 @@ function botMatch(%numBots)
    if(%numActiveBots < %numBots)
    {
       %spawnpoint = PatrolPath.getRandom();
-      %bot = BadBot::spawn("", %spawnpoint.position);//"Bot" @ getRandom(100000), %spawnpoint.position);
+      %bot = BadBot::spawn("", %spawnpoint);//"Bot" @ getRandom(100000), %spawnpoint.position);
       %bot.tetherpoint = %bot.position;
       %bot.setbehavior(BotTree);
       BotSet.add(%bot);
-      MissionCleanup.add(bot);
    }
    
    // keep spawning bots as necessary
