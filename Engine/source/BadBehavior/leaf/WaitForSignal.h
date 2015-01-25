@@ -42,6 +42,9 @@ namespace BadBehavior
 
    protected:
       String mSignalName;
+      S32 mTimeoutMs;
+
+      static bool _setTimeout(void *object, const char *index, const char *data);
 
    public:
       WaitForSignal();
@@ -51,6 +54,7 @@ namespace BadBehavior
       static void initPersistFields();
 
       const String &getSignalName() const { return mSignalName; }
+      S32 getTimeoutMs() const { return mTimeoutMs; }
 
       DECLARE_CONOBJECT(WaitForSignal);
    };
@@ -63,9 +67,13 @@ namespace BadBehavior
       typedef Task Parent;
 
    protected:
+      U32 mEventId;
+
       virtual void onInitialize();
       virtual void onTerminate();
       virtual Task* update();
+
+      void cancelEvent();
 
       // SignalSubscriber
       virtual void subscribe();
@@ -77,6 +85,25 @@ namespace BadBehavior
 
       // SignalSubscriber
       virtual void onSignal();
+
+      // timeout
+      void onTimeout();
+   };
+
+
+   class WaitForSignalTimeoutEvent : public SimEvent
+   {
+      WaitForSignalTask *mTask;
+   public:
+      WaitForSignalTimeoutEvent(WaitForSignalTask &task) 
+      { 
+         mTask = &task; 
+      }
+
+      void process( SimObject *object )
+      {
+         mTask->onTimeout();
+      }
    };
 
 } // namespace BadBehavior

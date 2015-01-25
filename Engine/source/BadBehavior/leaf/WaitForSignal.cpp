@@ -30,7 +30,8 @@ using namespace BadBehavior;
 //------------------------------------------------------------------------------
 IMPLEMENT_CONOBJECT(WaitForSignal);
 
-WaitForSignal::WaitForSignal() 
+WaitForSignal::WaitForSignal()
+   : mTimeoutMs(0)
 {
 }
 
@@ -40,6 +41,10 @@ void WaitForSignal::initPersistFields()
    
    addField( "signalName", TypeRealString, Offset(mSignalName, WaitForSignal),
       "The time in ms that the node should wait before completion." );
+
+   addProtectedField( "timeoutMs", TypeS32, Offset(mTimeoutMs, WaitForSignal), &_setTimeout, &defaultProtectedGetFn,
+      "The maximum time in ms that the node should wait for the signal.\n"
+      "A value of 0 indicates no limit");
 
    endGroup( "Behavior" );
 
@@ -51,17 +56,26 @@ Task *WaitForSignal::createTask(SimObject &owner, BehaviorTreeRunner &runner)
    return new WaitForSignalTask(*this, owner, runner);
 }
 
+bool WaitForSignal::_setTimeout(void *object, const char *index, const char *data)
+{
+   WaitForSignal *node = static_cast<WaitForSignal *>( object );
+   node->mTimeoutMs = getMax(0, dAtoi( data ));
+   return false;
+}
+
 //------------------------------------------------------------------------------
 // Wait task
 //------------------------------------------------------------------------------
 WaitForSignalTask::WaitForSignalTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner)
+   : Parent(node, owner, runner),
+   mEventId(0)
 {
 }
 
 WaitForSignalTask::~WaitForSignalTask()
 {
    unsubscribe();
+   cancelEvent();
 }
 
 void WaitForSignalTask::subscribe()
@@ -79,16 +93,32 @@ void WaitForSignalTask::onSignal()
    onResume();
 }
 
+void WaitForSignalTask::onTimeout()
+{
+   mStatus = FAILURE;
+}
+
+void WaitForSignalTask::cancelEvent()
+{
+   if(mEventId != 0 && Sim::isEventPending(mEventId))
+   {
+      Sim::cancelEvent(mEventId);
+      mEventId = 0;
+   }
+}
+
 void WaitForSignalTask::onInitialize()
 {
    Parent::onInitialize();
    subscribe();
+   cancelEvent();
 }
 
 void WaitForSignalTask::onTerminate()
 {
    Parent::onTerminate();
    unsubscribe();
+   cancelEvent();
 }
 
 Task* WaitForSignalTask::update() 
@@ -96,12 +126,18 @@ Task* WaitForSignalTask::update()
    if(mStatus == RESUME)
    {
       mStatus = SUCCESS;
-      mIsComplete = true;
    }
    else if (mStatus == INVALID)
    {
       mStatus = SUSPENDED;
+      
+      S32 timeout = static_cast<WaitForSignal *>(mNodeRep)->getTimeoutMs();
+      if(timeout > 0)
+         mEventId = Sim::postEvent(mRunner, new WaitForSignalTimeoutEvent(*this), Sim::getCurrentTime() + timeout);
    }
+
+   if(mStatus == SUCCESS || mStatus == FAILURE)
+      mIsComplete = true;
 
    return NULL; 
 }
