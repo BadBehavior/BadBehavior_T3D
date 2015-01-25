@@ -168,12 +168,6 @@ function cancelBotmatch()
 }
 
 
-function BotSet::onRemove(%this)
-{
-   cancelBotmatch();  
-}
-
-
 // moveTo command, %dest can be either a location or an object
 function BadBot::moveTo(%this, %dest, %slowDown)
 {
