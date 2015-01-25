@@ -68,11 +68,31 @@ new Root(botMatchTree) {
                   canSaveDynamicFields = "1";
 
                   new ScriptEval() {
-                     behaviorScript = "%spawnpoint = PatrolPath.getRandom();\n%bot = BadBot::spawn(\"\", %spawnpoint);\n%bot.setbehavior(BotTree, $BotTickFrequency);\n%obj.botGroup.add(%bot);\n%obj.numBotsToSpawn --;";
+                     behaviorScript = "// pick a marker to spawn at\n%spawnpoint = PatrolPath.getRandom();\n\n// create the bot\n%bot = BadBot::spawn(\"\", %spawnpoint);\n\n// set its behavior\n%bot.setbehavior(BotTree, $BotTickFrequency);\n\n// add it to the botgroup\n%obj.botGroup.add(%bot);\n\n// keep track of the current bot\n%obj.currentBot = %bot;\n\n// decrement the number of bots left to spawn\n%obj.numBotsToSpawn --;";
                      defaultReturnStatus = "SUCCESS";
                      internalName = "spawn one bot";
                      canSave = "1";
                      canSaveDynamicFields = "1";
+                  };
+                  new RandomSelector() {
+                     internalName = "pick a weapon";
+                     canSave = "1";
+                     canSaveDynamicFields = "1";
+
+                     new ScriptEval() {
+                        behaviorScript = "%obj.currentBot.use(Ryder);";
+                        defaultReturnStatus = "SUCCESS";
+                        internalName = "Ryder";
+                        canSave = "1";
+                        canSaveDynamicFields = "1";
+                     };
+                     new ScriptEval() {
+                        behaviorScript = "%obj.currentBot.use(Lurker);";
+                        defaultReturnStatus = "SUCCESS";
+                        internalName = "Lurker";
+                        canSave = "1";
+                        canSaveDynamicFields = "1";
+                     };
                   };
                   new ScriptEval() {
                      behaviorScript = "if(%obj.numBotsToSpawn == 0) return FAILURE;";
@@ -90,7 +110,7 @@ new Root(botMatchTree) {
 
             new WaitForSignal() {
                signalName = "onBotmatchCancel";
-               timeoutMs = "10000";
+               timeoutMs = "0";
                internalName = "stop on cancel signal";
                canSave = "1";
                canSaveDynamicFields = "1";
