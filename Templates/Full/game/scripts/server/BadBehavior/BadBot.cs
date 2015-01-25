@@ -146,28 +146,6 @@ function BadBotData::onDisabled(%this, %obj, %state)
 }
 
 
-// simple function to spawn a given number of bots, and get them fighting each other
-function botMatch(%numBots)
-{
-   // Avoid having lots of dead bodies lying around.
-   $CorpseTimeoutValue = 2000;
-
-   if(!isObject(BotMatch))
-      new ScriptObject(botMatch);
-   
-   botMatch.numBots = %numBots;
-   botMatch.setBehavior(botMatchTree, 250);
-}
-
-
-// stop the match and delete the bots
-function cancelBotmatch()
-{
-   if(isObject(botMatch))
-      botMatch.behaviorTree.postSignal("onBotmatchCancel");
-}
-
-
 // moveTo command, %dest can be either a location or an object
 function BadBot::moveTo(%this, %dest, %slowDown)
 {

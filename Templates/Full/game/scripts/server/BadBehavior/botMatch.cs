@@ -20,6 +20,31 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-exec("./behaviorTreeManager.cs");
-exec("./BadBot.cs");
-exec("./botMatch.cs");
+$BotMatchTickFrequency = 250;
+
+// start a bot match
+function botMatch(%numBots)
+{
+   // Avoid having lots of dead bodies lying around.
+   $CorpseTimeoutValue = 2000;
+
+   // script object to attach the BT to
+   if(!isObject(BotMatch))
+      new ScriptObject(botMatch);
+   
+   // number of bots that will be spawned
+   botMatch.numBots = %numBots;
+   
+   // set the behavior tree
+   botMatch.setBehavior(botMatchTree, $BotMatchTickFrequency);
+}
+
+
+// cancel the match
+function cancelBotmatch()
+{
+   // post the signal to the behavior tree
+   if(isObject(botMatch))
+      botMatch.behaviorTree.postSignal("onBotmatchCancel");
+}
+
