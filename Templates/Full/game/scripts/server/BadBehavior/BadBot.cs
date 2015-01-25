@@ -126,26 +126,6 @@ function BadBot::getMuzzleVector(%this, %slot)
 }
 
 
-// give the bot a behavior tree
-function BadBot::setBehavior(%this, %tree)
-{
-   if(isObject(%this.behaviorTree))
-      %this.behaviorTree.rootNode = %tree;
-   else      
-      %this.behaviorTree = BehaviorTreeManager.createTree(%this, %tree);
-
-   %this.behaviorTree.frequency = $BotTickFrequency;
-}
-
-
-// stop running a behavior tree
-function BadBot::clearBehavior(%this)
-{
-   if(isObject(%this.behaviorTree))
-      %this.behaviorTree.clear();
-}
-
-
 // use onAdd to equip the bot
 function BadBotData::onAdd(%data, %obj)
 {
@@ -172,40 +152,19 @@ function botMatch(%numBots)
    // Avoid having lots of dead bodies lying around.
    $CorpseTimeoutValue = 2000;
 
-   // Simset to keep track of spawned bots
-   if(!isObject(BotSet))
-   {
-      new SimSet(BotSet);
-   }
+   if(!isObject(BotMatch))
+      new ScriptObject(botMatch);
    
-   // keep replenishing dead bots
-   %numActiveBots = 0;
-   foreach(%bot in BotSet)
-   {
-      if(%bot.getState() !$= "Dead")
-         %numActiveBots ++;
-   }
-   
-   if(%numActiveBots < %numBots)
-   {
-      %spawnpoint = PatrolPath.getRandom();
-      %bot = BadBot::spawn("", %spawnpoint);//"Bot" @ getRandom(100000), %spawnpoint.position);
-      %bot.tetherpoint = %bot.position;
-      %bot.setbehavior(BotTree);
-      BotSet.add(%bot);
-   }
-   
-   // keep spawning bots as necessary
-   $botSchedule = schedule(100, 0, botMatch, %numBots);
+   botMatch.numBots = %numBots;
+   botMatch.setBehavior(botMatchTree, 250);
 }
 
 
 // stop the match and delete the bots
 function cancelBotmatch()
 {
-   cancel($botSchedule);
-   while(BotSet.getCount() > 0)
-      BotSet.getObject(0).delete();
+   if(isObject(botMatch))
+      botMatch.behaviorTree.postSignal("onBotmatchCancel");
 }
 
 

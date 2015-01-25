@@ -130,5 +130,25 @@ function BehaviorTreeManager::onBehaviorTreeEditor(%this, %val)
    }
 }
 
+// give an object a behavior tree
+function SimObject::setBehavior(%this, %tree, %frequency)
+{
+   if(isObject(%this.behaviorTree))
+      %this.behaviorTree.rootNode = %tree;
+   else      
+      %this.behaviorTree = BehaviorTreeManager.createTree(%this, %tree);
+
+   if(%frequency)   
+      %this.behaviorTree.frequency = %frequency;
+}
+
+
+// stop running a behavior tree on an object
+function SimObject::clearBehavior(%this)
+{
+   if(isObject(%this.behaviorTree))
+      %this.behaviorTree.clear();
+}
+
 BehaviorTreeManager::create();
 
