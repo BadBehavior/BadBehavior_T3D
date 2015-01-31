@@ -58,17 +58,20 @@ datablock PlayerData(BadBotData : DefaultPlayerData)
    // distance the bot wants to be from its target when using the Ryder
    optimalRange["Ryder"] = 8;
    
+   // number of milliseconds to hold the trigger down when using the Ryder
+   burstLength["Ryder"] = 100;
+   
    // distance the bot wants to be from its target when using the Lurker
    optimalRange["Lurker"] = 12;
+   
+   // number of milliseconds to hold the trigger down when using the Lurker
+   burstLength["Lurker"] = 750;
    
    // +/- deviation from optimal range that is tolerated
    rangeTolerance = 3;
    
    // probability that the bot will switch from its current target to another, closer target
    switchTargetProbability = 0.1;
-   
-   // number of milliseconds to hold the trigger down
-   burstLength = 750;
    
    // disable other weapons, we don't know how to use them yet
    maxInv[LurkerGrenadeLauncher] = 0;
@@ -131,10 +134,6 @@ function BadBotData::onAdd(%data, %obj)
 {
    // give him the standard player loadout
    game.loadout(%obj);
-   
-   // randomly pick Ryder or Lurker
-   if(getRandom(0,1))
-      %obj.cycleWeapon("next");
 }
 
 
@@ -287,7 +286,6 @@ function patrolTask::behavior(%this, %obj)
 function findHealthTask::behavior(%this, %obj)
 {
    // search for a health item
-   %bestDist = 9999;
    %bestItem = -1;
    %db = %obj.dataBlock;
    
@@ -302,12 +300,8 @@ function findHealthTask::behavior(%this, %obj)
       // this does the same thing.....
       if(VectorDot(VectorNormalize(VectorSub(%item.position, %obj.position)), %obj.getForwardVector()) > mCos(%db.visionFov / 2))
       {
-         %dist = VectorDist(%obj.position, %item.position);
-         if(%dist < %bestDist)
-         {
-            %bestItem = %item;
-            %bestDist = %dist;
-         }
+         %bestItem = %item;
+         break;
       }
    }
    
@@ -349,7 +343,6 @@ function pickTargetTask::precondition(%this, %obj)
 
 function pickTargetTask::behavior(%this, %obj)
 {
-   %bestDist = 9999;
    %bestTarget = -1;
    %db = %obj.dataBlock;
    
@@ -363,12 +356,8 @@ function pickTargetTask::behavior(%this, %obj)
       // this does the same thing.....
       if(VectorDot(VectorNormalize(VectorSub(%obj.targetObject.position, %obj.position)), %obj.getForwardVector()) > mCos(%db.visionFov / 2))
       {
-         %dist = VectorDist(%obj.position, %target.position);
-         if(%dist < %bestDist)
-         {
-            %bestTarget = %target;
-            %bestDist = %dist;
-         }
+         %bestTarget = %target;
+         break;
       }
    }
    
@@ -417,11 +406,12 @@ function shootAtTargetTask::precondition(%this, %obj)
 
 function shootAtTargetTask::behavior(%this, %obj)
 {
-   if(isEventPending(%obj.triggerSchedule))
-      cancel(%obj.triggerSchedule);
-   
-   %obj.setImageTrigger(0, true);
-   %obj.triggerSchedule = %obj.schedule(%obj.dataBlock.burstLength, setImageTrigger, 0, false);
+   if(!isEventPending(%obj.triggerSchedule))
+   {
+      %obj.setImageTrigger(0, true);
+      %burstLength = %obj.dataBlock.burstLength[%obj.getMountedImage($WeaponSlot).item.description];
+      %obj.triggerSchedule = %obj.schedule(%burstLength, setImageTrigger, 0, false);
+   }
 
    return SUCCESS;
 }
@@ -442,11 +432,11 @@ function combatMoveTask::behavior(%this, %obj)
    %fwd = %obj.getForwardVector();
    %right = %obj.getRightVector();
    
-   // forward / back
+   // forward / back to stay in range
    if(mAbs(%rangeDelta) > %db.rangeTolerance)
       %moveVec = VectorScale(%fwd, %rangeDelta);
    
-   // side
+   // random side strafe
    %moveVec = VectorAdd(%moveVec, VectorScale(%right, 5 * (getRandom(0,2) - 1)));
       
    %obj.moveTo(VectorAdd(%obj.position, %moveVec));
