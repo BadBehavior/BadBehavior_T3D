@@ -19,17 +19,12 @@ new Root(BotTree) {
             canSave = "1";
             canSaveDynamicFields = "1";
 
-            new SucceedAlways() {
+            new ScriptedBehavior() {
+               preconditionMode = "ONCE";
+               internalName = "look for enemy";
+               class = "pickTargetTask";
                canSave = "1";
                canSaveDynamicFields = "1";
-
-               new ScriptedBehavior() {
-                  preconditionMode = "ONCE";
-                  internalName = "look for enemy";
-                  class = "pickTargetTask";
-                  canSave = "1";
-                  canSaveDynamicFields = "1";
-               };
             };
          };
       };

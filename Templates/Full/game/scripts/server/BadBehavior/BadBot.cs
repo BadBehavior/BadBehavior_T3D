@@ -115,9 +115,6 @@ function BadBot::spawn(%name, %startPos)
    // tetherpoint will give the bot a place to call home
    %bot.tetherPoint = %startPos;
    
-   // hack for aiplayer trigger index out of bounds in 3.6
-   %bot.allowSprinting(false);
-   
    return %bot;      
 }
 
@@ -134,6 +131,9 @@ function BadBotData::onAdd(%data, %obj)
 {
    // give him the standard player loadout
    game.loadout(%obj);
+   
+   // hack for aiplayer trigger index out of bounds in 3.6
+   %obj.allowSprinting(false);
 }
 
 
@@ -343,7 +343,7 @@ function pickTargetTask::precondition(%this, %obj)
 
 function pickTargetTask::behavior(%this, %obj)
 {
-   %bestTarget = -1;
+   %obj.targetObject = -1;
    %db = %obj.dataBlock;
    
    initContainerRadiusSearch( %obj.position, %db.VisionRange, %db.targetObjectTypes );
@@ -356,12 +356,10 @@ function pickTargetTask::behavior(%this, %obj)
       // this does the same thing.....
       if(VectorDot(VectorNormalize(VectorSub(%obj.targetObject.position, %obj.position)), %obj.getForwardVector()) > mCos(%db.visionFov / 2))
       {
-         %bestTarget = %target;
+         %obj.targetObject = %target;
          break;
       }
    }
-   
-   %obj.targetObject = %bestTarget;
    
    return SUCCESS;
 }
