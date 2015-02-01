@@ -232,8 +232,14 @@ function RandomPointOnCircle(%center, %radius)
 //==============================================================================
 function wanderTask::behavior(%this, %obj)
 {
+   // stop aiming at things
    %obj.clearAim();
+   
+   // if the bot has a tetherPoint, use that as the center of his wander area,
+   // otherwise use his current position
    %basePoint = %obj.tetherPoint !$= "" ? %obj.tetherPoint : %obj.position;
+   
+   // move   
    %obj.moveTo(RandomPointOnCircle(%basePoint, 10));
    return SUCCESS;
 }
@@ -244,17 +250,22 @@ function wanderTask::behavior(%this, %obj)
 //==============================================================================
 function moveToClosestNodeTask::precondition(%this, %obj)
 {
+   // check that the object has a path to folow
    return isObject(%obj.path);  
 }
 
 function moveToClosestNodeTask::onEnter(%this, %obj)
 {
+   // stop aiming
    %obj.clearAim();  
 }
 
 function moveToClosestNodeTask::behavior(%this, %obj)
 {
+   // get the closest node
    %obj.currentNode = %obj.getClosestNodeOnPath(%obj.path);
+   
+   // move toward it
    %obj.moveTo(patrolPath.getObject(%obj.currentNode));
    return SUCCESS;
 }
@@ -264,18 +275,19 @@ function moveToClosestNodeTask::behavior(%this, %obj)
 //==============================================================================
 function patrolTask::precondition(%this, %obj)
 {
-//   echo("patrolTask::precondition");
+   // the bot needs a path object
    return isObject(%obj.path);
 }
 
 function patrolTask::onEnter(%this, %obj)
 {
-//   echo("patrolTask::onEnter");
+   // stop aiming
    %obj.clearAim();
 }
 
 function patrolTask::behavior(%this, %obj)
 {
+   // hook into the standard AIPlayer path following
    %obj.moveToNextNode();
    return SUCCESS;
 }
@@ -285,27 +297,28 @@ function patrolTask::behavior(%this, %obj)
 //=============================================================================
 function findHealthTask::behavior(%this, %obj)
 {
-   // search for a health item
-   %bestItem = -1;
+   // get the objects datablock
    %db = %obj.dataBlock;
    
+   // do a container search for items
    initContainerRadiusSearch( %obj.position, %db.findItemRange, %db.itemObjectTypes );
    while ( (%item = containerSearchNext()) != 0 )
    {
+      // filter out irrelevant items
       if(%item.dataBlock.category !$= "Health" || !%item.isEnabled() || %item.isHidden())
          continue;
       
+      // check that the item is within the bots view cone
       // broken in 3.6
       //if(%obj.checkInFov(%item, %db.visionFov))
       // this does the same thing.....
       if(VectorDot(VectorNormalize(VectorSub(%item.position, %obj.position)), %obj.getForwardVector()) > mCos(%db.visionFov / 2))
       {
-         %bestItem = %item;
+         // set the targetItem field on the bot
+         %obj.targetItem = %item;
          break;
       }
    }
-   
-   %obj.targetItem = %bestItem;
    
    return isObject(%obj.targetItem) ? SUCCESS : FAILURE;
 }
@@ -315,16 +328,19 @@ function findHealthTask::behavior(%this, %obj)
 //=============================================================================
 function getHealthTask::precondition(%this, %obj)
 {
+   // check that we have a valid health item to go for
    return (isObject(%obj.targetItem) && %obj.targetItem.isEnabled() && !%obj.targetItem.isHidden());  
 }
 
 function getHealthTask::onEnter(%this, %obj)
 {
+   // move to the item
    %obj.moveTo(%obj.targetItem.position);  
 }
 
 function getHealthTask::behavior(%this, %obj)
 {
+   // succeed when we reach the item
    if(!%obj.atDestination)
       return RUNNING;
    
@@ -346,16 +362,20 @@ function pickTargetTask::behavior(%this, %obj)
    %obj.targetObject = -1;
    %db = %obj.dataBlock;
    
+   // container search for other players
    initContainerRadiusSearch( %obj.position, %db.VisionRange, %db.targetObjectTypes );
    while ( (%target = containerSearchNext()) != 0 )
    {
+      // don't target ourself, dead players or god.
       if(%target == %obj || !%target.isEnabled() || %target.isGod)
          continue;
       
+      // Check that the target is within the bots view cone
       //if(%obj.checkInFov(%target, %db.visionFov)) - broken in 3.6
       // this does the same thing.....
       if(VectorDot(VectorNormalize(VectorSub(%obj.targetObject.position, %obj.position)), %obj.getForwardVector()) > mCos(%db.visionFov / 2))
       {
+         // set the targetObject
          %obj.targetObject = %target;
          break;
       }
@@ -369,11 +389,13 @@ function pickTargetTask::behavior(%this, %obj)
 //=============================================================================
 function aimAtTargetTask::precondition(%this, %obj)
 {
+   // need to be alive and have a target
    return isObject(%obj.targetObject) && %obj.isEnabled();
 }
 
 function aimAtTargetTask::behavior(%this, %obj)
 {
+   // calculate an aim offset
    %targetPos = %obj.targetObject.getWorldBoxCenter();
    %weaponImage = %obj.getMountedImage($WeaponSlot);
    %projectile = %weaponImage.projectile;
