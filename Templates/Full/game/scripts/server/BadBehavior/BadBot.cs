@@ -33,6 +33,15 @@ function setGodMode(%val)
    LocalClientConnection.player.isGod = %val;
 }
 
+// don't damage an invincible player
+function DefaultPlayerData::damage(%this, %obj, %sourceObject, %position, %damage, %damageType)
+{
+   if(%obj.isGod)
+      return;
+   
+   Parent::damage(%this, %obj, %sourceObject, %position, %damage, %damageType);
+}
+
 //-----------------------------------------------------------------------------
 // bot datablock
 //-----------------------------------------------------------------------------
@@ -131,9 +140,6 @@ function BadBotData::onAdd(%data, %obj)
 {
    // give him the standard player loadout
    game.loadout(%obj);
-   
-   // hack for aiplayer trigger index out of bounds in 3.6
-   %obj.allowSprinting(false);
 }
 
 
@@ -309,10 +315,7 @@ function findHealthTask::behavior(%this, %obj)
          continue;
       
       // check that the item is within the bots view cone
-      // broken in 3.6
-      //if(%obj.checkInFov(%item, %db.visionFov))
-      // this does the same thing.....
-      if(VectorDot(VectorNormalize(VectorSub(%item.position, %obj.position)), %obj.getForwardVector()) > mCos(%db.visionFov / 2))
+      if(%obj.checkInFov(%item, %db.visionFov))
       {
          // set the targetItem field on the bot
          %obj.targetItem = %item;
@@ -353,8 +356,13 @@ function getHealthTask::behavior(%this, %obj)
 function pickTargetTask::precondition(%this, %obj)
 {
    // decide if we should pick a new target or keep the old one
-   return !(isObject(%obj.targetObject) && VectorDist(%obj, %obj.targetObject) <= %obj.dataBlock.visionRange &&
-      getRandom() > %obj.dataBlock.switchTargetProbability);
+   if(isObject(%obj.targetObject))
+   {
+      return (VectorDist(%obj, %obj.targetObject) > %obj.dataBlock.visionRange ||
+              getRandom() < %obj.dataBlock.switchTargetProbability);
+   }
+   
+   return true;
 }
 
 function pickTargetTask::behavior(%this, %obj)
@@ -371,9 +379,7 @@ function pickTargetTask::behavior(%this, %obj)
          continue;
       
       // Check that the target is within the bots view cone
-      //if(%obj.checkInFov(%target, %db.visionFov)) - broken in 3.6
-      // this does the same thing.....
-      if(VectorDot(VectorNormalize(VectorSub(%obj.targetObject.position, %obj.position)), %obj.getForwardVector()) > mCos(%db.visionFov / 2))
+      if(%obj.checkInFov(%target, %db.visionFov))
       {
          // set the targetObject
          %obj.targetObject = %target;
@@ -428,9 +434,9 @@ function shootAtTargetTask::behavior(%this, %obj)
 {
    if(!isEventPending(%obj.triggerSchedule))
    {
-      %obj.setImageTrigger(0, true);
+      %obj.setImageTrigger($WeaponSlot, true);
       %burstLength = %obj.dataBlock.burstLength[%obj.getMountedImage($WeaponSlot).item.description];
-      %obj.triggerSchedule = %obj.schedule(%burstLength, setImageTrigger, 0, false);
+      %obj.triggerSchedule = %obj.schedule(%burstLength, setImageTrigger, $WeaponSlot, false);
    }
 
    return SUCCESS;
