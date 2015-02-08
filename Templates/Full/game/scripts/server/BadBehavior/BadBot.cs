@@ -168,6 +168,13 @@ function BadBotData::onReachDestination(%data, %obj)
    %obj.atDestination = true;
 }
 
+// forward animationDone callback to the behavior tree as a signal
+function BadBotData::animationDone(%data, %obj)
+{
+   if(isObject(%obj.behaviorTree))
+      %obj.behaviorTree.postSignal("onAnimationDone");
+}
+
 // get the index of the closest node on the specified path
 function BadBot::getClosestNodeOnPath(%this, %path)
 {
