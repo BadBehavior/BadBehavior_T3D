@@ -88,24 +88,32 @@ void BehaviorTreeRunner::onTick()
    if(mOwner.isNull() || mRootNode.isNull())
       return;
 
-   if(!mRootTask)
+   if(gInBtEditor)
    {
-      if((mRootTask = mRootNode->createTask(*mOwner, *this)) == NULL)
+      if(mRootTask)
+         reset();
+   }
+   else
+   {
+      if(!mRootTask)
       {
-         Con::errorf("BehaviorTreeTicker::processTick, no task for root node");
-         return;
+         if((mRootTask = mRootNode->createTask(*mOwner, *this)) == NULL)
+         {
+            Con::errorf("BehaviorTreeTicker::processTick, no task for root node");
+            return;
+         }
       }
+
+      // dispatch any signals
+      mSignalHandler.dispatchSignals();
+
+      // Evaluate the tree
+      mRootTask->setup();
+      mRootTask->tick();
+      //Con::warnf("Tree returned %s", EngineMarshallData(mRootTask->getStatus()));
+      mRootTask->finish();
    }
 
-   // dispatch any signals
-   mSignalHandler.dispatchSignals();
-
-   // Evaluate the tree
-   mRootTask->setup();
-   mRootTask->tick();
-   //Con::warnf("Tree returned %s", EngineMarshallData(mRootTask->getStatus()));
-   mRootTask->finish();
-   
    // schedule the next tick
    if(Sim::isEventPending(mTickEvent))
       Sim::cancelEvent(mTickEvent);
@@ -187,7 +195,7 @@ void BehaviorTreeRunner::start()
 
 void BehaviorTreeRunner::reset()
 {
-   stop();
+   //stop();
    if(mRootTask)
    {
       delete mRootTask;

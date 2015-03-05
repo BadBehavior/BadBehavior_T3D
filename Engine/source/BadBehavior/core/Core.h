@@ -33,6 +33,8 @@
 #include "console/simObject.h"
 #endif
 
+extern bool gInBtEditor;
+
 namespace BadBehavior
 {
    //---------------------------------------------------------------------------

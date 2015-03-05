@@ -25,6 +25,8 @@
 #include "Core.h"
 #include "Runner.h"
 
+bool gInBtEditor = false;
+
 using namespace BadBehavior;
 
 //------------------------------------------------------------------------------
@@ -142,4 +144,17 @@ void Task::onResume()
    
    //Con::warnf("onResume %s", 
    //            mNodeRep->getIdString());
+}
+
+DefineEngineFunction(onBehaviorTreeEditorStart, void, (),,
+   "@brief Notify the engine that the behavior tree editor is active")
+{
+   gInBtEditor = true;
+}
+
+
+DefineEngineFunction(onBehaviorTreeEditorStop, void, (),,
+   "@brief Notify the engine that the behavior tree editor has finished")
+{
+   gInBtEditor = false;
 }

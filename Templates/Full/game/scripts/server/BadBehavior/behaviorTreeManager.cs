@@ -107,27 +107,11 @@ function BehaviorTreeManager::createTree(%this, %obj, %tree)
 }
 
 function BehaviorTreeManager::onBehaviorTreeEditor(%this, %val)
-{   
+{
    if(%val)
-      warn("Halting all behavior trees");
+      onBehaviorTreeEditorStart();
    else
-      warn("Resetting all behavior trees");
-      
-   foreach(%bt in ActiveBehaviorTreeGroup)
-   {
-      if(%val)
-      {
-         %bt.lastState = %bt.isRunning();
-         %bt.stop();
-      }
-      else
-      {
-         %bt.reset();
-         if(%bt.lastState)
-            %bt.start();
-         %bt.lastState = "";
-      }
-   }
+      onBehaviorTreeEditorStop();
 }
 
 // give an object a behavior tree
