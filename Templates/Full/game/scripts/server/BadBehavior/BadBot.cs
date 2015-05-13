@@ -152,10 +152,10 @@ function BadBotData::onDisabled(%this, %obj, %state)
 
 
 // moveTo command, %dest can be either a location or an object
-function BadBot::moveTo(%this, %dest, %slowDown)
+function BadBot::moveTo(%obj, %dest, %slowDown)
 {
    %pos = isObject(%dest) ? %dest.getPosition() : %dest;
-   %this.setMoveDestination(%pos, %slowDown);
+   %obj.setMoveDestination(%pos, %slowDown);
    %obj.atDestination = false;
 }
 
@@ -213,7 +213,7 @@ function RandomPointOnCircle(%center, %radius)
 {
    %randVec = (getRandom() - 0.5) SPC (getRandom() - 0.5) SPC "0";
    %randVec = VectorNormalize(%randVec);
-   %randVec = VectorScale(%randVec, %radius);
+   %randVec = VectorScale(%randVec, getrandom() * %radius);
    return VectorAdd(%center, %randVec);  
 }
 
@@ -441,9 +441,9 @@ function shootAtTargetTask::behavior(%this, %obj)
 {
    if(!isEventPending(%obj.triggerSchedule))
    {
-      %obj.setImageTrigger($WeaponSlot, true);
+      %obj.setMoveTrigger($WeaponSlot, true);
       %burstLength = %obj.dataBlock.burstLength[%obj.getMountedImage($WeaponSlot).item.description];
-      %obj.triggerSchedule = %obj.schedule(%burstLength, setImageTrigger, $WeaponSlot, false);
+      %obj.triggerSchedule = %obj.schedule(%burstLength, setMoveTrigger, $WeaponSlot, false);
    }
 
    return SUCCESS;
