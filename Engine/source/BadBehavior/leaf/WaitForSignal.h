@@ -29,6 +29,9 @@
 #ifndef _BB_SIGNAL_H_
 #include "BadBehavior/core/Signal.h"
 #endif
+#ifndef _SIMEVENTS_H_
+#include "console/simEvents.h"
+#endif
 
 namespace BadBehavior
 {

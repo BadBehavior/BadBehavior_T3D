@@ -22,6 +22,8 @@
 
 #include "Monitor.h"
 
+#include "console/engineAPI.h"
+
 using namespace BadBehavior;
 
 //------------------------------------------------------------------------------

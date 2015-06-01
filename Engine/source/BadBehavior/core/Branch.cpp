@@ -20,8 +20,8 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "Stepper.h"
 #include "Branch.h"
+#include "Stepper.h"
 
 using namespace BadBehavior;
 

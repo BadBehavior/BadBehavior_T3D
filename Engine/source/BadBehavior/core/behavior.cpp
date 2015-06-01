@@ -20,10 +20,10 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
+#include "behavior.h"
+
 #include "console/engineAPI.h"
 #include "platform/profiler.h"
-
-#include "behavior.h"
 
 using namespace BadBehavior;
 

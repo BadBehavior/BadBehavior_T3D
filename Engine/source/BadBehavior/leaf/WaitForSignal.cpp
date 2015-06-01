@@ -20,8 +20,10 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "BadBehavior\core\Runner.h"
 #include "WaitForSignal.h"
+#include "BadBehavior/core/Runner.h"
+
+#include "console/consoleTypes.h"
 
 using namespace BadBehavior;
 
