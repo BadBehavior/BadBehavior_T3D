@@ -64,7 +64,7 @@ namespace BadBehavior
    class SignalHandler
    {
    private:
-      SimpleHashTable<VectorPtr<SignalSubscriber*>> mSubscribers;
+      SimpleHashTable<VectorPtr<SignalSubscriber*> > mSubscribers;
       Vector<StringTableEntry> mSignals;
       
       VectorPtr<Signal*> mSignalQueue;

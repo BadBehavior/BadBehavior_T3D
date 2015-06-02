@@ -20,9 +20,9 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "math/mMathFn.h"
-
 #include "RandomSelector.h"
+
+#include "math/mMathFn.h"
 
 using namespace BadBehavior;
 

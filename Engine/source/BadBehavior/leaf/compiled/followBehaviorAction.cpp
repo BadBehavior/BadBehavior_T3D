@@ -20,7 +20,7 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "FollowBehaviorAction.h"
+#include "followBehaviorAction.h"
 
 #include "T3D/aiPlayer.h"
 

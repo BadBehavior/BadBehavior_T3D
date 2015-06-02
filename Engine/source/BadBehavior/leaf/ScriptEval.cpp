@@ -20,10 +20,10 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
+#include "ScriptEval.h"
+
 #include "console/engineAPI.h"
 #include "platform/profiler.h"
-
-#include "ScriptEval.h"
 
 using namespace BadBehavior;
 
