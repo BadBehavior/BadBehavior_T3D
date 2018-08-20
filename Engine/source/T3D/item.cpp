@@ -292,7 +292,7 @@ IMPLEMENT_CALLBACK( Item, onStickyCollision, void, ( const char* objID ),( objID
    "@see Item, ItemData\n"
 );
 
-IMPLEMENT_CALLBACK( Item, onEnterLiquid, void, ( const char* objID, const char* waterCoverage, const char* liquidType ),( objID, waterCoverage, liquidType ),
+IMPLEMENT_CALLBACK( Item, onEnterLiquid, void, ( const char* objID, F32 waterCoverage, const char* liquidType ),( objID, waterCoverage, liquidType ),
    "Informs an Item object that it has entered liquid, along with information about the liquid type.\n"
    "@param objID Object ID for this Item object.\n"
    "@param waterCoverage How much coverage of water this Item object has.\n"
@@ -556,6 +556,9 @@ void Item::processTick(const Move* move)
 {
    Parent::processTick(move);
 
+   if ( isMounted() )
+      return;
+
    //
    if (mCollisionObject && !--mCollisionTimeout)
       mCollisionObject = 0;
@@ -606,6 +609,8 @@ void Item::processTick(const Move* move)
 void Item::interpolateTick(F32 dt)
 {
    Parent::interpolateTick(dt);
+   if ( isMounted() )
+      return;
 
    // Client side interpolation
    Point3F pos = delta.pos + delta.posVec * dt;
@@ -1005,7 +1010,7 @@ void Item::updatePos(const U32 /*mask*/, const F32 dt)
       {
          if(!mInLiquid && mWaterCoverage != 0.0f)
          {
-			onEnterLiquid_callback( getIdString(), Con::getFloatArg(mWaterCoverage), mLiquidType.c_str() );
+			onEnterLiquid_callback( getIdString(), mWaterCoverage, mLiquidType.c_str() );
             mInLiquid = true;
          }
          else if(mInLiquid && mWaterCoverage == 0.0f)
@@ -1365,6 +1370,8 @@ void Item::buildConvex(const Box3F& box, Convex* convex)
 void Item::advanceTime(F32 dt)
 {
    Parent::advanceTime(dt);
+   if ( isMounted() )
+      return;
 
    if( mRotate )
    {

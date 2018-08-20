@@ -44,6 +44,8 @@ struct ConsoleFunctionHeader;
 class EngineEnumTable;
 typedef EngineEnumTable EnumTable;
 
+typedef U32 StringStackPtr;
+
 template< typename T > S32 TYPEID();
 
 
@@ -93,8 +95,8 @@ struct ConsoleLogEntry
       Script,
       GUI,
       Network,
-	  GGConnect,
-	  NUM_TYPE
+     GGConnect,
+     NUM_TYPE
    } mType;
 
    /// Indicates the actual log entry.
@@ -121,8 +123,9 @@ public:
    
    enum
    {
-      TypeInternalInt = -4,
-      TypeInternalFloat = -3,
+      TypeInternalInt = -5,
+      TypeInternalFloat = -4,
+      TypeInternalStringStackPtr = -3,
       TypeInternalStackString = -2,
       TypeInternalString = -1,
    };
@@ -166,6 +169,7 @@ public:
    S32 getSignedIntValue();
    F32 getFloatValue();
    const char *getStringValue();
+   StringStackPtr getStringStackPtr();
    bool getBoolValue();
    
    void setIntValue(U32 val);
@@ -173,6 +177,7 @@ public:
    void setFloatValue(F32 val);
    void setStringValue(const char *value);
    void setStackStringValue(const char *value);
+   void setStringStackPtrValue(StringStackPtr ptr);
    void setBoolValue(bool val);
    
    void init()
@@ -181,19 +186,23 @@ public:
       fval = 0;
       sval = typeValueEmpty;
       bufferLen = 0;
+      type = TypeInternalString;
    }
    
    void cleanup()
    {
-      if (type <= TypeInternalString &&
-          sval != typeValueEmpty && type != TypeInternalStackString )
+      if ((type <= TypeInternalString) && (bufferLen > 0))
+      {
          dFree(sval);
+         bufferLen = 0;
+      }
       sval = typeValueEmpty;
       type = ConsoleValue::TypeInternalString;
       ival = 0;
       fval = 0;
-      bufferLen = 0;
    }
+   ConsoleValue(){ init(); };
+   ~ConsoleValue(){ cleanup(); };
 };
 
 // Proxy class for console variables
@@ -203,21 +212,16 @@ class ConsoleValueRef
 {
 public:
    ConsoleValue *value;
-   const char *stringStackValue;
 
-   ConsoleValueRef() : value(0), stringStackValue(0) { ; }
+   ConsoleValueRef() : value(0) { ; }
    ~ConsoleValueRef() { ; }
 
    ConsoleValueRef(const ConsoleValueRef &ref);
-   ConsoleValueRef(const char *value);
-   ConsoleValueRef(const String &ref);
-   ConsoleValueRef(U32 value);
-   ConsoleValueRef(S32 value);
-   ConsoleValueRef(F32 value);
-   ConsoleValueRef(F64 value);
+
+   static ConsoleValueRef fromValue(ConsoleValue *value) { ConsoleValueRef ref; ref.value = value; return ref; }
 
    const char *getStringValue() { return value ? value->getStringValue() : ""; }
-   const char *getStringArgValue();
+   StringStackPtr getStringStackPtrValue() { return value ? value->getStringStackPtr() : 0; }
 
    inline U32 getIntValue() { return value ? value->getIntValue() : 0; }
    inline S32 getSignedIntValue() { return value ? value->getSignedIntValue() : 0; }
@@ -229,10 +233,13 @@ public:
    inline operator U32() { return getIntValue(); }
    inline operator S32() { return getSignedIntValue(); }
    inline operator F32() { return getFloatValue(); }
-
-   inline bool isString() { return value ? value->type >= ConsoleValue::TypeInternalStackString : true; }
+   inline operator bool() { return getBoolValue(); }
+   
+   inline bool isStringStackPtr() { return value ? value->type == ConsoleValue::TypeInternalStringStackPtr : false; }
+   inline bool isString() { return value ? value->type >= ConsoleValue::TypeInternalStringStackPtr : true; }
    inline bool isInt() { return value ? value->type == ConsoleValue::TypeInternalInt : false; }
    inline bool isFloat() { return value ? value->type == ConsoleValue::TypeInternalFloat : false; }
+   inline S32 getType() { return value ? value->type : -1; }
 
    // Note: operators replace value
    ConsoleValueRef& operator=(const ConsoleValueRef &other);
@@ -281,6 +288,7 @@ public:
 class StringStackConsoleWrapper
 {
 public:
+   ConsoleValue *argvValue;
    ConsoleValueRef *argv;
    int argc;
 
@@ -477,6 +485,21 @@ namespace Con
    bool expandGameScriptFilename(char *filename, U32 size, const char *src);
    bool expandToolScriptFilename(char *filename, U32 size, const char *src);
    bool collapseScriptFilename(char *filename, U32 size, const char *src);
+
+   bool expandPath(char* pDstPath, U32 size, const char* pSrcPath, const char* pWorkingDirectoryHint = NULL, const bool ensureTrailingSlash = false);
+   void collapsePath(char* pDstPath, U32 size, const char* pSrcPath, const char* pWorkingDirectoryHint = NULL);
+   bool isBasePath(const char* SrcPath, const char* pBasePath);
+   void ensureTrailingSlash(char* pDstPath, const char* pSrcPath);
+   bool stripRepeatSlashes(char* pDstPath, const char* pSrcPath, S32 dstSize);
+   StringTableEntry getDSOPath(const char *scriptPath);
+
+   void addPathExpando(const char* pExpandoName, const char* pPath);
+   void removePathExpando(const char* pExpandoName);
+   bool isPathExpando(const char* pExpandoName);
+   StringTableEntry getPathExpando(const char* pExpandoName);
+   U32 getPathExpandoCount(void);
+   StringTableEntry getPathExpandoKey(U32 expandoIndex);
+   StringTableEntry getPathExpandoValue(U32 expandoIndex);
 
    bool isCurrentScriptToolScript();
 
@@ -731,6 +754,13 @@ namespace Con
    /// @see Con::errorf()
    void errorf(ConsoleLogEntry::Type type, const char *_format, ...);
 
+   //some additions from t2d
+   /// Prints a separator to the console.
+   inline void printSeparator(void) { printf("--------------------------------------------------------------------------------"); }
+
+   /// Prints a separator to the console.
+   inline void printBlankLine(void) { printf(""); }
+
    /// @}
 
    /// Returns true when called from the main thread, false otherwise
@@ -753,23 +783,9 @@ namespace Con
    /// char* argv[] = {"abs", "-9"};
    /// char* result = execute(2, argv);
    /// @endcode
-   const char *execute(S32 argc, const char* argv[]);
-   const char *execute(S32 argc, ConsoleValueRef argv[]);
-
-   /// @see execute(S32 argc, const char* argv[])
-   // Note: this can't be ConsoleValueRef& since the compiler will confuse it with SimObject*
-#define ARG ConsoleValueRef
-   const char *executef( ARG);
-   const char *executef( ARG, ARG);
-   const char *executef( ARG, ARG, ARG);
-   const char *executef( ARG, ARG, ARG, ARG);
-   const char *executef( ARG, ARG, ARG, ARG, ARG);
-   const char *executef( ARG, ARG, ARG, ARG, ARG, ARG);
-   const char *executef( ARG, ARG, ARG, ARG, ARG, ARG, ARG);
-   const char *executef( ARG, ARG, ARG, ARG, ARG, ARG, ARG, ARG);
-   const char *executef( ARG, ARG, ARG, ARG, ARG, ARG, ARG, ARG, ARG);
-   const char *executef( ARG, ARG, ARG, ARG, ARG, ARG, ARG, ARG, ARG, ARG);
-#undef ARG
+   /// NOTE: this function restores the console stack on return.
+   ConsoleValueRef execute(S32 argc, const char* argv[]);
+   ConsoleValueRef execute(S32 argc, ConsoleValueRef argv[]);
 
    /// Call a Torque Script member function of a SimObject from C/C++ code.
    /// @param object    Object on which to execute the method call.
@@ -783,35 +799,33 @@ namespace Con
    /// char* argv[] = {"setMode", "", "2"};
    /// char* result = execute(mysimobject, 3, argv);
    /// @endcode
-   const char *execute(SimObject *object, S32 argc, const char *argv[], bool thisCallOnly = false);
-   const char *execute(SimObject *object, S32 argc, ConsoleValueRef argv[], bool thisCallOnly = false);
+   /// NOTE: this function restores the console stack on return.
+   ConsoleValueRef execute(SimObject *object, S32 argc, const char* argv[], bool thisCallOnly = false);
+   ConsoleValueRef execute(SimObject *object, S32 argc, ConsoleValueRef argv[], bool thisCallOnly = false);
 
-   /// @see execute(SimObject *, S32 argc, ConsoleValueRef argv[])
-#define ARG ConsoleValueRef
-   const char *executef(SimObject *, ARG);
-   const char *executef(SimObject *, ARG, ARG);
-   const char *executef(SimObject *, ARG, ARG, ARG);
-   const char *executef(SimObject *, ARG, ARG, ARG, ARG);
-   const char *executef(SimObject *, ARG, ARG, ARG, ARG, ARG);
-   const char *executef(SimObject *, ARG, ARG, ARG, ARG, ARG, ARG);
-   const char *executef(SimObject *, ARG, ARG, ARG, ARG, ARG, ARG, ARG);
-   const char *executef(SimObject *, ARG, ARG, ARG, ARG, ARG, ARG, ARG, ARG);
-   const char *executef(SimObject *, ARG, ARG, ARG, ARG, ARG, ARG, ARG, ARG, ARG);
-   const char *executef(SimObject *, ARG, ARG, ARG, ARG, ARG, ARG, ARG, ARG, ARG, ARG);
-   const char *executef(SimObject *, ARG, ARG, ARG, ARG, ARG, ARG, ARG, ARG, ARG, ARG, ARG);
-#undef ARG
+   /// Executes a script file and compiles it for use in script.
+   ///
+   /// @param  string   File name that is the script to be executed and compiled.
+   /// @param fileName Path to the file to execute
+   /// @param noCalls Deprecated
+   /// @param journalScript Deprecated
+   ///
+   /// @return True if the script was successfully executed, false if not.
+   bool executeFile(const char* fileName, bool noCalls, bool journalScript);
 
    /// Evaluate an arbitrary chunk of code.
    ///
    /// @param  string   Buffer containing code to execute.
    /// @param  echo     Should we echo the string to the console?
    /// @param  fileName Indicate what file this code is coming from; used in error reporting and such.
-   const char *evaluate(const char* string, bool echo = false, const char *fileName = NULL);
+   /// NOTE: This function restores the console stack on return.
+   ConsoleValueRef evaluate(const char* string, bool echo = false, const char *fileName = NULL);
 
    /// Evaluate an arbitrary line of script.
    ///
    /// This wraps dVsprintf(), so you can substitute parameters into the code being executed.
-   const char *evaluatef(const char* string, ...);
+   /// NOTE: This function restores the console stack on return.
+   ConsoleValueRef evaluatef(const char* string, ...);
 
    /// @}
 
@@ -831,13 +845,12 @@ namespace Con
    char* getReturnBuffer( const StringBuilder& str );
 
    char* getArgBuffer(U32 bufferSize);
-   ConsoleValueRef getFloatArg(F64 arg);
-   ConsoleValueRef getIntArg  (S32 arg);
-   char* getStringArg( const char *arg );
+   char* getFloatArg(F64 arg);
+   char* getIntArg  (S32 arg);
+   char* getBoolArg(bool arg);
+   char* getStringArg( const char* arg );
    char* getStringArg( const String& arg );
    /// @}
-
-   void resetStackFrame();
 
    /// @name Namespaces
    /// @{
@@ -872,19 +885,40 @@ namespace Con
    /// @name Dynamic Type System
    /// @{
 
-   ///
-/*   void registerType( const char *typeName, S32 type, S32 size, GetDataFunction gdf, SetDataFunction sdf, bool isDatablockType = false );
-   void registerType( const char* typeName, S32 type, S32 size, bool isDatablockType = false );
-   void registerTypeGet( S32 type, GetDataFunction gdf );
-   void registerTypeSet( S32 type, SetDataFunction sdf );
-
-   const char *getTypeName(S32 type);
-   bool isDatablockType( S32 type ); */
-
    void setData(S32 type, void *dptr, S32 index, S32 argc, const char **argv, const EnumTable *tbl = NULL, BitSet32 flag = 0);
    const char *getData(S32 type, void *dptr, S32 index, const EnumTable *tbl = NULL, BitSet32 flag = 0);
    const char *getFormattedData(S32 type, const char *data, const EnumTable *tbl = NULL, BitSet32 flag = 0);
+
    /// @}
+};
+
+struct _EngineConsoleCallbackHelper;
+template<typename P1> struct _EngineConsoleExecCallbackHelper;
+
+namespace Con
+{
+   /// @name Console Execution - executef
+   /// {
+   ///
+   /// Implements a script function thunk which automatically converts parameters to relevant console types.
+   /// Can be used as follows:
+   /// - Con::executef("functionName", ...);
+   /// - Con::executef(mySimObject, "functionName", ...);
+   /// 
+   /// NOTE: if you get a rather cryptic template error coming through here, most likely you are trying to 
+   /// convert a parameter which EngineMarshallType does not have a specialization for.
+   /// Another problem can occur if you do not include "console/simBase.h" and "console/engineAPI.h" 
+   /// since _EngineConsoleExecCallbackHelper and SimConsoleThreadExecCallback are required.
+   ///
+   /// @see _EngineConsoleExecCallbackHelper
+   ///
+   template<typename R, typename ...ArgTs>
+   ConsoleValueRef executef(R r, ArgTs ...argTs)
+   {
+      _EngineConsoleExecCallbackHelper<R> callback( r );
+      return callback.template call<ConsoleValueRef>(argTs...);
+   }
+   /// }
 };
 
 extern void expandEscape(char *dest, const char *src);
@@ -1093,13 +1127,35 @@ struct ConsoleDocFragment
    static ConsoleDocFragment* smFirst;
    
    ConsoleDocFragment( const char* text, const char* inClass = NULL, const char* definition = NULL )
-      : mText( text ),
-        mClass( inClass ),
+      : mClass( inClass ),
         mDefinition( definition ),
+        mText( text ),
         mNext( smFirst )
    {
       smFirst = this;
    }
+};
+
+
+/// Utility class to save and restore the current console stack frame
+///
+class ConsoleStackFrameSaver
+{
+public:
+
+   bool mSaved;
+
+   ConsoleStackFrameSaver() : mSaved(false)
+   {
+   }
+
+   ~ConsoleStackFrameSaver()
+   {
+      restore();
+   }
+
+   void save();
+   void restore();
 };
 
 

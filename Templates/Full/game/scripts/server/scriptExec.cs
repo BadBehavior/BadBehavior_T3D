@@ -24,6 +24,7 @@
 // a server is constructed.
 exec("./camera.cs");
 exec("./triggers.cs");
+exec("./VolumetricFog.cs");
 exec("./inventory.cs");
 exec("./shapeBase.cs");
 exec("./item.cs");
@@ -31,6 +32,7 @@ exec("./health.cs");
 exec("./projectile.cs");
 exec("./radiusDamage.cs");
 exec("./teleporter.cs");
+exec("./physicsShape.cs");
 
 // Load our supporting weapon script, it contains methods used by all weapons.
 exec("./weapon.cs");
@@ -59,3 +61,23 @@ exec("./gameDM.cs"); // Overrides GameCore with DeathMatch functionality.
 
 // setup the behavior tree framework
 exec("./BadBehavior/main.cs");
+
+//Entity/Component stuff
+if(isFile("./components/game/camera.cs"))
+   exec("./components/game/camera.cs");
+if(isFile("./components/game/controlObject.cs"))
+   exec("./components/game/controlObject.cs");
+if(isFile("./components/game/itemRotate.cs"))
+   exec("./components/game/itemRotate.cs");
+if(isFile("./components/game/playerSpawner.cs"))
+   exec("./components/game/playerSpawner.cs");
+if(isFile("./components/input/fpsControls.cs"))
+   exec("./components/input/fpsControls.cs");
+if(isFile("./components/input/inputManager.cs"))
+   exec("./components/input/inputManager.cs");
+   
+if(isFile("./gameObjects/GameObjectManager.cs"))
+{
+   exec("./gameObjects/GameObjectManager.cs");
+   execGameObjects();  
+}

@@ -61,7 +61,7 @@ CodeBlock::CodeBlock()
 CodeBlock::~CodeBlock()
 {
    // Make sure we aren't lingering in the current code block...
-   AssertFatal(smCurrentCodeBlock != this, "CodeBlock::~CodeBlock - Caught lingering in smCurrentCodeBlock!")
+   AssertFatal(smCurrentCodeBlock != this, "CodeBlock::~CodeBlock - Caught lingering in smCurrentCodeBlock!");
 
    if(name)
       removeFromCodeList();
@@ -435,7 +435,7 @@ bool CodeBlock::read(StringTableEntry fileName, Stream &st)
       if(offset < globalSize)
          ste = StringTable->insert(globalStrings + offset);
       else
-         ste = StringTable->insert("");
+         ste = StringTable->EmptyString();
       U32 count;
       st.read(&count);
       while(count--)
@@ -455,8 +455,8 @@ bool CodeBlock::read(StringTableEntry fileName, Stream &st)
 
 bool CodeBlock::compile(const char *codeFileName, StringTableEntry fileName, const char *inScript, bool overrideNoDso)
 {
-	AssertFatal(Con::isMainThread(), "Compiling code on a secondary thread");
-	
+   AssertFatal(Con::isMainThread(), "Compiling code on a secondary thread");
+   
    // This will return true, but return value is ignored
    char *script;
    chompUTF8BOM( inScript, &script );
@@ -468,6 +468,7 @@ bool CodeBlock::compile(const char *codeFileName, StringTableEntry fileName, con
    STEtoCode = compileSTEtoCode;
 
    gStatementList = NULL;
+   gAnonFunctionList = NULL;
 
    // Set up the parser.
    smCurrentParser = getParserForFile(fileName);
@@ -477,6 +478,17 @@ bool CodeBlock::compile(const char *codeFileName, StringTableEntry fileName, con
    smCurrentParser->setScanBuffer(script, fileName);
    smCurrentParser->restart(NULL);
    smCurrentParser->parse();
+   if (gStatementList)
+   {
+      if (gAnonFunctionList)
+      {
+         // Prepend anonymous functions to statement list, so they're defined already when
+         // the statements run.
+         gAnonFunctionList->append(gStatementList);
+         gStatementList = gAnonFunctionList;
+      }
+   }
+
 
    if(gSyntaxError)
    {
@@ -558,10 +570,10 @@ bool CodeBlock::compile(const char *codeFileName, StringTableEntry fileName, con
 
 }
 
-const char *CodeBlock::compileExec(StringTableEntry fileName, const char *inString, bool noCalls, S32 setFrame)
+ConsoleValueRef CodeBlock::compileExec(StringTableEntry fileName, const char *inString, bool noCalls, S32 setFrame)
 {
-	AssertFatal(Con::isMainThread(), "Compiling code on a secondary thread");
-	
+   AssertFatal(Con::isMainThread(), "Compiling code on a secondary thread");
+   
    // Check for a UTF8 script file
    char *string;
    chompUTF8BOM( inString, &string );
@@ -599,6 +611,7 @@ const char *CodeBlock::compileExec(StringTableEntry fileName, const char *inStri
       addToCodeList();
    
    gStatementList = NULL;
+   gAnonFunctionList = NULL;
 
    // Set up the parser.
    smCurrentParser = getParserForFile(fileName);
@@ -608,11 +621,21 @@ const char *CodeBlock::compileExec(StringTableEntry fileName, const char *inStri
    smCurrentParser->setScanBuffer(string, fileName);
    smCurrentParser->restart(NULL);
    smCurrentParser->parse();
+   if (gStatementList)
+   {
+      if (gAnonFunctionList)
+      {
+         // Prepend anonymous functions to statement list, so they're defined already when
+         // the statements run.
+         gAnonFunctionList->append(gStatementList);
+         gStatementList = gAnonFunctionList;
+      }
+   }
 
    if(!gStatementList)
    {
       delete this;
-      return "";
+      return ConsoleValueRef();
    }
 
    resetTables();

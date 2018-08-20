@@ -225,7 +225,7 @@ ConsoleDocClass( WayPoint,
 
 WayPoint::WayPoint()
 {
-   mName = StringTable->insert("");
+   mName = StringTable->EmptyString();
 }
 
 void WayPoint::setHidden(bool hidden)
@@ -256,7 +256,7 @@ void WayPoint::inspectPostApply()
 {
    Parent::inspectPostApply();
    if(!mName || !mName[0])
-      mName = StringTable->insert("");
+      mName = StringTable->EmptyString();
    setMaskBits(UpdateNameMask|UpdateTeamMask);
 }
 
@@ -279,11 +279,9 @@ void WayPoint::unpackUpdate(NetConnection * con, BitStream * stream)
       setHidden(stream->readFlag());
 }
 
-
-
 void WayPoint::initPersistFields()
 {
-   addGroup("Misc");	
+   addGroup("Misc"); 
    addField("markerName", TypeCaseString, Offset(mName, WayPoint), "Unique name representing this waypoint");
    endGroup("Misc");
    Parent::initPersistFields();
@@ -365,7 +363,7 @@ bool SpawnSphere::onAdd()
 
    if (!isGhost())
    {
-	   onAdd_callback( getId());
+      onAdd_callback( getId());
 
       if (mAutoSpawn)
          spawnObject();
@@ -444,22 +442,12 @@ void SpawnSphere::unpackUpdate(NetConnection * con, BitStream * stream)
 
 void SpawnSphere::processTick( const Move *move )
 {
-   if ( isServerObject() && isMounted() )
-   {
-      MatrixF mat( true );
-      mMount.object->getRenderMountTransform( 0.f, mMount.node, mMount.xfm, &mat );
-      setTransform( mat );
-   }
+   Parent::processTick( move );
 }
 
 void SpawnSphere::advanceTime( F32 timeDelta )
 {
-   if ( isMounted() )
-   {
-      MatrixF mat( true );
-      mMount.object->getRenderMountTransform( 0.f, mMount.node, mMount.xfm, &mat );
-      setTransform( mat );
-   }
+   Parent::advanceTime( timeDelta );
 }
 
 void SpawnSphere::initPersistFields()
@@ -506,16 +494,16 @@ ConsoleDocFragment _SpawnSpherespawnObject1(
    "bool spawnObject(string additionalProps);"
 );
 
-ConsoleMethod(SpawnSphere, spawnObject, S32, 2, 3,
+DefineConsoleMethod(SpawnSphere, spawnObject, S32, (String additionalProps), ,
    "([string additionalProps]) Spawns the object based on the SpawnSphere's "
    "class, datablock, properties, and script settings. Allows you to pass in "
    "extra properties."
    "@hide" )
 {
-   String additionalProps;
+   //String additionalProps;
 
-   if (argc == 3)
-      additionalProps = (const char*)argv[2];
+   //if (argc == 3)
+   //   additionalProps = String(argv[2]);
 
    SimObject* obj = object->spawnObject(additionalProps);
 
@@ -539,7 +527,7 @@ ConsoleDocClass( CameraBookmark,
 
 CameraBookmark::CameraBookmark()
 {
-   mName = StringTable->insert("");
+   mName = StringTable->EmptyString();
 }
 
 bool CameraBookmark::onAdd()
@@ -583,7 +571,7 @@ void CameraBookmark::inspectPostApply()
 {
    Parent::inspectPostApply();
    if(!mName || !mName[0])
-      mName = StringTable->insert("");
+      mName = StringTable->EmptyString();
    setMaskBits(UpdateNameMask);
 
    if( isMethod("onInspectPostApply") )
@@ -607,7 +595,7 @@ void CameraBookmark::unpackUpdate(NetConnection * con, BitStream * stream)
 
 void CameraBookmark::initPersistFields()
 {
-   //addGroup("Misc");	
+   //addGroup("Misc");  
    //addField("name", TypeCaseString, Offset(mName, CameraBookmark));
    //endGroup("Misc");
 

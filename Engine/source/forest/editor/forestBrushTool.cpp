@@ -30,6 +30,7 @@
 
 #include "gui/worldEditor/editTSCtrl.h"
 #include "console/consoleTypes.h"
+#include "console/engineAPI.h"
 #include "core/util/tVector.h"
 #include "gfx/gfxDrawUtil.h"
 #include "gui/core/guiCanvas.h"
@@ -77,16 +78,16 @@ EndImplementEnumType;
 
 
 ForestBrushTool::ForestBrushTool()
- : mSize( 5.0f ),
+ : mRandom( Platform::getRealMilliseconds() + 1 ),
+   mSize( 5.0f ),
    mPressure( 0.1f ),
    mHardness( 1.0f ),
-   mDrawBrush( false ),
-   mCurrAction( NULL ),
-   mStrokeEvent( 0 ),
-   mBrushDown( false ),
-   mColor( ColorI::WHITE ),
    mMode( Paint ),
-   mRandom( Platform::getRealMilliseconds() + 1 )
+   mColor( ColorI::WHITE ),
+   mBrushDown( false ),
+   mDrawBrush( false ),
+   mStrokeEvent( 0 ),
+   mCurrAction( NULL )
 {	
 }
 
@@ -681,7 +682,7 @@ bool ForestBrushTool::getGroundAt( const Point3F &worldPt, F32 *zValueOut, Vecto
    return true;
 }
 
-ConsoleMethod( ForestBrushTool, collectElements, void, 2, 2, "" )
+DefineConsoleMethod( ForestBrushTool, collectElements, void, (), , "" )
 {
    object->collectElements();
 }

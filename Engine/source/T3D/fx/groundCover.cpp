@@ -60,14 +60,14 @@ GFXImplementVertexFormat( GCVertex )
 };
 
 GroundCoverShaderConstHandles::GroundCoverShaderConstHandles()
- : mTypeRectsSC( NULL ),
+ : mGroundCover( NULL ),
+   mTypeRectsSC( NULL ),
    mFadeSC( NULL ),
    mWindDirSC( NULL ),
    mGustInfoSC( NULL ),
    mTurbInfoSC( NULL ),
    mCamRightSC( NULL ),
-   mCamUpSC( NULL ),
-   mGroundCover( NULL )
+   mCamUpSC( NULL )
 {
 }
 
@@ -148,7 +148,7 @@ protected:
 
 public:
 
-   GroundCoverCell() {}
+   GroundCoverCell() : mDirty(false) {}
 
    ~GroundCoverCell() 
    {

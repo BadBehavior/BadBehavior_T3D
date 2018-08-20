@@ -21,6 +21,7 @@
 //-----------------------------------------------------------------------------
 
 #include "platform/platform.h"
+#include "math/util/frustum.h"
 #include "math/mathUtils.h"
 
 #include "math/mMath.h"
@@ -358,6 +359,16 @@ void getVectorFromAngles( VectorF &vec, F32 yawAng, F32 pitchAng )
    mat2.mulV( pnt );
 
    vec = pnt;
+}
+
+F32 getAngleBetweenVectors(VectorF vecA, VectorF vecB)
+{
+   F32 dot = mDot(vecA, vecB);
+   F32 lenSq1 = vecA.lenSquared();
+   F32 lenSq2 = vecB.lenSquared();
+   F32 angle = mAcos(dot / mSqrt(lenSq1 * lenSq2));
+
+   return angle;
 }
 
 //-----------------------------------------------------------------------------
@@ -1409,6 +1420,29 @@ void makeProjection( MatrixF *outMatrix,
 
 //-----------------------------------------------------------------------------
 
+void makeFovPortFrustum(
+   Frustum *outFrustum,
+   bool isOrtho,
+   F32 nearDist,
+   F32 farDist,
+   const FovPort &inPort,
+   const MatrixF &transform)
+{
+   F32 leftSize = nearDist * inPort.leftTan;
+   F32 rightSize = nearDist * inPort.rightTan;
+   F32 upSize = nearDist * inPort.upTan;
+   F32 downSize = nearDist * inPort.downTan;
+
+   F32 left = -leftSize;
+   F32 right = rightSize;
+   F32 top = upSize;
+   F32 bottom = -downSize;
+
+   outFrustum->set(isOrtho, left, right, top, bottom, nearDist, farDist, transform);
+}
+
+//-----------------------------------------------------------------------------
+
 /// This is the special rotation matrix applied to
 /// projection matricies for GFX.
 ///
@@ -1425,7 +1459,6 @@ void makeProjection( MatrixF *outMatrix,
                      F32 farPlane,
                      bool gfxRotate )
 {
-
    Point4F row;
    row.x = 2.0*nearPlane / (right-left);
    row.y = 0.0;
@@ -1441,13 +1474,13 @@ void makeProjection( MatrixF *outMatrix,
 
    row.x = (left+right) / (right-left);
    row.y = (top+bottom) / (top-bottom);
-   row.z = farPlane / (nearPlane-farPlane);
+   row.z = farPlane / (nearPlane - farPlane);
    row.w = -1.0;
    outMatrix->setRow( 2, row );
 
    row.x = 0.0;
    row.y = 0.0;
-   row.z = nearPlane * farPlane / (nearPlane-farPlane);
+   row.z = nearPlane * farPlane / (nearPlane - farPlane);
    row.w = 0.0;
    outMatrix->setRow( 3, row );
 
@@ -1485,9 +1518,9 @@ void makeOrthoProjection(  MatrixF *outMatrix,
    row.y = 0.0f;
    row.w = 0.0f;
 
-   // This may need be modified to work with OpenGL (d3d has 0..1 
-   // projection for z, vs -1..1 in OpenGL)
-   row.z = 1.0f / (nearPlane - farPlane); 
+   //Unlike D3D, which has a 0-1 range, OpenGL uses a -1-1 range. 
+   //However, epoxy internally handles the swap, so the math here is the same for both APIs
+   row.z = 1.0f / (nearPlane - farPlane);
 
    outMatrix->setRow( 2, row );
 
@@ -1819,6 +1852,57 @@ U32 extrudePolygonEdgesFromPoint( const Point3F* vertices, U32 numVertices, cons
    }
 
    return numPlanes;
+}
+
+//-----------------------------------------------------------------------------
+
+void mBuildHull2D(const Vector<Point2F> _inPoints, Vector<Point2F> &hullPoints)
+{
+   /// Andrew's monotone chain convex hull algorithm implementation
+
+   struct Util
+   {
+      //compare by x and then by y   
+      static int CompareLexicographic( const Point2F *a, const Point2F *b)
+      {
+         return a->x < b->x || (a->x == b->x && a->y < b->y);
+      }
+   };
+
+   hullPoints.clear();
+   hullPoints.setSize( _inPoints.size()*2 );
+
+   // sort in points by x and then by y
+   Vector<Point2F> inSortedPoints = _inPoints;
+   inSortedPoints.sort( &Util::CompareLexicographic );
+
+   Point2F* lowerHullPtr = hullPoints.address();
+   U32 lowerHullIdx = 0;
+
+   //lower part of hull
+   for( int i = 0; i < inSortedPoints.size(); ++i )
+   {      
+      while( lowerHullIdx >= 2 && mCross( lowerHullPtr[ lowerHullIdx - 2], lowerHullPtr[lowerHullIdx - 1], inSortedPoints[i] ) <= 0 )
+         --lowerHullIdx;
+
+      lowerHullPtr[lowerHullIdx++] = inSortedPoints[i];
+   }
+
+   --lowerHullIdx; // last point are the same as first in upperHullPtr
+
+   Point2F* upperHullPtr = hullPoints.address() + lowerHullIdx;
+   U32 upperHullIdx = 0;
+
+   //upper part of hull
+   for( int i = inSortedPoints.size()-1; i >= 0; --i )
+   {
+      while( upperHullIdx >= 2 && mCross( upperHullPtr[ upperHullIdx - 2], upperHullPtr[upperHullIdx - 1], inSortedPoints[i] ) <= 0 )
+         --upperHullIdx;
+
+      upperHullPtr[upperHullIdx++] = inSortedPoints[i];
+   }
+
+   hullPoints.setSize( lowerHullIdx + upperHullIdx );
 }
 
 } // namespace MathUtils

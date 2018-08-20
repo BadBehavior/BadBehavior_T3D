@@ -291,14 +291,6 @@ void ParallaxFeatGLSL::processVert( Vector<ShaderComponent*> &componentList,
    meta->addStatement( new GenOp( "   @ = tMul( @, float3( @.xyz - @ ) );\r\n", 
       outNegViewTS, objToTangentSpace, inPos, eyePos ) );
 
-   // TODO: I'm at a loss at why i need to flip the binormal/y coord
-   // to get a good view vector for parallax. Lighting works properly
-   // with the TS matrix as is... but parallax does not.
-   //
-   // Someone figure this out!
-   //
-   meta->addStatement( new GenOp( "   @.y = -@.y;\r\n", outNegViewTS, outNegViewTS ) );  
-
    // If we have texture anim matrix the tangent
    // space view vector may need to be rotated.
    Var *texMat = (Var*)LangElement::find( "texMat" );
@@ -347,8 +339,16 @@ void ParallaxFeatGLSL::processPix(  Vector<ShaderComponent*> &componentList,
    Var *normalMap = getNormalMapTex();
 	
    // Call the library function to do the rest.
-   meta->addStatement( new GenOp( "   @.xy += parallaxOffset( @, @.xy, @, @ );\r\n", 
-      texCoord, normalMap, texCoord, negViewTS, parallaxInfo ) );
+   if (fd.features.hasFeature(MFT_IsDXTnm, getProcessIndex()))
+   {
+      meta->addStatement(new GenOp("   @.xy += parallaxOffsetDxtnm( @, @.xy, @, @ );\r\n",
+      texCoord, normalMap, texCoord, negViewTS, parallaxInfo));
+   }
+   else
+   {
+      meta->addStatement(new GenOp("   @.xy += parallaxOffset( @, @.xy, @, @ );\r\n",
+      texCoord, normalMap, texCoord, negViewTS, parallaxInfo));
+   }
    
    // TODO: Fix second UV maybe?
 	
@@ -384,6 +384,7 @@ void ParallaxFeatGLSL::setTexData(  Material::StageData &stageDat,
    GFXTextureObject *tex = stageDat.getTex( MFT_NormalMap );
    if ( tex )
    {
+      passData.mSamplerNames[ texIndex ] = "bumpMap";
       passData.mTexType[ texIndex ] = Material::Bump;
       passData.mTexSlot[ texIndex++ ].texObject = tex;
    }

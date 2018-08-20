@@ -892,7 +892,7 @@ void AITurretShape::_trackTarget(F32 dt)
    //if (pitch > M_PI_F)
    //   pitch = -(pitch - M_2PI_F);
 
-   Point3F rot(pitch, 0.0f, -yaw);
+   Point3F rot(-pitch, 0.0f, yaw);
 
    // If we have a rotation rate make sure we follow it
    if (mHeadingRate > 0)
@@ -1157,7 +1157,7 @@ U32 AITurretShape::packUpdate(NetConnection *connection, U32 mask, BitStream *bs
    U32 retMask = Parent::packUpdate(connection,mask,bstream);
 
    // Indicate that the transform has changed to update the scan box
-   bstream->writeFlag(mask & PositionMask | ExtendedInfoMask);
+   bstream->writeFlag(mask & (PositionMask | ExtendedInfoMask));
 
    // Handle any state changes that need to be passed along
    if (bstream->writeFlag(mask & TurretStateMask))

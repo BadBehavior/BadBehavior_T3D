@@ -157,7 +157,7 @@ bool NetConnection::mFilesWereDownloaded = false;
 
 static inline U32 HashNetAddress(const NetAddress *addr)
 {
-   return *((U32 *)addr->netNum) % NetConnection::HashTableSize;
+   return addr->getHash() % NetConnection::HashTableSize;
 }
 
 NetConnection *NetConnection::lookup(const NetAddress *addr)
@@ -215,7 +215,7 @@ U32 NetConnection::getSequence()
 static U32 gPacketRateToServer = 32;
 static U32 gPacketUpdateDelayToServer = 32;
 static U32 gPacketRateToClient = 10;
-static U32 gPacketSize = 200;
+static U32 gPacketSize = 508;
 
 void NetConnection::consoleInit()
 {
@@ -351,6 +351,7 @@ void NetConnection::setNetClassGroup(U32 grp)
 }
 
 NetConnection::NetConnection()
+ : mNetAddress()
 {
    mTranslateStrings = false;
    mConnectSequence = 0;
@@ -1420,7 +1421,7 @@ DefineEngineMethod( NetConnection, connect, void, (const char* remoteAddress),,
    )
 {
    NetAddress addr;
-   if(!Net::stringToAddress(remoteAddress, &addr))
+   if (Net::stringToAddress(remoteAddress, &addr) != Net::NoError)
    {
       Con::errorf("NetConnection::connect: invalid address - %s", remoteAddress);
       return;

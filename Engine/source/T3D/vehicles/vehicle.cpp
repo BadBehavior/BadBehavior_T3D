@@ -46,6 +46,9 @@
 #include "gfx/primBuilder.h"
 #include "gfx/gfxDrawUtil.h"
 #include "materials/materialDefinition.h"
+#include "T3D/physics/physicsPlugin.h"
+#include "T3D/physics/physicsBody.h"
+#include "T3D/physics/physicsCollision.h"
 
 
 namespace {
@@ -59,8 +62,6 @@ static F32 sWorkingQueryBoxSizeMultiplier = 2.0f;  // How much larger should the
                                                    // The larger this number the less often the working list
                                                    // will be updated due to motion, but any non-static shape
                                                    // that moves into the query box will not be noticed.
-
-const U32 sMoveRetryCount = 3;
 
 // Client prediction
 const S32 sMaxWarpTicks = 3;           // Max warp duration in ticks
@@ -203,7 +204,8 @@ VehicleData::VehicleData()
    dMemset(waterSound, 0, sizeof(waterSound));
 
    collDamageThresholdVel = 20;
-   collDamageMultiplier   = 0.05f;
+   collDamageMultiplier = 0.05f;
+   enablePhysicsRep = true;
 }
 
 
@@ -226,7 +228,7 @@ bool VehicleData::preload(bool server, String &errorStr)
    if (!server) {
       for (S32 i = 0; i < Body::MaxSounds; i++)
          if (body.sound[i])
-            Sim::findObject(SimObjectId(body.sound[i]),body.sound[i]);
+            Sim::findObject(SimObjectId((uintptr_t)body.sound[i]),body.sound[i]);
    }
 
    if( !dustEmitter && dustID != 0 )
@@ -275,7 +277,7 @@ void VehicleData::packData(BitStream* stream)
    stream->write(body.friction);
    for (i = 0; i < Body::MaxSounds; i++)
       if (stream->writeFlag(body.sound[i]))
-         stream->writeRangedU32(packed? SimObjectId(body.sound[i]):
+         stream->writeRangedU32(packed? SimObjectId((uintptr_t)body.sound[i]):
                                 body.sound[i]->getId(),DataBlockObjectIdFirst,
                                 DataBlockObjectIdLast);
 
@@ -315,6 +317,7 @@ void VehicleData::packData(BitStream* stream)
    stream->write(softSplashSoundVel);
    stream->write(medSplashSoundVel);
    stream->write(hardSplashSoundVel);
+   stream->write(enablePhysicsRep);
 
    // write the water sound profiles
    for(i = 0; i < MaxSounds; i++)
@@ -411,6 +414,7 @@ void VehicleData::unpackData(BitStream* stream)
    stream->read(&softSplashSoundVel);
    stream->read(&medSplashSoundVel);
    stream->read(&hardSplashSoundVel);
+   stream->read(&enablePhysicsRep);
 
    // write the water sound profiles
    for(i = 0; i < MaxSounds; i++)
@@ -465,6 +469,11 @@ void VehicleData::unpackData(BitStream* stream)
 
 void VehicleData::initPersistFields()
 {
+   addGroup("Physics");
+   addField("enablePhysicsRep", TypeBool, Offset(enablePhysicsRep, VehicleData),
+      "@brief Creates a representation of the object in the physics plugin.\n");
+   endGroup("Physics");
+
    addField( "jetForce", TypeF32, Offset(jetForce, VehicleData),
       "@brief Additional force applied to the vehicle when it is jetting.\n\n"
       "For WheeledVehicles, the force is applied in the forward direction. For "
@@ -682,6 +691,8 @@ Vehicle::Vehicle()
    mWorkingQueryBox.minExtents.set(-1e9f, -1e9f, -1e9f);
    mWorkingQueryBox.maxExtents.set(-1e9f, -1e9f, -1e9f);
    mWorkingQueryBoxCountDown = sWorkingQueryBoxStaleThreshold;
+
+   mPhysicsRep = NULL;
 }
 
 U32 Vehicle::getCollisionMask()
@@ -695,6 +706,25 @@ Point3F Vehicle::getVelocity() const
    return mRigid.linVelocity;
 }
 
+void Vehicle::_createPhysics()
+{
+   SAFE_DELETE(mPhysicsRep);
+
+   if (!PHYSICSMGR || !mDataBlock->enablePhysicsRep)
+      return;
+
+   TSShape *shape = mShapeInstance->getShape();
+   PhysicsCollision *colShape = NULL;
+   colShape = shape->buildColShape(false, getScale());
+
+   if (colShape)
+   {
+      PhysicsWorld *world = PHYSICSMGR->getWorld(isServerObject() ? "server" : "client");
+      mPhysicsRep = PHYSICSMGR->createBody();
+      mPhysicsRep->init(colShape, 0, PhysicsBody::BF_KINEMATIC, this, world);
+      mPhysicsRep->setTransform(getTransform());
+   }
+}
 //----------------------------------------------------------------------------
 
 bool Vehicle::onAdd()
@@ -776,11 +806,15 @@ bool Vehicle::onAdd()
    mConvex.box.maxExtents.convolve(mObjScale);
    mConvex.findNodeTransform();
 
+   _createPhysics();
+
    return true;
 }
 
 void Vehicle::onRemove()
 {
+   SAFE_DELETE(mPhysicsRep);
+
    U32 i=0;
    for( i=0; i<VehicleData::VC_NUM_DUST_EMITTERS; i++ )
    {
@@ -823,6 +857,8 @@ void Vehicle::processTick(const Move* move)
    PROFILE_SCOPE( Vehicle_ProcessTick );
 
    Parent::processTick(move);
+   if ( isMounted() )
+      return;
 
    // Warp to catch up to server
    if (mDelta.warpCount < mDelta.warpTicks)
@@ -880,6 +916,11 @@ void Vehicle::processTick(const Move* move)
       setPosition(mRigid.linPosition, mRigid.angPosition);
       setMaskBits(PositionMask);
       updateContainer();
+
+      //TODO: Only update when position has actually changed
+      //no need to check if mDataBlock->enablePhysicsRep is false as mPhysicsRep will be NULL if it is
+      if (mPhysicsRep)
+         mPhysicsRep->moveKinematicTo(getTransform());
    }
 }
 
@@ -888,6 +929,8 @@ void Vehicle::interpolateTick(F32 dt)
    PROFILE_SCOPE( Vehicle_InterpolateTick );
 
    Parent::interpolateTick(dt);
+   if ( isMounted() )
+      return;
 
    if(dt == 0.0f)
       setRenderPosition(mDelta.pos, mDelta.rot[1]);

@@ -43,9 +43,6 @@
 
 const U32 csmStaticCollisionMask = TerrainObjectType | StaticShapeObjectType | StaticObjectType;
 
-const U32 csmDynamicCollisionMask = StaticShapeObjectType;
-
-
 IMPLEMENT_CO_DATABLOCK_V1(DebrisData);
 
 ConsoleDocClass( DebrisData,
@@ -312,7 +309,7 @@ void DebrisData::packData(BitStream* stream)
 
    if( stream->writeFlag( explosion ) )
    {
-      stream->writeRangedU32(packed? SimObjectId(explosion):
+      stream->writeRangedU32(packed? SimObjectId((uintptr_t)explosion):
          explosion->getId(),DataBlockObjectIdFirst,DataBlockObjectIdLast);
    }
 

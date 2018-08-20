@@ -551,14 +551,14 @@ S32 ProjectileData::scaleValue( S32 value, bool down )
 Projectile::Projectile()
  : mPhysicsWorld( NULL ),
    mDataBlock( NULL ),
+   mParticleEmitter( NULL ),
+   mParticleWaterEmitter( NULL ),
+   mSound( NULL ),
    mCurrPosition( 0, 0, 0 ),
    mCurrVelocity( 0, 0, 1 ),
    mSourceObjectId( -1 ),
    mSourceObjectSlot( -1 ),
    mCurrTick( 0 ),
-   mParticleEmitter( NULL ),
-   mParticleWaterEmitter( NULL ),
-   mSound( NULL ),
    mProjectileShape( NULL ),
    mActivateThread( NULL ),
    mMaintainThread( NULL ),
@@ -1018,7 +1018,7 @@ void Projectile::explode( const Point3F &p, const Point3F &n, const U32 collideT
 
       // Client (impact) decal.
       if ( mDataBlock->decal )     
-         gDecalManager->addDecal(p, n, mRandF(0.0f, M_2PI_F), mDataBlock->decal);
+         gDecalManager->addDecal(p, n, 0.0f, mDataBlock->decal);
 
       // Client object
       updateSound();

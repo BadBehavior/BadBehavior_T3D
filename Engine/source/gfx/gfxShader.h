@@ -262,13 +262,12 @@ protected:
    /// their destructor.
    Vector<GFXShaderConstBuffer*> mActiveBuffers;
 
+   GFXVertexFormat *mInstancingFormat;
+
    /// A protected constructor so it cannot be instantiated.
    GFXShader();
 
-public:
-
-   // TODO: Add this into init().
-   GFXVertexFormat mInstancingFormat;
+public:  
 
    /// Adds a global shader macro which will be merged with
    /// the script defined macros on every shader reload.
@@ -312,7 +311,8 @@ public:
                const Torque::Path &pixFile, 
                F32 pixVersion, 
                const Vector<GFXShaderMacro> &macros,
-               const Vector<String> &samplerNames);
+               const Vector<String> &samplerNames,
+               GFXVertexFormat *instanceFormat = NULL );
 
    /// Reloads the shader from disk.
    bool reload();
@@ -331,6 +331,9 @@ public:
    /// exist originally this will return a handle in an invalid state
    /// if the constant doesn't exist at this time.
    virtual GFXShaderConstHandle* getShaderConstHandle( const String& name ) = 0; 
+
+   /// Returns a shader constant handle for the name constant, if the variable doesn't exist NULL is returned.
+   virtual GFXShaderConstHandle* findShaderConstHandle( const String& name ) = 0;
 
    /// Returns the alignment value for constType
    virtual U32 getAlignmentValue(const GFXShaderConstType constType) const = 0;   
@@ -354,6 +357,9 @@ public:
 
    // GFXResource
    const String describeSelf() const { return mDescription; }
+
+   // Get instancing vertex format
+   GFXVertexFormat *getInstancingFormat() { return mInstancingFormat; }
 
 protected:
 

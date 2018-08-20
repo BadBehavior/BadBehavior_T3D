@@ -30,8 +30,13 @@
 
 //--------------------------------------
 // Types
+#if defined(TORQUE_X86)
 typedef signed long long    S64;
 typedef unsigned long long  U64;
+#else
+typedef signed long    S64;
+typedef unsigned long  U64;
+#endif
 
 
 //--------------------------------------
@@ -73,11 +78,11 @@ typedef unsigned long long  U64;
 #  define TORQUE_OS_PS3
 #  include "platform/types.posix.h"
 
-#elif defined(linux)
+#elif defined(linux) || defined(LINUX)
 #  define TORQUE_OS_STRING "Linux"
 #  define TORQUE_OS_LINUX
-#  define TORQUE_SUPPORTS_NASM
-#  define TORQUE_SUPPORTS_GCC_INLINE_X86_ASM
+//#  define TORQUE_SUPPORTS_NASM
+//#  define TORQUE_SUPPORTS_GCC_INLINE_X86_ASM
 #  include "platform/types.posix.h"
 
 #elif defined(__OpenBSD__)
@@ -110,20 +115,15 @@ typedef unsigned long long  U64;
 
 //--------------------------------------
 // Identify the CPU
-#if defined(i386)
+#if defined(i386) || defined(__i386) || defined(__i386__)
 #  define TORQUE_CPU_STRING "Intel x86"
 #  define TORQUE_CPU_X86
 #  define TORQUE_LITTLE_ENDIAN
 
-#elif defined(__ppc__)
-#  define TORQUE_CPU_STRING "PowerPC"
-#  define TORQUE_CPU_PPC
-#  define TORQUE_BIG_ENDIAN
-
-#elif defined(SN_TARGET_PS3)
-#  define TORQUE_CPU_STRING "PowerPC"
-#  define TORQUE_CPU_PPC
-#  define TORQUE_BIG_ENDIAN
+#elif defined(__x86_64__)
+#  define TORQUE_CPU_STRING "Intel x64"
+#  define TORQUE_CPU_X64
+#  define TORQUE_LITTLE_ENDIAN
 
 #else
 #  error "GCC: Unsupported Target CPU"
