@@ -36,7 +36,7 @@ void GuiBehaviorTreeViewCtrl::onRenderCell(Point2I offset, Point2I cell, bool, b
       return;
 
    // Do some sanity checking and data retrieval.
-   AssertFatal(cell.y < mVisibleItems.size(), "GuiTreeViewCtrl::onRenderCell: invalid cell");
+   AssertFatal(cell.y < mVisibleItems.size(), "GuiBehaviorTreeViewCtrl::onRenderCell: invalid cell");
    Item * item = mVisibleItems[cell.y];
 
    // If there's no object, deal with it.
@@ -158,24 +158,37 @@ void GuiBehaviorTreeViewCtrl::onRenderCell(Point2I offset, Point2I cell, bool, b
             drawer->drawBitmap( mIconTable[icon2], drawRect.point );
          }
       }
-
-      /*SimObject * pObject = item->getObject();
+/*
+      SimObject * pObject = item->getObject();
       SimGroup  * pGroup  = ( pObject == NULL ) ? NULL : dynamic_cast<SimGroup*>( pObject );
 
       // If this item is a VirtualParent we can use the generic SimGroup123 icons.
       // However if there is already an icon in the EditorIconRegistry for this
       // exact class (not counting parent class icons) we want to use that instead.
-      bool hasClassIcon = gEditorIcons.hasIconNoRecurse( pObject );
+      bool hasClassIcon = false;
+#ifdef TORQUE_TOOLS
+      hasClassIcon = gEditorIcons.hasIconNoRecurse( pObject );
+#endif
 
       // draw the icon associated with the item
       if ( !hasClassIcon && item->mState.test(Item::VirtualParent))
       {
          if ( pGroup != NULL)
          {
-            if (item->isExpanded())
-               item->mIcon = SimGroup1;
+            //Check if we're a SceneObject, and pick the default icon as appropriate
+            
+            if (pObject->getClassName() != String("SimGroup"))
+            {
+               item->mIcon = Icon31;
+            }
             else
-               item->mIcon = SimGroup2;
+            {
+               //If we're purely a SimGroup, pick our icon.
+               if (item->isExpanded())
+                  item->mIcon = SimGroup1;
+               else
+                  item->mIcon = SimGroup2;
+            }
          }
          else
             item->mIcon = SimGroup2;
@@ -193,8 +206,8 @@ void GuiBehaviorTreeViewCtrl::onRenderCell(Point2I offset, Point2I cell, bool, b
                   item->mIcon = SimGroup4;
             }
          }
-      }*/
-
+      }
+*/
       GFXTexHandle iconHandle;
 
       if ( ( item->mIcon != -1 ) && mIconTable[item->mIcon] )
@@ -270,7 +283,7 @@ void GuiBehaviorTreeViewCtrl::onRenderCell(Point2I offset, Point2I cell, bool, b
 
    if( item->mState.test(Item::MouseOverText) )
    {
-		fontColor	=	mProfile->mFontColorHL;
+      fontColor   =  mProfile->mFontColorHL;
    }
 
    drawer->setBitmapModulation( fontColor );
