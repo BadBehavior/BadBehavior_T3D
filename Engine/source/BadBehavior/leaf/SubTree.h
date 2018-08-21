@@ -45,7 +45,7 @@ namespace BadBehavior
       SubTree();
 
       virtual Task *createTask(SimObject &owner, BehaviorTreeRunner &runner);
-      
+
       static void initPersistFields();
 
       DECLARE_CONOBJECT(SubTree);

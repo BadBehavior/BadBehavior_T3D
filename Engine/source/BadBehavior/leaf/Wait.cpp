@@ -22,7 +22,7 @@
 
 #include "math/mMathFn.h"
 
-#include "BadBehavior\core\Runner.h"
+#include "BadBehavior/core/Runner.h"
 #include "Wait.h"
 
 using namespace BadBehavior;
@@ -65,10 +65,9 @@ Task *Wait::createTask(SimObject &owner, BehaviorTreeRunner &runner)
 // Wait task
 //------------------------------------------------------------------------------
 WaitTask::WaitTask(Node &node, SimObject &owner, BehaviorTreeRunner &runner)
-   : Parent(node, owner, runner),
-   mEventId(0)
-{
-}
+   : mEventId(0),
+     Parent(node, owner, runner)
+{}
 
 WaitTask::~WaitTask()
 {

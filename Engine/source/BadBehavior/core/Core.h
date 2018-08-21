@@ -24,7 +24,7 @@
 #define _BBCORE_H_
 
 #ifndef _ENGINEAPI_H_
-#include "console\engineAPI.h"
+#include "console/engineAPI.h"
 #endif
 #ifndef _SIMSET_H_
 #include "console/simSet.h"
@@ -151,4 +151,19 @@ namespace BadBehavior
 typedef BadBehavior::Status BehaviorReturnType;
 DefineEnumType( BehaviorReturnType );
 
+// recent changes to engineAPI.h mean that the Status type can no longer be unmarshalled 
+// - define the unmarshalling interface for BadBehavior::Status here
+template<>
+struct EngineUnmarshallData< BadBehavior::Status >
+{
+   BadBehavior::Status operator()( ConsoleValueRef &ref ) const
+   {
+      return (BadBehavior::Status)((S32)ref);
+   }
+
+   BadBehavior::Status operator()( const char* str ) const
+   {
+      return (BadBehavior::Status)(dAtoi( str ));
+   }
+};
 #endif

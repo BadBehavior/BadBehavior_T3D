@@ -52,5 +52,4 @@ namespace BadBehavior
       DECLARE_CALLBACK(Status, behavior, (SimObject *owner));
    };
 } // namespace BadBehavior
-
 #endif
