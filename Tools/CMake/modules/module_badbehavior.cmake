@@ -27,5 +27,10 @@ if(TORQUE_BADBEHAVIOR)
     addDef( "TORQUE_BADBEHAVIOR_ENABLED" )
 
     # files
-    addPathRec( "${srcDir}/BadBehavior" )
+    addPathRec( "${srcDir}/BadBehavior/composite" )
+    addPathRec( "${srcDir}/BadBehavior/core" )
+    addPathRec( "${srcDir}/BadBehavior/decorator" )
+    addPathRec( "${srcDir}/BadBehavior/leaf" )
+    addPathRec( "${srcDir}/BadBehavior/leaf/compiled" )
+    addPathRec( "${srcDir}/BadBehavior/tools" )
 endif(TORQUE_BADBEHAVIOR)
