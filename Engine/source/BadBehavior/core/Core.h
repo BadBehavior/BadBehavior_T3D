@@ -151,19 +151,4 @@ namespace BadBehavior
 typedef BadBehavior::Status BehaviorReturnType;
 DefineEnumType( BehaviorReturnType );
 
-// recent changes to engineAPI.h mean that the Status type can no longer be unmarshalled 
-// - define the unmarshalling interface for BadBehavior::Status here
-template<>
-struct EngineUnmarshallData< BadBehavior::Status >
-{
-   BadBehavior::Status operator()( ConsoleValueRef &ref ) const
-   {
-      return (BadBehavior::Status)((S32)ref);
-   }
-
-   BadBehavior::Status operator()( const char* str ) const
-   {
-      return (BadBehavior::Status)(dAtoi( str ));
-   }
-};
 #endif
