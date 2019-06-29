@@ -22,6 +22,8 @@
 
 #include "SubTree.h"
 
+#include "console/consoleTypes.h"
+
 using namespace BadBehavior;
 
 

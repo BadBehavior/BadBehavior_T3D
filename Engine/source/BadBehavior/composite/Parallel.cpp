@@ -22,6 +22,8 @@
 
 #include "Parallel.h"
 
+#include "console/engineAPI.h"
+
 using namespace BadBehavior;
 
 //------------------------------------------------------------------------------

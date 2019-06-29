@@ -22,6 +22,8 @@
 
 #include "ActiveSelector.h"
 
+#include "console/consoleTypes.h"
+
 using namespace BadBehavior;
 
 //------------------------------------------------------------------------------

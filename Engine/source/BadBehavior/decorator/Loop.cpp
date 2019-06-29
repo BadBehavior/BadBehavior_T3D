@@ -22,6 +22,8 @@
 
 #include "Loop.h"
 
+#include "console/consoleTypes.h"
+
 using namespace BadBehavior;
 
 //------------------------------------------------------------------------------

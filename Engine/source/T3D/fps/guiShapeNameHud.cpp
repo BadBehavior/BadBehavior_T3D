@@ -117,8 +117,11 @@ GuiShapeNameHud::GuiShapeNameHud()
 {
    mFillColor.set( 0.25f, 0.25f, 0.25f, 0.25f );
    mFrameColor.set( 0, 1, 0, 1 );
+   mLabelFillColor.set( 0.25f, 0.25f, 0.25f, 0.25f );
+   mLabelFrameColor.set( 0, 1, 0, 1 );
    mTextColor.set( 0, 1, 0, 1 );
    mShowFrame = mShowFill = true;
+   mShowLabelFrame = mShowLabelFill = false;
    mVerticalOffset = 0.5f;
    mDistanceFade = 0.1f;
    mLabelPadding.set(0, 0);
@@ -182,9 +185,9 @@ void GuiShapeNameHud::onRender( Point2I, const RectI &updateRect)
    cam.getColumn(3, &camPos);
    cam.getColumn(1, &camDir);
 
-   F32 camFov;
-   conn->getControlCameraFov(&camFov);
-   camFov = mDegToRad(camFov) / 2;
+   F32 camFovCos;
+   conn->getControlCameraFov(&camFovCos);
+   camFovCos = mCos(mDegToRad(camFovCos) / 2);
 
    // Visible distance info & name fading
    F32 visDistance = gClientSceneGraph->getVisibleDistance();
@@ -236,7 +239,7 @@ void GuiShapeNameHud::onRender( Point2I, const RectI &updateRect)
             // projection and box test.
             shapeDir.normalize();
             F32 dot = mDot(shapeDir, camDir);
-            if (dot < camFov)
+            if (dot < camFovCos)
                continue;
 
             // Test to see if it's behind something, and we want to

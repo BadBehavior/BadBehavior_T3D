@@ -20,10 +20,12 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "math/mMathFn.h"
 
-#include "BadBehavior\core\Runner.h"
 #include "Wait.h"
+#include "BadBehavior/core/Runner.h"
+
+#include "math/mMathFn.h"
+#include "console/consoleTypes.h"
 
 using namespace BadBehavior;
 

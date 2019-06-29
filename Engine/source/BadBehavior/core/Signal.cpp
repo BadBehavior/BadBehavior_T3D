@@ -20,9 +20,9 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "core/stringTable.h"
-
 #include "Signal.h"
+
+#include "core/stringTable.h"
 
 using namespace BadBehavior;
 

@@ -20,10 +20,11 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "console/engineAPI.h"
-#include "platform/profiler.h"
 #include "Core.h"
 #include "Runner.h"
+
+#include "console/engineAPI.h"
+#include "platform/profiler.h"
 
 bool gInBtEditor = false;
 

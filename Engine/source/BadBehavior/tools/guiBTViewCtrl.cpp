@@ -20,11 +20,11 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
+#include "guiBTViewCtrl.h"
+
 #include "gfx/gfxDrawUtil.h"
 #include "gui/worldEditor/editorIconRegistry.h"
 #include "gui/controls/guiTextEditCtrl.h"
-
-#include "guiBTViewCtrl.h"
 
 using namespace BadBehavior;
 
